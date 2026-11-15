@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111315">
+  <meta name="description" content="FOUR·16 四轨 Web Audio 混音器，包含低通、声像、音量自动化、总线压缩、峰值保护与 WAV 导出。">
+  <title>FOUR·16 — 四轨混音器</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div>
+          <p class="eyebrow">FOUR-TRACK STUDIO</p>
+          <h1>FOUR<span>·</span>16</h1>
+        </div>
+      </div>
+
+      <div class="session-pill" aria-label="工程信息">
+        <span class="pulse-dot"></span>
+        <span>SESSION 01</span>
+        <span class="divider"></span>
+        <span>48 kHz · STEREO</span>
+      </div>
+
+      <div class="top-actions">
+        <span class="audio-state" id="audioState">音频待命</span>
+        <button class="export-button" id="exportButton" type="button">
+          <span class="download-icon" aria-hidden="true">↓</span>
+          导出 WAV
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="arrangement panel" aria-labelledby="arrangementTitle">
+        <div class="arrangement-head">
+          <div class="transport">
+            <button class="play-button" id="playButton" type="button" aria-label="播放">
+              <span class="play-icon" aria-hidden="true"></span>
+            </button>
+            <div class="time-display">
+              <span class="time-now" id="timeNow">00:00.000</span>
+              <span class="time-total">/ 00:16.000</span>
+            </div>
+            <button class="restart-button" id="restartButton" type="button" aria-label="回到开头">↺</button>
+          </div>
+
+          <div class="section-title">
+            <p class="eyebrow">ARRANGEMENT / 16 SEC</p>
+            <h2 id="arrangementTitle">编排与音量自动化</h2>
+          </div>
+
+          <div class="tempo-block" aria-label="工程速度">
+            <div><span>120</span><small>BPM</small></div>
+            <div><span>4/4</span><small>拍号</small></div>
+            <div><span>Fm</span><small>调性</small></div>
+          </div>
+        </div>
+
+        <div class="timeline-shell" id="timelineShell">
+          <div class="ruler-row">
+            <div class="ruler-gutter">
+              <span>轨道</span>
+              <span class="automation-key"><i></i>A/B 自动化</span>
+            </div>
+            <div class="ruler" id="ruler" aria-hidden="true"></div>
+          </div>
+          <div class="tracks-zone" id="tracksZone">
+            <div id="trackRows"></div>
+            <div class="playhead" id="playhead" aria-hidden="true">
+              <span class="playhead-handle"></span>
+              <span class="playhead-line"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="arrangement-foot">
+          <p><span class="mouse-icon" aria-hidden="true"></span>拖动标尺或轨道区域定位播放头</p>
+          <p><span class="point-key"></span>拖动 A/B 点：横向改时间，纵向改增益</p>
+          <p class="snap-readout" id="snapReadout">自动化点 A 00:00.000 · −6.0 dB</p>
+        </div>
+      </section>
+
+      <section class="mixer panel" id="mixer" aria-labelledby="mixerTitle">
+        <div class="mixer-heading">
+          <div>
+            <p class="eyebrow">MIX CONSOLE</p>
+            <h2 id="mixerTitle">四轨混音台</h2>
+          </div>
+          <p class="mixer-note">每轨独立处理 · 母线串联压缩与峰值保护</p>
+        </div>
+
+        <div class="mixer-grid">
+          <div class="channel-strips" id="channelStrips"></div>
+
+          <article class="master-strip" aria-label="主总线">
+            <header class="strip-head">
+              <div>
+                <p class="strip-index">BUS</p>
+                <h3>MASTER</h3>
+              </div>
+              <span class="guard-badge" id="guardBadge"><i></i>PEAK GUARD</span>
+            </header>
+
+            <div class="master-content">
+              <div class="meter-wrap" aria-label="主总线电平表">
+                <div class="meter-label"><span>L</span><span>R</span></div>
+                <div class="stereo-meter">
+                  <div class="meter-rail"><i id="meterL"></i></div>
+                  <div class="meter-rail"><i id="meterR"></i></div>
+                  <div class="meter-scale"><span>0</span><span>−12</span><span>−24</span><span>−48</span></div>
+                </div>
+              </div>
+
+              <div class="master-readouts">
+                <div class="readout">
+                  <span>峰值</span>
+                  <strong id="peakReadout">−∞ dBFS</strong>
+                </div>
+                <div class="readout">
+                  <span>压缩</span>
+                  <strong>4.0 : 1</strong>
+                </div>
+                <div class="readout">
+                  <span>保护阈值</span>
+                  <strong>−1.2 dBFS</strong>
+                </div>
+              </div>
+
+              <div class="signal-path" aria-label="主总线信号链">
+                <span>SUM</span><i></i><span>COMP</span><i></i><span>GUARD</span><i></i><span>OUT</span>
+              </div>
+
+              <button class="master-export" id="masterExportButton" type="button">
+                渲染 16 秒 WAV
+                <small>48 kHz · Stereo · 16-bit</small>
+              </button>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="statusbar">
+      <span id="statusMessage">四轨素材已生成，等待播放。</span>
+      <span class="footer-meta">WEB AUDIO / OFFLINE RENDER</span>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <div class="toast-icon" id="toastIcon">✓</div>
+    <div>
+      <strong id="toastTitle">完成</strong>
+      <p id="toastText"></p>
+    </div>
+  </div>
+
+  <script src="src/audio-model.js" defer></script>
+  <script src="src/wav.js" defer></script>
+  <script src="src/audio-engine.js" defer></script>
+  <script src="src/app.js" defer></script>
+</body>
+</html>
