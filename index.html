@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="四架无人货运机穿越双走廊、避让天气与临时净空区的确定性进近模拟。"
+    />
+    <title>Corridor Four · 双走廊进近</title>
+    <link
+      rel="preload"
+      href="assets/fonts/noto-sans-sc-cn-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <div>
+            <p class="micro-label">SKYFREIGHT / APPROACH LAB</p>
+            <p class="brand-name">CORRIDOR <b>FOUR</b></p>
+          </div>
+        </div>
+
+        <div class="scene-title">
+          <span class="scene-kicker">SCENARIO 04</span>
+          <strong>四机 · 双走廊进近</strong>
+        </div>
+
+        <div class="top-actions">
+          <div class="mission-clock" aria-live="polite">
+            <span class="clock-dot"></span>
+            <span id="missionClock">T+000.0</span>
+          </div>
+          <button class="icon-button" id="audioToggle" type="button" aria-pressed="false">
+            <span class="audio-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="audio-label">声场 关</span>
+          </button>
+          <button class="primary-button" id="startButton" type="button">
+            <span id="startButtonLabel">执行放行</span>
+            <span class="button-arrow">↗</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="operations" aria-label="空域态势与事件">
+          <div class="scene-panel panel">
+            <div class="scene-meta">
+              <div class="live-status">
+                <span class="live-pulse"></span>
+                <span id="sceneState">方案待执行</span>
+              </div>
+              <div class="meta-pills">
+                <span>RWY 09</span>
+                <span>SEP 62</span>
+                <span>FUEL MIN 18%</span>
+              </div>
+            </div>
+
+            <div class="canvas-frame">
+              <canvas
+                id="airspace"
+                role="img"
+                aria-label="双走廊进近空域图，包含航迹、云团、净空区、等待圈与四架货运机"
+              ></canvas>
+
+              <div class="weather-flag" id="weatherFlag">
+                <span class="flag-icon">☁</span>
+                <div>
+                  <small>CORRIDOR ALPHA</small>
+                  <b>CB-04 对流云团</b>
+                </div>
+                <strong id="weatherTimer">CLOSED</strong>
+              </div>
+
+              <div class="density-widget">
+                <div class="density-copy">
+                  <span>空域密度</span>
+                  <b id="densityValue">0.00</b>
+                </div>
+                <div class="density-bars" id="densityBars"></div>
+              </div>
+
+              <div class="map-scale">
+                <span></span>
+                <small>0</small><small>2 NM</small>
+              </div>
+
+              <div class="map-legend">
+                <span><i class="legend-line"></i>进港航迹</span>
+                <span><i class="legend-hold"></i>等待圈</span>
+                <span><i class="legend-tfr"></i>临时净空</span>
+              </div>
+
+              <div class="run-result" id="runResult" hidden>
+                <span class="result-tag" id="resultTag">MISSION</span>
+                <h2 id="resultTitle">全部安全落地</h2>
+                <p id="resultCopy"></p>
+                <div class="result-metrics" id="resultMetrics"></div>
+                <div class="result-actions">
+                  <button class="secondary-button" id="resultReset" type="button">再飞一局</button>
+                  <button class="text-button" id="resultAudit" type="button">查看错误链 →</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="transport-bar">
+              <div class="transport-buttons">
+                <button class="round-button" id="pauseButton" type="button" disabled aria-label="暂停">
+                  <span id="pauseIcon">Ⅱ</span>
+                </button>
+                <button class="round-button" id="resetButton" type="button" aria-label="重置场景">
+                  ↺
+                </button>
+                <button class="speed-button" id="speedButton" type="button" aria-label="仿真倍率">
+                  ×4
+                </button>
+              </div>
+              <div class="run-progress-wrap">
+                <div class="progress-labels">
+                  <span id="phaseLabel">等待执行</span>
+                  <span id="progressTime">0 / 150s</span>
+                </div>
+                <div class="run-progress">
+                  <span id="runProgress"></span>
+                  <i id="eventTick1"></i>
+                  <i id="eventTick2"></i>
+                </div>
+              </div>
+              <div class="audio-readout">
+                <span class="signal"><i></i><i></i><i></i></span>
+                <span id="audioStatus">AUDIO STANDBY</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lower-deck">
+            <section class="timeline-panel panel" aria-label="固定事件时间线">
+              <div class="section-heading">
+                <div>
+                  <span class="micro-label">FIXED WINDOW</span>
+                  <h3>事件时间线</h3>
+                </div>
+                <span class="window-tag">T+0 → T+150</span>
+              </div>
+              <div class="timeline-chart" id="timelineChart">
+                <div class="timeline-rail"></div>
+                <div class="timeline-progress" id="timelineProgress"></div>
+                <div class="timeline-events" id="timelineEvents"></div>
+                <div class="timeline-cursor" id="timelineCursor"></div>
+              </div>
+              <div class="event-window-list">
+                <span><i class="dot weather"></i>16–54s · ALPHA 关闭</span>
+                <span><i class="dot danger"></i>24–68s · TFR 激活</span>
+                <span><i class="dot release"></i>68s+ · 优先权放行</span>
+              </div>
+            </section>
+
+            <section class="log-panel panel" aria-label="运行日志">
+              <div class="section-heading compact">
+                <div>
+                  <span class="micro-label">CONTROL FEED</span>
+                  <h3>运行日志</h3>
+                </div>
+                <span class="sequence-tag" id="sequenceTag">SEQ --</span>
+              </div>
+              <ol class="event-feed" id="eventFeed"></ol>
+            </section>
+          </div>
+        </section>
+
+        <aside class="sidebar" aria-label="航机参数与审计">
+          <section class="brief-panel panel">
+            <div class="brief-topline">
+              <span class="micro-label">MISSION BRIEF</span>
+              <span class="scenario-id">SCN-04</span>
+            </div>
+            <h1>在窗口关闭前，<br />把四架都带回来。</h1>
+            <p class="brief-copy">
+              天气锁闭 ALPHA，地勤车队触发终端区临时净空。为一机分配航速、转弯半径与避让优先权；
+              所有冲突须在进入终端区前解除。
+            </p>
+            <div class="brief-stats">
+              <div><b>04</b><span>货运机</span></div>
+              <div><b>02</b><span>进港走廊</span></div>
+              <div><b>18%</b><span>燃油下限</span></div>
+            </div>
+            <div class="objective-strip">
+              <span>成功条件</span>
+              <p>四机在燃油下限前落地，且终端区零间隔违规。</p>
+            </div>
+          </section>
+
+          <section class="flight-panel panel">
+            <div class="section-heading compact">
+              <div>
+                <span class="micro-label">FLIGHT STRIPS</span>
+                <h3>调度参数</h3>
+              </div>
+              <button class="preset-button" id="presetButton" type="button">载入标准方案</button>
+            </div>
+            <div class="flight-list" id="flightList"></div>
+          </section>
+
+          <section class="audit-panel panel">
+            <div class="audit-copy">
+              <span class="micro-label">CHAINTEST / PRIORITY</span>
+              <h3>错误优先权审计</h3>
+              <p>保持航速与转弯半径不变，仅反转优先权，复现低油量机的放行延误与终端区冲突链。</p>
+            </div>
+            <button class="audit-button" id="auditButton" type="button">
+              <span>运行冲突链验证</span>
+              <span>⌁</span>
+            </button>
+            <div class="audit-digest" id="auditDigest">
+              <span class="digest-led"></span>
+              <span>尚未运行 · 预期 4 项检查</span>
+            </div>
+          </section>
+        </aside>
+      </main>
+
+      <footer class="footer-line">
+        <span>DETERMINISTIC TRAINING SIM · NO LIVE AIRSPACE</span>
+        <span>DRAGONFLY TRAFFIC SYSTEM / BUILD 2026.11</span>
+      </footer>
+    </div>
+
+    <dialog class="audit-dialog" id="auditDialog">
+      <button class="dialog-close" id="auditClose" type="button" aria-label="关闭">×</button>
+      <div class="dialog-head">
+        <span class="micro-label">AUTOMATED EVIDENCE</span>
+        <h2>优先权冲突链验证</h2>
+        <p>固定场景、固定参数，仅交换四机优先权；两次仿真使用同一步长与事件窗口。</p>
+      </div>
+      <div class="audit-summary" id="auditSummary"></div>
+      <div class="audit-columns">
+        <div class="audit-column safe-column" id="auditBaseline"></div>
+        <div class="audit-column fault-column" id="auditFault"></div>
+      </div>
+      <div class="chain-block">
+        <span class="micro-label">FAULT CHAIN / 错误链</span>
+        <ol class="chain-list" id="auditChain"></ol>
+      </div>
+      <div class="dialog-foot">
+        <span>验证脚本与浏览器共用同一仿真内核。</span>
+        <button class="primary-button small" id="auditDone" type="button">关闭报告</button>
+      </div>
+    </dialog>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
