@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Atlas Forge · 增量精灵图集</title>
+    <link rel="stylesheet" href="./assets/fonts/cjk.css" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i><i></i>
+          </span>
+          <div>
+            <strong>Atlas Forge</strong>
+            <span>增量精灵图集</span>
+          </div>
+        </div>
+        <nav class="toolbar" aria-label="图集操作">
+          <button id="demo-button" class="button subtle" type="button">
+            重载 100 帧
+          </button>
+          <button id="edit-a" class="button accent-a" type="button">
+            增量 A
+          </button>
+          <button id="edit-b" class="button accent-b" type="button">
+            增量 B
+          </button>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <label class="button subtle file-button">
+            添加图片
+            <input id="image-input" type="file" accept="image/png,image/webp,image/gif" multiple />
+          </label>
+          <button id="delete-frame" class="button subtle" type="button">
+            删除所选
+          </button>
+          <button id="resize-frame" class="button subtle" type="button">
+            缩放所选
+          </button>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <label class="button subtle file-button">
+            导入 JSON
+            <input id="json-input" type="file" accept="application/json,.json" />
+          </label>
+          <button id="export-json" class="button primary" type="button">
+            导出 JSON
+          </button>
+          <button id="export-png" class="button subtle" type="button">
+            导出 PNG
+          </button>
+        </nav>
+      </header>
+
+      <main class="workspace">
+        <aside class="panel frames-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">FRAMES</p>
+              <h2>帧列表 <span id="frame-count" class="count-pill">0</span></h2>
+            </div>
+          </div>
+          <label class="search-field">
+            <span aria-hidden="true">⌕</span>
+            <input id="frame-search" type="search" placeholder="按 ID 搜索" />
+          </label>
+          <div id="frame-list" class="frame-list" role="listbox" aria-label="图集帧"></div>
+          <p class="panel-footnote">拖放 PNG / WebP 到页面也可添加帧</p>
+        </aside>
+
+        <section class="canvas-column">
+          <div class="stage-card">
+            <div class="stage-heading">
+              <div>
+                <p class="eyebrow">ATLAS PREVIEW</p>
+                <h1>图集画布 <span id="atlas-size">—</span></h1>
+              </div>
+              <div class="legend" aria-label="颜色图例">
+                <span><i class="dot stable"></i>稳定帧</span>
+                <span><i class="dot changed"></i>本次变更</span>
+                <span><i class="dot region"></i>重排区域</span>
+              </div>
+            </div>
+            <div id="canvas-wrap" class="canvas-wrap">
+              <canvas id="atlas-canvas" width="640" height="640"></canvas>
+              <div id="canvas-empty" class="canvas-empty" hidden>
+                导入 JSON 或重载演示帧以开始
+              </div>
+            </div>
+            <div class="stage-footer">
+              <span id="selection-label">未选择帧</span>
+              <span id="visual-status" class="status-inline neutral">等待校验</span>
+            </div>
+          </div>
+
+          <section class="timeline-card">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">INCREMENTAL RUNS</p>
+                <h2>百帧增量记录</h2>
+              </div>
+              <button id="run-verification" class="button dark" type="button">
+                运行 100 帧验证
+              </button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>阶段</th>
+                    <th>移动 / 帧</th>
+                    <th>重排区域 x,y,w,h</th>
+                    <th>区域占比</th>
+                    <th>利用率</th>
+                    <th>像素校验</th>
+                  </tr>
+                </thead>
+                <tbody id="history-body">
+                  <tr class="empty-row">
+                    <td colspan="6">尚无增量记录</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <aside class="panel inspector-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">LIVE METRICS</p>
+              <h2>实时指标</h2>
+            </div>
+            <span id="validation-dot" class="validation-dot" title="布局校验"></span>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>重排次数</span>
+              <strong id="repack-count">0</strong>
+              <small>累计增量重排</small>
+            </article>
+            <article class="metric-card utilization-card">
+              <div>
+                <span>利用率</span>
+                <strong id="utilization">0%</strong>
+                <small id="utilization-detail">0 / 0 px²</small>
+              </div>
+              <div id="utilization-ring" class="utilization-ring" aria-hidden="true">
+                <span></span>
+              </div>
+            </article>
+            <article class="metric-card">
+              <span>本次移动</span>
+              <strong><b id="moved-count">0</b><em> 帧</em></strong>
+              <small id="untouched-count">稳定帧 0</small>
+            </article>
+            <article class="metric-card">
+              <span>帧数量</span>
+              <strong id="total-frames">0</strong>
+              <small id="atlas-growth">未扩展图集</small>
+            </article>
+          </div>
+
+          <section class="inspector-section">
+            <div class="section-heading compact">
+              <h3>布局校验</h3>
+              <span id="validation-label" class="status-inline neutral">待校验</span>
+            </div>
+            <ul id="validation-list" class="check-list">
+              <li data-check="integerCoordinates">切片坐标为整数</li>
+              <li data-check="insideBounds">切片位于图集内</li>
+              <li data-check="positiveSlices">切片尺寸为正</li>
+              <li data-check="uniqueIds">帧 ID 唯一</li>
+              <li data-check="overlapFree">帧之间无重叠</li>
+            </ul>
+          </section>
+
+          <section class="inspector-section">
+            <div class="section-heading compact">
+              <h3>上次重排</h3>
+              <span id="last-label" class="stage-tag">基线</span>
+            </div>
+            <dl class="report-list">
+              <div><dt>包围盒</dt><dd id="region-value">—</dd></div>
+              <div><dt>包围盒占比</dt><dd id="region-ratio">—</dd></div>
+              <div><dt>实际触碰面积</dt><dd id="touched-area">—</dd></div>
+              <div><dt>稳定帧移动</dt><dd id="stable-moved" class="good">0</dd></div>
+              <div><dt>布局耗时</dt><dd id="duration-value">—</dd></div>
+            </dl>
+          </section>
+
+          <section class="inspector-section activity-section">
+            <div class="section-heading compact">
+              <h3>操作记录</h3>
+              <span class="live-label"><i></i> LIVE</span>
+            </div>
+            <ol id="activity-log" class="activity-log"></ol>
+          </section>
+        </aside>
+      </main>
+
+      <footer class="statusbar">
+        <span id="status-message">正在准备 100 帧演示图集…</span>
+        <span class="status-meta">增量放置 · 自包含 JSON · 像素级校验</span>
+      </footer>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
