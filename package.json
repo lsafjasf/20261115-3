@@ -1,0 +1,11 @@
+{
+  "name": "fixed-timestep-physics",
+  "version": "1.0.0",
+  "private": true,
+  "description": "固定时间步物理 + 插值渲染，含帧率无关验证",
+  "scripts": {
+    "test": "node test/fixed-step.test.js",
+    "serve": "node serve.js"
+  },
+  "license": "MIT"
+}

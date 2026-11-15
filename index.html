@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>固定时间步物理 · 插值渲染</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #0b1220;
+      color: #dbe6f5;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    h1 { font-size: 20px; margin: 0 0 4px; }
+    h2 { font-size: 16px; margin: 24px 0 8px; }
+    p.sub { color: #8ea3c0; font-size: 13px; margin: 0 0 16px; }
+    .panel {
+      background: #131d30;
+      border: 1px solid #243350;
+      border-radius: 10px;
+      padding: 16px;
+      max-width: 860px;
+    }
+    canvas {
+      display: block;
+      border-radius: 8px;
+      background: #101826;
+      max-width: 100%;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+      align-items: center;
+    }
+    button, select {
+      background: #1d2c47;
+      color: #dbe6f5;
+      border: 1px solid #31476e;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    button:hover { background: #274066; }
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(150px, 1fr));
+      gap: 6px 20px;
+      font-size: 13px;
+      margin-top: 10px;
+      color: #a9bdd8;
+    }
+    .hud b { color: #e8f0fc; font-weight: 600; }
+    .legend { font-size: 12px; color: #8ea3c0; margin-top: 8px; }
+    .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin: 0 4px 0 10px; }
+    #compare-metrics {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #a9bdd8;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <h1>固定时间步物理与插值渲染</h1>
+  <p class="sub">
+    物理以 120Hz 固定步长推进，渲染帧之间用线性插值平滑；
+    蓝点为插值渲染位置，黄色叉为物理真值位置。改变显示器刷新率或页面卡顿，模拟时间与位置保持一致。
+  </p>
+
+  <div class="panel">
+    <canvas id="main-canvas" width="800" height="420"></canvas>
+    <div class="controls">
+      <button id="btn-pause">暂停</button>
+      <button data-scale="0.25">0.25x</button>
+      <button data-scale="0.5">0.5x</button>
+      <button data-scale="1">1x</button>
+      <button data-scale="2">2x</button>
+      <button data-scale="4">4x</button>
+      <button id="btn-reset">重置</button>
+    </div>
+    <div class="hud">
+      <div>模拟时间: <b id="hud-sim-time">0.000 s</b></div>
+      <div>物理步数: <b id="hud-steps">0</b></div>
+      <div>渲染帧率: <b id="hud-fps">0</b> FPS</div>
+      <div>插值 alpha: <b id="hud-alpha">0.0000</b></div>
+      <div>倍速: <b id="hud-scale">1.00x</b></div>
+      <div>状态: <b id="hud-state">运行中</b></div>
+    </div>
+    <div class="legend">
+      <span class="dot" style="background:#60a5fa"></span>插值渲染位置
+      <span class="dot" style="background:#fbbf24"></span>物理真值位置
+    </div>
+  </div>
+
+  <h2>不同帧率轨迹对比</h2>
+  <div class="panel">
+    <canvas id="compare-canvas" width="800" height="420"></canvas>
+    <div class="controls">
+      <label>帧率 A
+        <select id="rate-a">
+          <option value="30">30 Hz</option>
+          <option value="60" selected>60 Hz</option>
+          <option value="120">120 Hz</option>
+          <option value="240">240 Hz</option>
+        </select>
+      </label>
+      <label>帧率 B
+        <select id="rate-b">
+          <option value="30">30 Hz</option>
+          <option value="60">60 Hz</option>
+          <option value="120">120 Hz</option>
+          <option value="240" selected>240 Hz</option>
+        </select>
+      </label>
+      <button id="compare-pause">暂停</button>
+      <button data-compare-scale="0.5">0.5x</button>
+      <button data-compare-scale="1">1x</button>
+      <button data-compare-scale="2">2x</button>
+      <button id="compare-restart">重新对比</button>
+    </div>
+    <div class="legend">
+      <span class="dot" style="background:#60a5fa"></span>帧率 A 轨迹
+      <span class="dot" style="background:#f472b6"></span>帧率 B 轨迹
+    </div>
+    <div id="compare-metrics">运行中，等待采样…</div>
+  </div>
+
+  <script src="src/physics.js"></script>
+  <script src="src/fixed-step-loop.js"></script>
+  <script src="src/main-view.js"></script>
+  <script src="src/compare-view.js"></script>
+  <script>
+    window.initMainView();
+    window.initCompareView();
+  </script>
+</body>
+</html>
