@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Round-trip Visual Editor</title>
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Visual Editor</h1>
+    <div class="toolbar">
+      <button id="addRect">+ Rect</button>
+      <button id="addEllipse">+ Ellipse</button>
+      <button id="addText">+ Text</button>
+      <button id="deleteAsset">Delete Asset</button>
+      <button id="addLayer">+ Layer</button>
+      <button id="deleteLayer">Delete Layer</button>
+      <button id="addKeyframe">+ Keyframe</button>
+      <button id="removeKeyframe">- Keyframe</button>
+      <button id="undo">Undo</button>
+      <button id="redo">Redo</button>
+      <button id="save" class="primary">Save</button>
+      <button id="load" class="primary">Load</button>
+      <button id="exportFile">Export JSON</button>
+      <label class="file-btn">Import JSON
+        <input id="importFile" type="file" accept="application/json" hidden>
+      </label>
+    </div>
+  </header>
+  <main>
+    <aside class="sidebar">
+      <section>
+        <h2>Assets</h2>
+        <ul id="assetList" class="panel-list"></ul>
+      </section>
+      <section>
+        <h2>Layers</h2>
+        <ul id="layerList" class="panel-list"></ul>
+      </section>
+      <section>
+        <h2>Inspector</h2>
+        <div id="inspector" class="inspector"></div>
+      </section>
+    </aside>
+    <section class="workspace">
+      <canvas id="stage" width="960" height="600"></canvas>
+      <div class="timeline">
+        <div class="timeline-controls">
+          <label>Playhead <input id="playhead" type="range" min="0" max="5000" step="50" value="0"></label>
+          <label>Duration <input id="duration" type="number" min="100" step="100" value="5000"></label>
+          <span id="stackInfo" class="muted"></span>
+        </div>
+        <div id="timelineTrack" class="timeline-track"></div>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <span id="status" class="status">Ready</span>
+    <span id="counts" class="muted"></span>
+  </footer>
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>

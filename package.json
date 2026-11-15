@@ -1,0 +1,25 @@
+{
+  "name": "uid546",
+  "version": "1.0.0",
+  "description": "Round-trip JSON save/load visual editor",
+  "main": "index.html",
+  "scripts": {
+    "test": "node test/roundtrip.test.js",
+    "start": "node test/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lsafjasf/20261115-3.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/lsafjasf/20261115-3/issues"
+  },
+  "homepage": "https://github.com/lsafjasf/20261115-3#readme",
+  "devDependencies": {
+    "playwright": "^1.65.1"
+  }
+}
