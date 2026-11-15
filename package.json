@@ -1,0 +1,13 @@
+{
+  "name": "node-editor-lifecycle",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Audio/graphics node editor with explicit listener, connection and buffer cleanup",
+  "scripts": {
+    "soak": "node scripts/soak-test.js",
+    "smoke": "node scripts/app-smoke.js",
+    "test": "node scripts/soak-test.js && node scripts/app-smoke.js",
+    "serve": "node scripts/serve.js"
+  }
+}
