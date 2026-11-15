@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" data-design-schema="sixfold-editable-mark-v1" data-variant="positive">
+  <title>Trinode / 三节点标志</title>
+  <desc>六条三次贝塞尔路径与三个圆形节点组成的可编辑标志。</desc>
+  <metadata id="sixfold-mark-metadata">{&quot;schema&quot;:&quot;sixfold-editable-mark/v1&quot;,&quot;name&quot;:&quot;Trinode / 三节点&quot;,&quot;variant&quot;:&quot;positive&quot;,&quot;grid&quot;:8,&quot;viewBox&quot;:[0,0,128,128],&quot;symmetryAxis&quot;:90,&quot;cornerRadius&quot;:68,&quot;strokeWidth&quot;:12,&quot;pathCount&quot;:6,&quot;circleCount&quot;:3,&quot;hiddenPaths&quot;:[],&quot;hiddenCircles&quot;:[],&quot;merged&quot;:{&quot;sourceIds&quot;:[&quot;path-01&quot;,&quot;path-02&quot;,&quot;path-03&quot;,&quot;path-04&quot;,&quot;path-05&quot;,&quot;path-06&quot;],&quot;subpaths&quot;:1,&quot;anchorCount&quot;:6,&quot;originalAnchorCount&quot;:12}}</metadata>
+  <g id="trinode-mark" data-role="logo" data-editable="true"
+     data-symmetry-axis="90" data-corner-radius="68"
+     transform="rotate(0 64 64)">
+    
+        <g id="paths" data-role="paths" data-count="6">
+          <g id="source-paths" data-source-of="path-merged" data-editable="true" visibility="hidden"><path id="path-01" class="logo-path" data-name="路径 01" data-editable="true" data-anchor-count="2" data-anchors="64,25 88.249,50" d="M 64 25 C 69.496 25 84.421 43.37 88.249 50" fill="none" stroke="#171816" stroke-width="12"/><path id="path-02" class="logo-path" data-name="路径 02" data-editable="true" data-anchor-count="2" data-anchors="88.249,50 97.775,83.5" d="M 88.249 50 C 92.077 56.63 100.523 78.74 97.775 83.5" fill="none" stroke="#171816" stroke-width="12"/><path id="path-03" class="logo-path" data-name="路径 03" data-editable="true" data-anchor-count="2" data-anchors="97.775,83.5 64,92" d="M 97.775 83.5 C 95.027 88.26 71.656 92 64 92" fill="none" stroke="#171816" stroke-width="12"/><path id="path-04" class="logo-path" data-name="路径 04" data-editable="true" data-anchor-count="2" data-anchors="64,92 30.225,83.5" d="M 64 92 C 56.344 92 32.973 88.26 30.225 83.5" fill="none" stroke="#171816" stroke-width="12"/><path id="path-05" class="logo-path" data-name="路径 05" data-editable="true" data-anchor-count="2" data-anchors="30.225,83.5 39.751,50" d="M 30.225 83.5 C 27.477 78.74 35.923 56.63 39.751 50" fill="none" stroke="#171816" stroke-width="12"/><path id="path-06" class="logo-path" data-name="路径 06" data-editable="true" data-anchor-count="2" data-anchors="39.751,50 64,25" d="M 39.751 50 C 43.579 43.37 58.504 25 64 25" fill="none" stroke="#171816" stroke-width="12"/></g><path id="path-merged" class="logo-path merged-path" data-name="复合路径 01–06" data-editable="true" data-merged="true" data-source-ids="path-01 path-02 path-03 path-04 path-05 path-06" data-subpaths="1" data-anchor-count="6" data-anchors="64,25 88.249,50 97.775,83.5 64,92 30.225,83.5 39.751,50" d="M 64 25 C 69.496 25 84.421 43.37 88.249 50 C 92.077 56.63 100.523 78.74 97.775 83.5 C 95.027 88.26 71.656 92 64 92 C 56.344 92 32.973 88.26 30.225 83.5 C 27.477 78.74 35.923 56.63 39.751 50 C 43.579 43.37 58.504 25 64 25 Z" fill="none" stroke="#171816" stroke-width="12"/>
+        </g>
+        <g id="nodes" data-role="nodes" data-count="3">
+          <circle id="node-a" class="logo-circle" data-name="节点 A" data-editable="true" data-anchor-count="1" data-anchors="64,21" cx="64" cy="21" r="10.5" fill="#171816"/><circle id="node-b" class="logo-circle" data-name="节点 B" data-editable="true" data-anchor-count="1" data-anchors="101.239,85.5" cx="101.239" cy="85.5" r="10.5" fill="#171816"/><circle id="node-c" class="logo-circle" data-name="节点 C" data-editable="true" data-anchor-count="1" data-anchors="26.761,85.5" cx="26.761" cy="85.5" r="10.5" fill="#171816"/>
+        </g>
+          
+          
+      
+  </g>
+</svg>

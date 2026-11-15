@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Sixfold 标志实验室：三节点轨道结的可编辑路径与多尺寸预览。"
+    />
+    <title>Sixfold — Trinode Mark Lab</title>
+    <link rel="stylesheet" href="noto-sans-sc.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Sixfold 标志实验室">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32">
+              <g transform="scale(.25)">
+                <path
+                  d="M64 25C69.496 25 84.421 43.37 88.249 50C92.077 56.63 100.523 78.74 97.775 83.5C95.027 88.26 71.656 92 64 92C56.344 92 32.973 88.26 30.225 83.5C27.477 78.74 35.923 56.63 39.751 50C43.579 43.37 58.504 25 64 25Z"
+                />
+                <circle cx="64" cy="21" r="10.5" />
+                <circle cx="101.239" cy="85.5" r="10.5" />
+                <circle cx="26.761" cy="85.5" r="10.5" />
+              </g>
+            </svg>
+          </span>
+          <span>
+            <strong>SIXFOLD</strong>
+            <small>Mark Lab / 标志实验室</small>
+          </span>
+        </a>
+
+        <div class="project-chip">
+          <span class="project-index">PROJECT 03</span>
+          <span class="project-name">Trinode / 三节点</span>
+          <span class="save-state"><i></i> 已保存</span>
+        </div>
+
+        <div class="top-actions">
+          <button class="button button-quiet" id="unmergeButton" hidden>
+            拆回六段
+          </button>
+          <button class="button button-quiet" id="mergeButton">
+            <span class="merge-icon" aria-hidden="true"></span>
+            合并路径
+          </button>
+          <button class="button button-dark" id="exportButton">
+            导出 SVG
+            <span aria-hidden="true">↘</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <aside class="panel layers-panel" aria-label="图层">
+          <div class="panel-heading">
+            <div>
+              <span class="eyebrow">STRUCTURE</span>
+              <h2>图层结构</h2>
+            </div>
+            <span class="count-pill" id="layerCount">9</span>
+          </div>
+
+          <div class="layer-summary">
+            <div><strong>06</strong><span>路径</span></div>
+            <div><strong>03</strong><span>圆</span></div>
+            <div><strong>01</strong><span>对称轴</span></div>
+          </div>
+
+          <div class="layer-section" id="nodeLayers">
+            <div class="layer-section-title">
+              <span>圆 / NODES</span>
+              <span>03</span>
+            </div>
+            <ul class="layer-list" id="circleLayerList"></ul>
+          </div>
+
+          <div class="layer-section" id="pathLayers">
+            <div class="layer-section-title">
+              <span>路径 / PATHS</span>
+              <button class="text-button" id="selectAllButton">全选</button>
+            </div>
+            <ul class="layer-list" id="pathLayerList"></ul>
+          </div>
+
+          <div class="structure-note">
+            <span class="note-mark">i</span>
+            <p>合并会焊接共享端点，并移除重复锚点；源路径仍保存在编辑结构中。</p>
+          </div>
+        </aside>
+
+        <section class="stage" aria-label="画板">
+          <div class="stage-toolbar">
+            <div class="tool-cluster" role="group" aria-label="画布工具">
+              <button class="tool active" aria-label="选择工具" title="选择">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="m4 3 11.2 6.1-5.1 1.2L7.8 16Z" />
+                </svg>
+              </button>
+              <button class="tool" aria-label="网格吸附" id="gridToggle" title="网格">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M3 3h14v14H3zM3 8h14M8 3v14" />
+                </svg>
+              </button>
+            </div>
+            <div class="canvas-readout">
+              <span>ARTBOARD</span>
+              <strong>128 × 128</strong>
+            </div>
+            <div class="stage-zoom">
+              <button class="zoom-button" id="zoomOut" aria-label="缩小">−</button>
+              <span id="zoomLabel">100%</span>
+              <button class="zoom-button" id="zoomIn" aria-label="放大">+</button>
+            </div>
+          </div>
+
+          <div class="canvas-wrap" id="canvasWrap">
+            <div class="axis-label" id="axisLabel">AXIS 90°</div>
+            <div class="artboard" id="artboard">
+              <svg
+                id="mainSvg"
+                viewBox="0 0 128 128"
+                xmlns="http://www.w3.org/2000/svg"
+                role="img"
+                aria-labelledby="mainSvgTitle"
+              >
+                <title id="mainSvgTitle">Trinode 三节点轨道结标志</title>
+              </svg>
+              <div class="corner-marks" aria-hidden="true">
+                <span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stage-footer">
+            <div class="stage-status">
+              <span class="status-dot"></span>
+              <span id="selectionStatus">未选择路径</span>
+            </div>
+            <div class="grid-status">
+              <span>GRID 8</span>
+              <span>SNAP <b id="snapState">ON</b></span>
+              <span>RGB / MONO</span>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel properties-panel" aria-label="参数">
+          <div class="panel-heading">
+            <div>
+              <span class="eyebrow">CONTROLS</span>
+              <h2>造型参数</h2>
+            </div>
+            <button class="reset-button" id="resetButton" title="恢复默认">
+              重置
+            </button>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <label for="axisRange">对称轴</label>
+              <output id="axisValue">90°</output>
+            </div>
+            <input
+              type="range"
+              id="axisRange"
+              min="0"
+              max="180"
+              step="1"
+              value="90"
+            />
+            <div class="range-ticks"><span>0°</span><span>90°</span><span>180°</span></div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <label for="radiusRange">圆角</label>
+              <output id="radiusValue">68%</output>
+            </div>
+            <input
+              type="range"
+              id="radiusRange"
+              min="0"
+              max="100"
+              step="1"
+              value="68"
+            />
+            <div class="range-ticks"><span>SHARP</span><span>BALANCED</span><span>SOFT</span></div>
+          </div>
+
+          <div class="control-group compact">
+            <div class="control-label">
+              <span>显示</span>
+              <span class="muted-label">VIEW</span>
+            </div>
+            <div class="segmented" role="group" aria-label="显示模式">
+              <button class="segment active" data-invert="false">黑白</button>
+              <button class="segment" data-invert="true">反白</button>
+            </div>
+          </div>
+
+          <div class="control-group compact">
+            <div class="control-label">
+              <span>路径画笔</span>
+              <output id="strokeValue">12 px</output>
+            </div>
+            <input
+              type="range"
+              id="strokeRange"
+              min="8"
+              max="16"
+              step="1"
+              value="12"
+            />
+          </div>
+
+          <div class="spec-card">
+            <div class="spec-card-head">
+              <span>24PX TEST</span>
+              <span class="test-badge">LIVE</span>
+            </div>
+            <div class="spec-preview-row">
+              <div class="actual-24" id="actual24" title="实际 24 像素"></div>
+              <div>
+                <strong>原尺寸可辨</strong>
+                <p>三节点轮廓与中心负形保持清晰。</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="export-note">
+            <span>SVG</span>
+            <p>保留命名图层、路径锚点、圆形节点与合并来源。</p>
+          </div>
+        </aside>
+      </main>
+
+      <section class="proof-strip" aria-label="输出预览">
+        <div class="proof-intro">
+          <span class="eyebrow">SIGN-OFF</span>
+          <h2>三态校样</h2>
+          <p>同一几何，三种观看距离。</p>
+        </div>
+        <div class="proof-card proof-light">
+          <div class="proof-card-head"><span>01 / 黑白</span><span>POSITIVE</span></div>
+          <div class="proof-art" id="previewPositive"></div>
+        </div>
+        <div class="proof-card proof-dark">
+          <div class="proof-card-head"><span>02 / 反白</span><span>NEGATIVE</span></div>
+          <div class="proof-art" id="previewNegative"></div>
+        </div>
+        <div class="proof-card proof-small">
+          <div class="proof-card-head"><span>03 / 24 PX</span><span>ACTUAL</span></div>
+          <div class="small-proof-row">
+            <div class="small-actual" id="previewSmallActual"></div>
+            <div class="small-enlarged" id="previewSmallEnlarged"></div>
+            <span>1×</span>
+            <span>8×</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>

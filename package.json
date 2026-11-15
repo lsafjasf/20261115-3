@@ -1,0 +1,26 @@
+{
+  "name": "sixfold-trinode",
+  "version": "1.0.0",
+  "description": "Sixfold Trinode — editable logo lab with structured SVG export and 24 px proof.",
+  "main": "index.html",
+  "private": true,
+  "scripts": {
+    "test": "node tests/verify.js",
+    "start": "python3 -m http.server 9000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lsafjasf/20261115-3.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/lsafjasf/20261115-3/issues"
+  },
+  "homepage": "https://github.com/lsafjasf/20261115-3#readme",
+  "devDependencies": {
+    "playwright": "^1.65.1"
+  }
+}
