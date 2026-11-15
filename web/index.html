@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>草图矢量线稿工具</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>黑白草图 → 干净矢量线稿</h1>
+    <p>调整阈值、骨架化与最小长度，预览叠加原图和矢量结果，并导出 SVG。</p>
+  </header>
+
+  <main>
+    <section class="controls">
+      <div class="control">
+        <label for="threshold">阈值 <output id="thresholdValue">128</output></label>
+        <input type="range" id="threshold" min="0" max="255" value="128" />
+        <small>低于该灰度的像素视为墨迹</small>
+      </div>
+
+      <div class="control">
+        <label for="noiseSize">最小噪点面积 <output id="noiseValue">12</output> px</label>
+        <input type="range" id="noiseSize" min="1" max="120" value="12" />
+        <small>按连通域过滤孤立斑点，细线即使只有 1px 也保留</small>
+      </div>
+
+      <div class="control">
+        <label for="skeletonize">骨架化
+          <select id="skeletonize">
+            <option value="1" selected>开启（中心线）</option>
+            <option value="0">关闭（保留填充轮廓）</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="control">
+        <label for="minLength">最小长度 <output id="lengthValue">8</output> px</label>
+        <input type="range" id="minLength" min="0" max="200" value="8" />
+        <small>删除短悬枝；交叉点之间的边不会被切断</small>
+      </div>
+
+      <div class="buttons">
+        <button id="sampleBtn">加载样例（交叉线 + 斑点）</button>
+        <button id="uploadBtn">上传草图</button>
+        <input type="file" id="fileInput" accept="image/*" hidden />
+        <button id="exportBtn" class="primary" disabled>导出 SVG</button>
+      </div>
+
+      <dl class="stats">
+        <div><dt>节点</dt><dd id="statNodes">–</dd></div>
+        <div><dt>路径</dt><dd id="statEdges">–</dd></div>
+        <div><dt>顶点</dt><dd id="statVertices">–</dd></div>
+        <div><dt>滤除噪点</dt><dd id="statNoise">–</dd></div>
+      </dl>
+    </section>
+
+    <section class="previews">
+      <figure>
+        <figcaption>原图（淡显）+ 矢量叠加（红色）</figcaption>
+        <canvas id="previewCanvas"></canvas>
+      </figure>
+      <figure>
+        <figcaption>SVG 矢量结果</figcaption>
+        <div id="svgHost" class="svg-host"></div>
+      </figure>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
