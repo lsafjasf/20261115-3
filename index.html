@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="SIGNAL 数据海报生成器：根据内置数据自动生成标题、指标与趋势图，支持主题和版式切换，导出 PNG 与可编辑 SVG。"
+    />
+    <title>SIGNAL · 数据海报生成器</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="SIGNAL 海报工作台首页">
+          <span class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+          <span class="brand-copy">
+            <strong>SIGNAL</strong>
+            <small>POSTER STUDIO</small>
+          </span>
+        </a>
+
+        <div class="live-status" aria-live="polite">
+          <i aria-hidden="true"></i>
+          <span>LIVE DATA</span>
+          <b>实时重算</b>
+        </div>
+
+        <div class="top-actions">
+          <button class="export-button secondary" id="exportSvg" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M10 2v10m0 0 3.5-3.5M10 12 6.5 8.5M3 13v3.5h14V13" />
+            </svg>
+            <span>导出 SVG</span>
+          </button>
+          <button class="export-button primary" id="exportPng" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5M3 13v3.5h14V13" />
+            </svg>
+            <span>导出 PNG</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <aside class="control-panel" aria-label="海报设置">
+          <div class="panel-intro">
+            <p class="eyebrow">COMPOSE / 编排</p>
+            <h1>让数据成为<br />一张会说话的图。</h1>
+            <p>
+              切换数据、主题或版式，标题、指标、坐标与曲线都会同步重算。
+            </p>
+          </div>
+
+          <section class="control-section" aria-labelledby="dataHeading">
+            <div class="section-heading">
+              <h2 id="dataHeading">01 · 数据源</h2>
+              <span>BUILT-IN</span>
+            </div>
+            <div class="dataset-list" id="datasetList"></div>
+          </section>
+
+          <section class="control-section" aria-labelledby="themeHeading">
+            <div class="section-heading">
+              <h2 id="themeHeading">02 · 主题</h2>
+              <span id="themeName">苔原</span>
+            </div>
+            <div class="theme-grid" id="themeGrid"></div>
+          </section>
+
+          <section class="control-section" aria-labelledby="layoutHeading">
+            <div class="section-heading">
+              <h2 id="layoutHeading">03 · 版式</h2>
+              <span id="layoutName">叙事</span>
+            </div>
+            <div class="layout-list" id="layoutList"></div>
+          </section>
+
+          <div class="integrity-card" id="integrityCard">
+            <div class="integrity-icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20"><path d="m4 10.5 3.7 3.6L16 5.6" /></svg>
+            </div>
+            <div>
+              <strong>数据已同步</strong>
+              <p id="integrityText">3/3 指标与趋势图使用同一数据源。</p>
+            </div>
+          </div>
+        </aside>
+
+        <section class="stage" aria-label="海报预览">
+          <div class="stage-toolbar">
+            <div class="stage-meta">
+              <span class="stage-dot" aria-hidden="true"></span>
+              <span>海报预览</span>
+              <code>1080 × 1440</code>
+            </div>
+            <div class="stage-meta right">
+              <span id="datasetStatus">城市韧性 · 2025</span>
+              <span class="stage-separator" aria-hidden="true"></span>
+              <span id="renderStatus">自动布局</span>
+            </div>
+          </div>
+
+          <div class="preview-scroll" id="previewScroll">
+            <div class="preview-frame">
+              <div class="frame-corner top-left" aria-hidden="true"></div>
+              <div class="frame-corner top-right" aria-hidden="true"></div>
+              <div class="frame-corner bottom-left" aria-hidden="true"></div>
+              <div class="frame-corner bottom-right" aria-hidden="true"></div>
+              <div
+                class="poster-preview"
+                id="posterPreview"
+                role="img"
+                aria-label="自动生成的数据海报"
+              ></div>
+            </div>
+          </div>
+
+          <div class="stage-footer">
+            <p>
+              <span aria-hidden="true">↳</span>
+              SVG 中的标题、数值、坐标与图例均为可编辑文本和独立路径。
+            </p>
+            <p class="stage-note">AUTO-WRAP ACTIVE</p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>

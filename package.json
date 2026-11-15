@@ -1,0 +1,15 @@
+{
+  "name": "signal-poster-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Data-driven editorial poster generator with editable SVG export.",
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "test": "node --test tests/*.test.js",
+    "render": "node scripts/render-posters.mjs"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2"
+  }
+}
