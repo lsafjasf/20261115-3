@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#080b09" />
+    <title>SPECTRAL RITUAL — 实时频谱实验室</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="Spectral Ritual 首页">
+          <span class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i>
+          </span>
+          <span class="brand-copy">
+            <strong>SPECTRAL<br />RITUAL</strong>
+            <em>REALTIME AUDIO LAB / 09</em>
+          </span>
+        </a>
+
+        <div class="topbar-center" aria-label="引擎状态">
+          <span class="status-dot" id="engineDot"></span>
+          <span id="engineStatus">ENGINE STANDBY</span>
+          <span class="topbar-separator"></span>
+          <span>48 KHZ</span>
+          <span>FFT 2048</span>
+          <span>CANVAS 2D</span>
+        </div>
+
+        <div class="topbar-actions">
+          <div class="clock" id="sessionClock">T+ 00:00.0</div>
+          <button class="icon-button" id="pauseButton" type="button" aria-label="暂停画面" disabled>
+            <span class="pause-icon" aria-hidden="true"></span>
+          </button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="visual-column" aria-label="实时可视化">
+          <div class="stage-frame">
+            <div class="stage-head">
+              <div class="stage-title">
+                <span class="eyebrow">LIVE OUTPUT</span>
+                <span class="stage-name">CHROMA / FIELD</span>
+              </div>
+              <div class="stage-specs">
+                <span>1280 × 720</span>
+                <span id="frameCounter">FRAME 00000</span>
+                <span class="live-pill"><i></i> REALTIME</span>
+              </div>
+            </div>
+
+            <div class="canvas-wrap" id="canvasWrap">
+              <canvas id="visualCanvas" width="1280" height="720" aria-label="由实时频谱驱动的色带、环形图和网格"></canvas>
+
+              <div class="canvas-corner top-left" aria-hidden="true">
+                <span class="bracket"></span>
+                <span id="canvasMode">A / SPECTRAL ENVELOPE</span>
+              </div>
+              <div class="canvas-corner top-right" aria-hidden="true">
+                <span>GEN / SYNTHETIC INPUT</span>
+                <span class="rec-indicator" id="recIndicator"><i></i> REC 00:00</span>
+              </div>
+              <div class="canvas-corner bottom-left" aria-hidden="true">
+                <span>FREQ 30 HZ — 16 KHZ</span>
+              </div>
+              <div class="canvas-corner bottom-right" aria-hidden="true">
+                <span class="signal-bars"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+                <span id="canvasSignal">SIGNAL / 00</span>
+              </div>
+
+              <div class="canvas-prompt" id="canvasPrompt">
+                <span class="prompt-index">INPUT 01</span>
+                <h1>看见声音的<br /><em>形状</em></h1>
+                <p>频谱包络与节拍脉冲，两种方式读取同一段声音。</p>
+                <button class="prompt-button" id="promptStart" type="button">
+                  <span class="play-symbol" aria-hidden="true"></span>
+                  启动合成器
+                </button>
+              </div>
+
+              <div class="pause-veil" id="pauseVeil" aria-live="polite">
+                <span class="pause-kicker">SIGNAL / HELD</span>
+                <strong>画面已冻结</strong>
+                <span>恢复播放时将平滑衔接，不产生帧跳变</span>
+              </div>
+            </div>
+
+            <div class="transport">
+              <button class="transport-play" id="playButton" type="button" aria-label="播放合成器">
+                <span class="play-symbol" aria-hidden="true"></span>
+                <span id="playLabel">PLAY</span>
+              </button>
+
+              <div class="timeline">
+                <div class="timeline-meta">
+                  <span id="transportState">READY FOR INPUT</span>
+                  <span id="timelineTime">00:00.0 / LIVE</span>
+                </div>
+                <div class="timeline-track">
+                  <span class="timeline-fill" id="timelineFill"></span>
+                  <span class="timeline-playhead" id="timelinePlayhead"></span>
+                  <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                </div>
+              </div>
+
+              <div class="transport-meter" aria-label="实时电平">
+                <span>MASTER</span>
+                <div class="meter-bars">
+                  <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                </div>
+              </div>
+
+              <button class="export-button" id="exportButton" type="button">
+                <span class="rec-dot" aria-hidden="true"></span>
+                <span id="exportLabel">导出 10 秒</span>
+                <small id="exportFormat">WEBM</small>
+              </button>
+            </div>
+          </div>
+
+          <div class="under-stage">
+            <div class="now-playing">
+              <span class="eyebrow">GENERATIVE SOURCE</span>
+              <strong>PROCEDURAL RHYTHM #09</strong>
+              <span>112 BPM · A MINOR · 4/4</span>
+            </div>
+            <p class="stage-note">
+              声音由 Web Audio 实时合成。提示音只在检测到节拍时出现，并进入最终导出。
+            </p>
+          </div>
+        </section>
+
+        <aside class="control-panel" aria-label="分析与导出控制">
+          <div class="panel-head">
+            <div>
+              <span class="eyebrow">ANALYSIS CORE</span>
+              <h2>检测模式</h2>
+            </div>
+            <span class="version-tag">V.09</span>
+          </div>
+
+          <div class="mode-switch" role="group" aria-label="检测模式">
+            <button class="mode-card is-active" data-mode="envelope" type="button" aria-pressed="true">
+              <span class="mode-index">A</span>
+              <span class="mode-copy">
+                <strong>频谱包络</strong>
+                <small>SPECTRAL ENVELOPE</small>
+              </span>
+              <span class="mode-shape shape-envelope" aria-hidden="true">
+                <i style="height: 24%"></i><i style="height: 52%"></i><i style="height: 82%"></i>
+                <i style="height: 63%"></i><i style="height: 34%"></i><i style="height: 18%"></i>
+              </span>
+            </button>
+            <button class="mode-card" data-mode="beat" type="button" aria-pressed="false">
+              <span class="mode-index">B</span>
+              <span class="mode-copy">
+                <strong>节拍检测</strong>
+                <small>BEAT DETECTION</small>
+              </span>
+              <span class="mode-shape shape-beat" aria-hidden="true">
+                <i></i><i></i><i></i><i></i>
+              </span>
+            </button>
+          </div>
+
+          <div class="mode-detail">
+            <div class="mode-detail-head">
+              <span class="mode-letter" id="detailLetter">A</span>
+              <div>
+                <strong id="detailTitle">连续读取频谱轮廓</strong>
+                <span id="detailCaption">CONTINUOUS / FULL-BAND</span>
+              </div>
+            </div>
+            <p id="detailText">
+              将 30 Hz — 16 kHz 的频谱形状映射到环形色阶。响应连续，适合观察声音质感与频段变化。
+            </p>
+            <div class="mode-facts">
+              <div><span>响应方式</span><b>连续</b></div>
+              <div><span>触发</span><b>无</b></div>
+              <div><span>平滑作用</span><b>塑形</b></div>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-heading">
+              <label for="smoothingRange">平滑</label>
+              <span>SMOOTHING</span>
+              <output id="smoothingValue" for="smoothingRange">72%</output>
+            </div>
+            <input id="smoothingRange" type="range" min="0" max="100" value="72" />
+            <div class="range-labels"><span>敏捷</span><span>舒缓</span></div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-heading">
+              <label for="sensitivityRange">灵敏度</label>
+              <span>SENSITIVITY</span>
+              <output id="sensitivityValue" for="sensitivityRange">58%</output>
+            </div>
+            <input id="sensitivityRange" type="range" min="0" max="100" value="58" />
+            <div class="range-labels"><span>克制</span><span>敏锐</span></div>
+          </div>
+
+          <div class="compare-panel">
+            <div class="compare-head">
+              <span>实时对照 / LIVE COMPARE</span>
+              <span class="pulse-key"><i></i> BEAT</span>
+            </div>
+            <div class="compare-row">
+              <div class="compare-label"><span>A</span><b>包络</b></div>
+              <div class="compare-meter"><i id="envelopeMeter"></i></div>
+              <output id="envelopeReadout">0.00</output>
+            </div>
+            <div class="compare-row">
+              <div class="compare-label"><span>B</span><b>节拍</b></div>
+              <div class="compare-meter beat"><i id="beatMeter"></i></div>
+              <output id="beatReadout">0.00</output>
+            </div>
+            <p class="compare-note">
+              A 值持续变化；B 值只在攻击点跃升。灵敏度改变 B 的触发门槛，平滑延长视觉保持。
+            </p>
+          </div>
+
+          <div class="audio-status">
+            <div class="audio-status-head">
+              <span><i class="status-dot is-live" id="audioDot"></i> SYNTH INPUT</span>
+              <span id="audioState">STANDBY</span>
+            </div>
+            <div class="audio-status-grid">
+              <span>KICK</span><span>HAT</span><span>BASS</span><span>PAD</span>
+              <i></i><i></i><i></i><i></i>
+            </div>
+          </div>
+
+          <div class="panel-footer">
+            <span>SPACE 播放 / 暂停</span>
+            <span>R 导出</span>
+            <span>1 / 2 切换模式</span>
+          </div>
+        </aside>
+      </main>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
