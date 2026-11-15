@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="通过频谱辨识三组同源声音，并在组内按处理延迟排序。"
+    />
+    <title>声纹归档 · Signal Archive</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%23131410'/%3E%3Cpath d='M8 16h2m2-5v10m3-14v18m3-13v8m3-5v2m3-1h1' stroke='%23d8ff57' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+    <canvas id="connectionCanvas" class="connection-canvas" aria-hidden="true"></canvas>
+
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="声纹归档首页">
+        <span class="brand-mark" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i>
+        </span>
+        <span class="brand-name">SIGNAL ARCHIVE</span>
+        <span class="brand-cn">声纹归档</span>
+      </a>
+      <div class="case-meta">
+        <span>CASE 03</span>
+        <span class="meta-dot"></span>
+        <span>6 SIGNALS / 3 PAIRS</span>
+      </div>
+    </header>
+
+    <main class="page-shell">
+      <section class="hero" aria-labelledby="pageTitle">
+        <div class="hero-copy">
+          <p class="eyebrow"><span>SPECTRAL FORENSICS</span> / 频谱取证</p>
+          <h1 id="pageTitle">六个信号，<br /><em>三对同源。</em></h1>
+          <p class="lede">
+            同一段母音频经过不同的滤波、延迟与噪声处理，藏进了这六个档案。
+            看频谱、听回声，把它们重新归入三组，再按处理延迟由短到长排列。
+          </p>
+        </div>
+        <div class="protocol" aria-label="任务步骤">
+          <div class="protocol-head">
+            <span>PROTOCOL</span>
+            <span id="protocolState">AWAITING INPUT</span>
+          </div>
+          <ol>
+            <li><span>01</span><b>逐段试听</b><small>捕捉节奏与回声</small></li>
+            <li><span>02</span><b>频谱配对</b><small>点击两张牌即成组</small></li>
+            <li><span>03</span><b>延迟排序</b><small>组内短延迟在前</small></li>
+            <li><span>04</span><b>提交归档</b><small>揭晓相似度与参数</small></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="workspace" aria-label="频谱配对工作区">
+        <div class="signal-column">
+          <div class="section-heading">
+            <div>
+              <span class="section-index">01 / UNKNOWN SIGNALS</span>
+              <h2>待归档信号</h2>
+            </div>
+            <p>点击两张未分配信号，自动组成一组。组内顺序可随时调整。</p>
+          </div>
+          <div class="signal-grid" id="signalGrid"></div>
+        </div>
+
+        <aside class="matcher-panel" aria-labelledby="matcherTitle">
+          <div class="matcher-top">
+            <span class="section-index">02 / MATCH DESK</span>
+            <span class="match-counter" id="matchCounter">0 / 3</span>
+          </div>
+          <h2 id="matcherTitle">同源配对台</h2>
+          <p class="matcher-note" id="matcherNote">
+            先选一张牌，再选另一张牌。每对的两个槽位按延迟从短到长排列。
+          </p>
+          <div class="group-list" id="groupList"></div>
+          <div class="selection-queue" id="selectionQueue">
+            <span class="queue-led"></span>
+            <span id="queueText">尚未选择信号</span>
+          </div>
+          <div class="matcher-actions">
+            <button class="submit-button" id="submitButton" type="submit" disabled>
+              <span>提交归档</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </button>
+            <button class="reset-button" id="resetButton" type="button">清空重排</button>
+          </div>
+          <p class="privacy-note">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M6.2 9V6.7a3.8 3.8 0 017.6 0V9M5 9h10v7H5z" />
+            </svg>
+            提交前不显示声源、滤波、延迟与噪声参数
+          </p>
+        </aside>
+      </section>
+
+      <section class="result-panel" id="resultPanel" aria-live="polite" hidden>
+        <div class="result-summary">
+          <div class="result-score">
+            <span class="result-kicker">ARCHIVE SCORE</span>
+            <strong id="resultScore">0</strong><small>/ 100</small>
+          </div>
+          <div class="result-copy">
+            <span class="result-kicker" id="resultLabel">ANALYSIS COMPLETE</span>
+            <h2 id="resultTitle">归档分析完成</h2>
+            <p id="resultDescription"></p>
+          </div>
+          <button class="result-retry" id="resultRetry" type="button">
+            重新挑战
+            <span>↻</span>
+          </button>
+        </div>
+        <div class="result-groups" id="resultGroups"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>SIGNAL ARCHIVE / 2026</span>
+      <span>所有声音由 WEB AUDIO 实时合成 · 无外部音频文件</span>
+      <span id="sessionClock">00:00</span>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
