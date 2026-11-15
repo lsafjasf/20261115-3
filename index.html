@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>医院夜班物流模拟</title>
+<style>
+  body { margin: 0; background: #10141c; color: #dde3ee; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; }
+  #wrap { display: flex; flex-direction: column; align-items: center; padding: 10px; }
+  canvas { background: #171c26; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,.5); }
+  #bar { display: flex; gap: 8px; align-items: center; margin: 10px 0; flex-wrap: wrap; justify-content: center; }
+  button { background: #2a3347; color: #dde3ee; border: 1px solid #3d4a66; border-radius: 6px;
+           padding: 6px 14px; cursor: pointer; font-size: 14px; }
+  button:hover { background: #36415c; }
+  button.active { background: #2f6f4f; border-color: #4caf7d; }
+  button.warn.active { background: #8a4a2b; border-color: #d98a4b; }
+  label { font-size: 13px; color: #9fb0cc; }
+  #hint { font-size: 12px; color: #7c8aa5; max-width: 1180px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="bar">
+    <button id="btnPause">⏸ 暂停</button>
+    <button id="btnSpeed">▶ 1x</button>
+    <span style="width:12px"></span>
+    <button id="btnElevA" class="active">货梯 A</button>
+    <button id="btnElevB">货梯 B</button>
+    <button id="btnPreempt">⚡ 抢占模式</button>
+    <label><input type="checkbox" id="chkForce"> 强制抢占（冷链风险）</label>
+    <span style="width:12px"></span>
+    <button id="btnRestart">↻ 重新开局</button>
+  </div>
+  <canvas id="cv" width="1180" height="680"></canvas>
+  <div id="hint">
+    玩法：点击右侧「待出库」订单安排出库 → 配送员拣货后到 1F 候梯 → 选定货梯后点击楼层按钮设置停靠（电梯按顺序停靠）。
+    冷链药品离库超过 14 分钟报废；送抵楼层后尽量放入冷藏柜（点击常温架物品可移入）。
+    手术需求会动态提前，STAT 呼叫需 18 分钟内送达。抢占模式可让货梯改道，但载有冷链的运行货梯会拒绝，强制抢占将加倍升温。
+    三小时（180 分钟）内完成全部手术需求且报废率 &lt; 20% 即成功。
+  </div>
+</div>
+<script src="src/core.js"></script>
+<script src="src/game.js"></script>
+</body>
+</html>
