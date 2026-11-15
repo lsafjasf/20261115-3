@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三折页设计器</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #2b2d33; color: #e8e8ea; display: flex; height: 100vh;
+  }
+  #toolbar {
+    width: 240px; padding: 14px; background: #1f2126; flex-shrink: 0;
+    display: flex; flex-direction: column; gap: 10px; overflow-y: auto;
+  }
+  #toolbar h1 { font-size: 16px; margin: 0 0 4px; }
+  #toolbar label { font-size: 12px; color: #9aa0ab; display: block; margin-bottom: 3px; }
+  #toolbar select, #toolbar input[type=text], #toolbar input[type=number] {
+    width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #3a3d45;
+    background: #2b2d33; color: #e8e8ea; font-size: 13px;
+  }
+  #toolbar button {
+    padding: 8px; border: none; border-radius: 6px; cursor: pointer;
+    background: #3d6fe0; color: #fff; font-size: 13px;
+  }
+  #toolbar button.secondary { background: #3a3d45; }
+  #toolbar button:disabled { background: #555; cursor: not-allowed; opacity: .6; }
+  #toolbar input[type=range] { width: 100%; }
+  #status { font-size: 12px; min-height: 32px; line-height: 1.5; }
+  #status.ok { color: #6fd38a; }
+  #status.err { color: #ff7b7b; }
+  #stage {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    overflow: auto; perspective: 1400px; perspective-origin: 50% 40%;
+  }
+  #sheet { position: relative; transform-style: preserve-3d; }
+  .panel {
+    position: absolute; top: 0; background: #fff; overflow: hidden;
+    transform-style: preserve-3d; box-shadow: 0 0 0 1px #d8d8d8 inset;
+  }
+  .panel .safe {
+    position: absolute; border: 1px dashed #3a7; pointer-events: none;
+  }
+  .panel .crease-hint {
+    position: absolute; top: 0; bottom: 0; width: 0;
+    border-left: 1px dashed #c00; pointer-events: none;
+  }
+  .el { position: absolute; cursor: grab; user-select: none; }
+  .el.selected { outline: 2px solid #3d6fe0; }
+  .el.invalid { outline: 2px solid #e03d3d; }
+  .el img { width: 100%; height: 100%; display: block; pointer-events: none; }
+  .el span { display: block; white-space: nowrap; pointer-events: none; }
+  #angleVal { font-size: 12px; color: #9aa0ab; }
+</style>
+</head>
+<body>
+  <div id="toolbar">
+    <h1>三折页设计器</h1>
+    <div>
+      <label>纸张尺寸（横向）</label>
+      <select id="paperSel">
+        <option value="A4">A4 · 297 × 210 mm</option>
+        <option value="A3">A3 · 420 × 297 mm</option>
+        <option value="A5">A5 · 210 × 148 mm</option>
+      </select>
+    </div>
+    <div>
+      <label>折叠角度 <span id="angleVal">60°</span>（0° = 完全展开）</label>
+      <input type="range" id="angleRange" min="0" max="150" value="60">
+    </div>
+    <div>
+      <label>文字内容</label>
+      <input type="text" id="textInput" value="新品上市">
+    </div>
+    <button id="addTextBtn">添加文字</button>
+    <button id="addImageBtn" class="secondary">添加图片…</button>
+    <input type="file" id="fileInput" accept="image/*" hidden>
+    <button id="delBtn" class="secondary">删除选中元素</button>
+    <hr style="border-color:#3a3d45; width:100%">
+    <button id="exportSvgBtn">导出展开 SVG</button>
+    <button id="exportPngBtn">导出当前视角 PNG</button>
+    <div id="status" class="ok"></div>
+  </div>
+  <div id="stage">
+    <div id="sheet"></div>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
