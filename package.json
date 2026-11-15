@@ -1,0 +1,14 @@
+{
+  "name": "panorama-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Three-frame panorama stitching workbench with seam validation",
+  "scripts": {
+    "start": "node tools/serve.js",
+    "capture": "node tools/capture.js",
+    "check": "node --check js/scene.js && node --check js/stitch.js && node --check js/app.js"
+  },
+  "devDependencies": {
+    "playwright": "1.65.1"
+  }
+}

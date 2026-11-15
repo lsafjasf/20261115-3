@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0d1414" />
+    <title>Panorama Lab · 三图拼接验证台</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Panorama Lab 首页">
+          <span class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+          <span class="brand-copy">
+            <strong>PANORAMA LAB</strong>
+            <small>三图拼接验证台</small>
+          </span>
+        </a>
+        <div class="project-meta">
+          <span class="eyebrow">PROJECT / 026</span>
+          <span class="project-name">海湾黄昏 · 三帧</span>
+        </div>
+        <div class="topbar-actions">
+          <span class="live-pill"><i></i>CANVAS LIVE</span>
+          <button class="icon-button" id="helpButton" type="button" aria-label="使用说明" title="使用说明">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.4 2.4 0 1 1 3.4 2.2c-.8.4-1.2 1-1.2 1.8v.3M12 17h.01"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <aside class="source-panel panel">
+          <div class="panel-heading">
+            <div>
+              <span class="eyebrow">SOURCE FRAMES</span>
+              <h2>源图像</h2>
+            </div>
+            <span class="count-chip">03</span>
+          </div>
+          <p class="panel-note">程序生成 · 720 × 720 px<br />水平重合区 220 px</p>
+          <div class="source-list" id="sourceList"></div>
+          <div class="source-foot">
+            <span class="status-dot"></span>
+            <span>三帧已载入</span>
+            <strong>RAW</strong>
+          </div>
+        </aside>
+
+        <section class="canvas-panel panel" aria-label="拼接画布">
+          <div class="canvas-toolbar">
+            <div class="view-tabs" role="group" aria-label="画布视图">
+              <button class="view-tab active" type="button" data-view="stitch">拼接画布</button>
+              <button class="view-tab" type="button" data-view="difference">误差图</button>
+            </div>
+            <div class="canvas-tools">
+              <button class="tool-button" id="overlayToggle" type="button" aria-pressed="true">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/><rect x="7" y="4" width="4" height="7" rx="1"/><rect x="13" y="13" width="4" height="7" rx="1"/></svg>
+                重合区
+              </button>
+              <span class="zoom-chip">FIT</span>
+              <button class="tool-button icon-only" id="resetViewButton" type="button" aria-label="重置视图">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="stage" id="stage">
+            <div class="stage-topline">
+              <span><i class="rec-dot"></i> LIVE COMPOSITE</span>
+              <span id="stageMeta">1720 × 720 PX</span>
+            </div>
+            <div class="canvas-wrap" id="canvasWrap">
+              <canvas id="panoramaCanvas" width="1720" height="720"></canvas>
+              <canvas class="overlay-canvas" id="overlayCanvas" width="1720" height="720"></canvas>
+              <div class="overlap-tag tag-a" id="overlapTagA">
+                <span>重合 A</span><strong>220 PX</strong><em>0.00%</em>
+              </div>
+              <div class="overlap-tag tag-b" id="overlapTagB">
+                <span>重合 B</span><strong>220 PX</strong><em>0.00%</em>
+              </div>
+              <div class="empty-state" id="emptyState" hidden>正在生成场景…</div>
+            </div>
+            <div class="stage-ruler" aria-hidden="true">
+              <span>0</span><span>430</span><span>860</span><span>1290</span><span>1720</span>
+            </div>
+            <div class="stage-caption">
+              <span><i class="legend-swatch"></i>最终合成</span>
+              <span><i class="legend-hatch"></i>重合范围</span>
+              <span>混合模式 <b>Weighted feather</b></span>
+            </div>
+            <div class="seam-strip">
+              <div class="seam-strip-head">
+                <span class="eyebrow">OVERLAP HEALTH</span>
+                <span>阈值线 <b id="stripThreshold">1.50%</b></span>
+              </div>
+              <div class="seam-strip-row">
+                <span class="strip-id">A</span>
+                <div class="health-track"><i id="healthA"></i><em></em></div>
+                <strong id="healthTextA">—</strong>
+              </div>
+              <div class="seam-strip-row">
+                <span class="strip-id">B</span>
+                <div class="health-track"><i id="healthB"></i><em></em></div>
+                <strong id="healthTextB">—</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="canvas-footer">
+            <div class="summary-stat">
+              <span class="eyebrow">MAX SEAM ERROR</span>
+              <strong id="maxSeamInline">0.00<small>%</small></strong>
+            </div>
+            <div class="summary-stat">
+              <span class="eyebrow">CONTINUITY</span>
+              <strong id="continuityInline">0.0<small>%</small></strong>
+            </div>
+            <div class="summary-stat wide">
+              <span class="eyebrow">ALIGNMENT</span>
+              <strong id="alignmentInline">待计算</strong>
+            </div>
+          </div>
+        </section>
+
+        <aside class="control-panel panel">
+          <div class="panel-heading">
+            <div>
+              <span class="eyebrow">STITCH CONTROLS</span>
+              <h2>拼接参数</h2>
+            </div>
+            <button class="auto-button" id="autoAlignButton" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/><circle cx="12" cy="12" r="3"/></svg>
+              自动校准
+            </button>
+          </div>
+
+          <div class="transform-stack" id="transformStack"></div>
+
+          <div class="control-divider"></div>
+          <div class="slider-block">
+            <div class="control-label">
+              <span>接缝融合</span>
+              <output id="blendOutput">72%</output>
+            </div>
+            <input id="blendRange" type="range" min="0" max="100" value="72" />
+            <div class="range-ends"><span>硬接缝</span><span>羽化</span></div>
+          </div>
+
+          <div class="threshold-card" id="thresholdCard">
+            <div class="threshold-head">
+              <div>
+                <span class="eyebrow">EXPORT GATE</span>
+                <strong>接缝误差阈值</strong>
+              </div>
+              <span class="threshold-value" id="thresholdValue">1.50%</span>
+            </div>
+            <input id="thresholdRange" type="range" min="0.5" max="12" step="0.25" value="1.5" />
+            <div class="gate-status is-pass" id="gateStatus">
+              <span class="gate-icon" aria-hidden="true"></span>
+              <span id="gateText">误差低于阈值，可以导出</span>
+            </div>
+          </div>
+
+          <button class="export-button" id="exportButton" type="button">
+            <span class="export-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 20h14"/></svg>
+            </span>
+            <span class="export-copy"><strong>导出拼接结果</strong><small>PNG + TRANSFORM.JSON</small></span>
+            <span class="export-arrow" aria-hidden="true">↗</span>
+          </button>
+          <p class="export-note" id="exportNote">导出将同时保存全分辨率 PNG 与全部变换参数。</p>
+        </aside>
+      </main>
+
+      <section class="microscope panel" aria-label="接缝连续性比较">
+        <div class="microscope-heading">
+          <div class="microscope-title">
+            <span class="eyebrow">SEAM MICROSCOPE / 250%</span>
+            <h2>两处接缝连续性对比</h2>
+          </div>
+          <div class="microscope-legend">
+            <span><i class="seam-key"></i>接缝中心</span>
+            <button class="toggle-switch" id="seamLineToggle" type="button" aria-pressed="true">
+              <span></span>显示接缝线
+            </button>
+          </div>
+        </div>
+        <div class="zoom-grid">
+          <article class="zoom-card" id="zoomCardA">
+            <div class="zoom-card-head">
+              <span class="zoom-index">A</span>
+              <div><strong>左接缝 · FRAME 01 ↔ 02</strong><small>重合 220 px · 中心 x 610</small></div>
+              <span class="quality-badge" id="qualityBadgeA">检测中</span>
+            </div>
+            <div class="zoom-viewport"><canvas id="zoomCanvasA" width="900" height="300"></canvas></div>
+            <div class="zoom-metrics">
+              <span><small>连续性</small><strong id="continuityA">—</strong></span>
+              <span><small>色差 Δ</small><strong id="deltaA">—</strong></span>
+              <span><small>梯度比</small><strong id="gradientA">—</strong></span>
+            </div>
+          </article>
+          <article class="zoom-card" id="zoomCardB">
+            <div class="zoom-card-head">
+              <span class="zoom-index">B</span>
+              <div><strong>右接缝 · FRAME 02 ↔ 03</strong><small>重合 220 px · 中心 x 1110</small></div>
+              <span class="quality-badge" id="qualityBadgeB">检测中</span>
+            </div>
+            <div class="zoom-viewport"><canvas id="zoomCanvasB" width="900" height="300"></canvas></div>
+            <div class="zoom-metrics">
+              <span><small>连续性</small><strong id="continuityB">—</strong></span>
+              <span><small>色差 Δ</small><strong id="deltaB">—</strong></span>
+              <span><small>梯度比</small><strong id="gradientB">—</strong></span>
+            </div>
+          </article>
+        </div>
+        <div class="microscope-footer">
+          <p><span class="status-dot"></span>放大区域直接取自最终合成图；数值通过接缝邻域的水平梯度连续性计算。</p>
+          <span class="file-output">OUTPUT <b>panorama.png</b> · <b>transform-params.json</b></span>
+        </div>
+      </section>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="modal-backdrop" id="helpModal" hidden>
+      <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+        <button class="modal-close" id="closeHelp" type="button" aria-label="关闭">×</button>
+        <span class="eyebrow">QUICK START</span>
+        <h2 id="helpTitle">三帧拼接工作流</h2>
+        <ol>
+          <li><b>校准</b>：逐帧调整旋转与曝光，让重合区结构对齐、亮度一致。</li>
+          <li><b>融合</b>：调整接缝羽化；观察底部两处 250% 放大区域。</li>
+          <li><b>门禁</b>：任一处接缝误差高于阈值时，导出会被阻止。</li>
+          <li><b>导出</b>：通过后同时输出 PNG 和完整变换 JSON。</li>
+        </ol>
+        <button class="modal-primary" id="modalStart" type="button">开始检查</button>
+      </div>
+    </div>
+
+    <script src="./js/scene.js"></script>
+    <script src="./js/stitch.js"></script>
+    <script src="./js/app.js"></script>
+  </body>
+</html>
