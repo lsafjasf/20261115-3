@@ -1,0 +1,12 @@
+{
+  "name": "vanilla-svg-chart",
+  "version": "1.0.0",
+  "description": "Dependency-free 2D chart renderer (line / area / scatter) with negative values, symlog axis, missing data and editable SVG export.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

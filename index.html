@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>零依赖二维图表渲染器</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <h1>零依赖 SVG 图表（折线 / 面积 / 散点）</h1>
+      <p class="hint">
+        滚轮以光标为锚点缩放，双击复位；勾选图例切换序列，轴范围自动更新。
+      </p>
+
+      <section class="toolbar" aria-label="图表控制">
+        <div class="control-group" role="group" aria-label="图型">
+          <button data-type="line" class="active">折线</button>
+          <button data-type="area">面积</button>
+          <button data-type="scatter">散点</button>
+        </div>
+        <label class="control-group">
+          <input type="checkbox" id="symlog-toggle" />
+          对称对数轴（支持负值与零）
+        </label>
+        <button id="reset-zoom">复位缩放</button>
+        <button id="export-svg">导出 SVG</button>
+      </section>
+
+      <div id="legend" class="legend" aria-label="序列开关"></div>
+
+      <div class="chart-wrap">
+        <svg id="chart" role="img" aria-label="二维数据图表"></svg>
+      </div>
+
+      <section class="meta">
+        <h2>数据说明</h2>
+        <ul>
+          <li>收入与成本序列含 <strong>异常值</strong>（1200 / -600 / 200）和正负值。</li>
+          <li><code>null</code> / <code>NaN</code> 表示缺失数据，折线与面积会在此断档。</li>
+          <li>导出的 SVG 保留真实 <code>&lt;text&gt;</code> 与 <code>&lt;path&gt;</code> 节点，可在矢量编辑器中直接改字改路径。</li>
+        </ul>
+      </section>
+    </main>
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>

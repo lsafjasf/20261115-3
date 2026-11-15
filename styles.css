@@ -1,0 +1,116 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.app {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+}
+
+h1 {
+  font-size: 22px;
+  margin: 0 0 6px;
+}
+
+.hint {
+  color: #64748b;
+  font-size: 13px;
+  margin: 0 0 16px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.control-group {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 13px;
+}
+
+button {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #f1f5f9;
+}
+
+button.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.legend label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.chart-wrap {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 8px;
+  overflow-x: auto;
+}
+
+#chart {
+  display: block;
+  min-width: 640px;
+}
+
+.meta {
+  margin-top: 20px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.meta h2 {
+  font-size: 15px;
+}
+
+.meta ul {
+  padding-left: 18px;
+}
+
+.meta code {
+  background: #f1f5f9;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
