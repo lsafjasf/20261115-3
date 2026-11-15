@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>实时声场切换</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 640px;
+      margin: 40px auto;
+      padding: 0 16px;
+      background: #101418;
+      color: #e6e6e6;
+    }
+    h1 { font-size: 1.4rem; }
+    .panel {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 16px 0;
+    }
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      background: #2b6cb0;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover { background: #3182ce; }
+    button.scene.active { background: #38a169; }
+    button.secondary { background: #4a5568; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .stat {
+      background: #1a202c;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .stat .label { font-size: 12px; color: #a0aec0; }
+    .stat .value { font-size: 24px; font-weight: 600; }
+    #log {
+      margin-top: 16px;
+      background: #1a202c;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>实时声场切换</h1>
+  <div class="panel" id="scenePanel">
+    <button class="scene" data-scene="rain">雨声</button>
+    <button class="scene" data-scene="forest">森林</button>
+    <button class="scene" data-scene="city">城市</button>
+  </div>
+  <div class="panel">
+    <button id="pauseBtn" class="secondary">暂停</button>
+    <button id="rebuildBtn" class="secondary">重建声场</button>
+    <button id="stopBtn" class="secondary">停止</button>
+  </div>
+  <div class="stats">
+    <div class="stat">
+      <div class="label">活动节点数</div>
+      <div class="value" id="nodeCount">0</div>
+    </div>
+    <div class="stat">
+      <div class="label">AudioContext 状态</div>
+      <div class="value" id="ctxState">-</div>
+    </div>
+    <div class="stat">
+      <div class="label">当前场景</div>
+      <div class="value" id="sceneName">-</div>
+    </div>
+    <div class="stat">
+      <div class="label">重建次数</div>
+      <div class="value" id="rebuildCount">0</div>
+    </div>
+  </div>
+  <div id="log"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
