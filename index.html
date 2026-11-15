@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071016">
+  <meta name="description" content="机场行李分拣线实时调度模拟：三条传送带、两个分流器、四个航班出口。">
+  <title>行李潮汐 · T2 早高峰调度</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><span>BF</span></div>
+        <div class="brand-copy">
+          <span class="kicker">T2 · BAGGAGE OPERATIONS</span>
+          <h1>行李潮汐 <span>/ 早高峰</span></h1>
+        </div>
+      </div>
+      <div class="topbar-center">
+        <div class="shift-pill"><i class="live-dot"></i><span id="phaseLabel">班次待命</span></div>
+        <div class="clock-block">
+          <span id="simClock">06:00</span>
+          <small id="simCountdown">剩余 20:00</small>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button id="audioButton" class="icon-button audio-button" type="button" aria-pressed="false" title="开启调度音景">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4Z"/></svg>
+          <span class="button-label">音景 关</span>
+        </button>
+        <button id="pauseButton" class="icon-button" type="button" title="暂停/继续" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="pause-icon" d="M7 5h4v14H7V5Zm6 0h4v14h-4V5Z"/><path class="play-icon" d="m8 5 11 7-11 7V5Z"/></svg>
+          <span class="button-label">暂停</span>
+        </button>
+        <div class="speed-control" aria-label="模拟速度">
+          <span>速度</span>
+          <button class="speed-option" data-speed="1" type="button">1×</button>
+          <button class="speed-option is-active" data-speed="4" type="button">4×</button>
+          <button class="speed-option" data-speed="12" type="button">12×</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="workbench">
+      <section class="sim-panel" aria-labelledby="map-title">
+        <div class="map-head">
+          <div>
+            <span class="eyebrow">LIVE SYSTEM MAP / 实时线路</span>
+            <h2 id="map-title">T2 行李分拣线 <span>03 → 04</span></h2>
+          </div>
+          <div class="legend" aria-label="线路图例">
+            <span><i class="legend-swatch normal"></i>正常</span>
+            <span><i class="legend-swatch manual"></i>人工复核</span>
+            <span><i class="legend-swatch jam"></i>堵塞</span>
+          </div>
+        </div>
+
+        <div class="canvas-shell" id="canvasShell">
+          <canvas id="systemCanvas" aria-label="三条传送带、两个分流器和四个航班出口的实时状态图"></canvas>
+          <div class="screen-vignette" aria-hidden="true"></div>
+          <div class="canvas-status">
+            <span class="status-dot"></span>
+            <span id="feedStatus">进件待命</span>
+            <b id="throughputReadout">0 件/分</b>
+          </div>
+          <div class="canvas-weather">
+            <span>PEAK WINDOW</span>
+            <b>06:00—06:20</b>
+          </div>
+          <button id="jamBadge" class="jam-badge" type="button" hidden>
+            <span class="jam-pulse"></span>
+            <span><b>D1 堵塞</b><small id="jamBadgeText">点击定位故障</small></span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+          </button>
+          <div id="recoveryBanner" class="recovery-banner" hidden>
+            <div class="recovery-ring"><span id="recoveryPercent">0%</span></div>
+            <div><b>D1 局部恢复</b><small id="recoveryStage">隔离受影响路段</small></div>
+            <div class="recovery-track"><i id="recoveryProgress"></i></div>
+          </div>
+        </div>
+
+        <div class="telemetry-strip" aria-label="实时遥测">
+          <div class="telemetry-item">
+            <span>线路负载</span>
+            <div class="mini-meter"><i id="loadMeter"></i></div>
+            <b id="loadValue">18%</b>
+          </div>
+          <div class="telemetry-item">
+            <span>人工复核位</span>
+            <b id="pickerTelemetry">B1 · 待命</b>
+          </div>
+          <div class="telemetry-item">
+            <span>已修正标签</span>
+            <b id="fixedCount">0</b>
+          </div>
+          <div class="telemetry-item">
+            <span>平均占用</span>
+            <b id="occupancyValue">—</b>
+          </div>
+        </div>
+
+        <section class="event-panel" aria-labelledby="events-title">
+          <div class="event-head">
+            <div><i></i><h3 id="events-title">运行日志</h3></div>
+            <span>08 条以内自动归档</span>
+          </div>
+          <div id="eventList" class="event-list">
+            <div class="event-row placeholder"><time>--:--</time><span>等待班次开始</span><small>SYS</small></div>
+          </div>
+        </section>
+      </section>
+
+      <aside class="control-panel" aria-label="调度控制台">
+        <section class="goal-card">
+          <div class="panel-heading">
+            <span class="eyebrow">SHIFT OBJECTIVE / 班次目标</span>
+            <b class="goal-state" id="goalState">进行中</b>
+          </div>
+          <div class="goal-score">
+            <span id="correctCount">0</span><small>/ 120 件</small>
+            <div class="goal-percent" id="correctPercent">0%</div>
+          </div>
+          <div class="goal-track"><i id="correctProgress"></i><em id="targetMarker"></em></div>
+          <div class="goal-caption"><span>正确率目标 80%</span><span id="overflowSummary">出口溢出 0 次</span></div>
+        </section>
+
+        <section class="control-section">
+          <div class="section-title">
+            <div><span class="section-index">01</span><h3>传送速度</h3></div>
+            <small>长件占用随速度变化</small>
+          </div>
+          <div class="belt-controls">
+            <label class="belt-row" data-belt="1">
+              <span class="belt-id">B1</span>
+              <span class="belt-name">值机岛 A</span>
+              <input id="belt1Speed" class="range" type="range" min="45" max="165" step="5" value="105" aria-label="B1 传送速度">
+              <output id="belt1Value">1.05×</output>
+            </label>
+            <label class="belt-row" data-belt="2">
+              <span class="belt-id">B2</span>
+              <span class="belt-name">转盘汇流</span>
+              <input id="belt2Speed" class="range" type="range" min="45" max="165" step="5" value="115" aria-label="B2 传送速度">
+              <output id="belt2Value">1.15×</output>
+            </label>
+            <label class="belt-row" data-belt="3">
+              <span class="belt-id">B3</span>
+              <span class="belt-name">国际转机</span>
+              <input id="belt3Speed" class="range" type="range" min="45" max="165" step="5" value="95" aria-label="B3 传送速度">
+              <output id="belt3Value">0.95×</output>
+            </label>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <div class="section-title">
+            <div><span class="section-index">02</span><h3>分流优先权</h3></div>
+            <small>拖动配比，平衡出口</small>
+          </div>
+          <div class="diverter-control">
+            <div class="diverter-label"><b>D1</b><span>01 号航站楼</span><output id="d1Value">58 : 42</output></div>
+            <input id="d1Priority" class="range priority-range" type="range" min="25" max="75" step="1" value="58" aria-label="D1 分流优先权">
+            <div class="priority-ends"><span>Y1 / 北京</span><span>Y2 / 上海</span></div>
+          </div>
+          <div class="diverter-control">
+            <div class="diverter-label"><b>D2</b><span>02 号航站楼</span><output id="d2Value">47 : 53</output></div>
+            <input id="d2Priority" class="range priority-range" type="range" min="25" max="75" step="1" value="47" aria-label="D2 分流优先权">
+            <div class="priority-ends"><span>Y3 / 广州</span><span>Y4 / 成都</span></div>
+          </div>
+        </section>
+
+        <section class="control-section picker-section">
+          <div class="section-title">
+            <div><span class="section-index">03</span><h3>人工拣选位</h3></div>
+            <small>每 5 秒复核一件</small>
+          </div>
+          <div class="picker-choices" role="group" aria-label="人工拣选位置">
+            <button class="picker-choice" data-picker="1" type="button">B1</button>
+            <button class="picker-choice is-active" data-picker="2" type="button">B2 <i>推荐</i></button>
+            <button class="picker-choice" data-picker="3" type="button">B3</button>
+          </div>
+          <p class="picker-note">人工位会拦截错标行李并改派至正确出口；站在过载带上会延长占用。</p>
+        </section>
+
+        <section class="action-section">
+          <button id="recoverButton" class="recover-button" type="button" disabled>
+            <span class="recover-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7"/></svg></span>
+            <span><b>局部恢复</b><small id="recoverHint">等待堵塞发生</small></span>
+            <kbd>R</kbd>
+          </button>
+          <button id="demoButton" class="demo-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7V5Z"/></svg>
+            <span><b>固定输入演示</b><small>自动完成一局</small></span>
+          </button>
+        </section>
+
+        <footer class="control-footer">
+          <span>操作提示</span>
+          <p><kbd>Space</kbd> 暂停 · <kbd>R</kbd> 局部恢复 · 拖动滑块实时生效</p>
+        </footer>
+      </aside>
+    </main>
+  </div>
+
+  <section id="startScreen" class="start-screen" aria-labelledby="start-title">
+    <div class="start-grid" aria-hidden="true"></div>
+    <div class="start-card">
+      <div class="start-meta"><span>T2 / SHIFT 063</span><span>FIXED INPUT · SEED 0630</span></div>
+      <span class="eyebrow">EARLY PEAK SIMULATION</span>
+      <h2 id="start-title">二十分钟，<br><em>把潮汐送出去。</em></h2>
+      <p>三条传送带汇入两个分流器，四个航班出口正在等待。标签错误与堵包会同时出现，调度权在你手里。</p>
+      <div class="briefing-grid">
+        <div><b>03</b><span>传送带</span><small>速度决定长件占用</small></div>
+        <div><b>02</b><span>分流器</span><small>优先权决定出口平衡</small></div>
+        <div><b>04</b><span>航班出口</span><small>任一溢出即失败</small></div>
+      </div>
+      <div class="start-rules">
+        <span><i class="rule-icon"></i>20:00 内正确送出 ≥ 80%</span>
+        <span><i class="rule-icon alert"></i>06:05 预设一次 D1 堵包</span>
+      </div>
+      <button id="startButton" class="start-button" type="button">
+        <span>开始固定班次</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+      </button>
+      <small class="start-foot">固定行李序列 · 固定错标率 · 可重复复现</small>
+    </div>
+  </section>
+
+  <section id="resultScreen" class="result-screen" hidden aria-labelledby="result-title">
+    <div class="result-card" role="dialog" aria-modal="true">
+      <span id="resultStamp" class="result-stamp">SHIFT COMPLETE</span>
+      <div id="resultGlyph" class="result-glyph" aria-hidden="true">
+        <svg viewBox="0 0 48 48"><path d="M10 25 20 35 38 13"/></svg>
+      </div>
+      <span class="eyebrow">SHIFT REPORT / 班次结算</span>
+      <h2 id="result-title">高峰已平稳度过</h2>
+      <p id="resultCopy">所有出口保持在容量线内，人工复核补上了错标缺口。</p>
+      <div class="result-stats">
+        <div><span>正确送出</span><b id="resultCorrect">—</b></div>
+        <div><span>正确率</span><b id="resultRate">—</b></div>
+        <div><span>溢出次数</span><b id="resultOverflow">—</b></div>
+        <div><span>堵包恢复</span><b id="resultRecovery">—</b></div>
+      </div>
+      <button id="restartButton" class="start-button compact" type="button">再跑一次固定班次</button>
+    </div>
+  </section>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite"></div>
+  <script src="simulation.js"></script>
+  <script src="renderer.js"></script>
+  <script src="audio.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
