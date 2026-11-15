@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>程序化水面 · WebGL</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #0b1420;
+    font: 13px/1.5 "Segoe UI", "PingFang SC", sans-serif; color: #dce8f2; }
+  #glcanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #hud { position: absolute; top: 10px; left: 10px; background: rgba(8,18,30,.82);
+    border: 1px solid #2a4a63; border-radius: 8px; padding: 10px 12px; width: 300px;
+    max-height: calc(100% - 20px); overflow-y: auto; user-select: none; }
+  #hud h1 { font-size: 14px; margin: 0 0 8px; color: #8fd3ff; }
+  .row { display: flex; align-items: center; gap: 8px; margin: 5px 0; }
+  .row label { flex: 0 0 64px; color: #9db8cc; }
+  .row output { flex: 0 0 58px; text-align: right; color: #8fd3ff; font-variant-numeric: tabular-nums; }
+  input[type=range] { flex: 1; accent-color: #3fa9f5; }
+  button, select { background: #12314b; color: #dce8f2; border: 1px solid #2a4a63;
+    border-radius: 5px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
+  button:hover, select:hover { background: #1a4265; }
+  button.active { background: #2b6ea8; border-color: #5fb2ef; }
+  #fps { position: absolute; top: 10px; right: 10px; background: rgba(8,18,30,.82);
+    border: 1px solid #2a4a63; border-radius: 6px; padding: 6px 10px;
+    font-variant-numeric: tabular-nums; color: #9fe6a0; }
+  #fps.paused { color: #f0c060; }
+  fieldset { border: 1px solid #2a4a63; border-radius: 6px; margin: 8px 0 4px; padding: 6px 8px; }
+  legend { color: #8fd3ff; padding: 0 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  th, td { padding: 2px 4px; text-align: right; border-bottom: 1px dotted #22405a; }
+  th:first-child, td:first-child { text-align: left; color: #9db8cc; }
+  th.cur { color: #7fd0ff; }
+  .hint { color: #6f8ba0; font-size: 11px; margin-top: 6px; }
+</style>
+</head>
+<body>
+<canvas id="glcanvas"></canvas>
+
+<div id="fps">-- FPS</div>
+
+<div id="hud">
+  <h1>程序化水面（无纹理 · WebGL）</h1>
+
+  <div class="row">
+    <button id="btnPause">暂停</button>
+    <button id="btnStep">单步 +0.1s</button>
+    <select id="debugView">
+      <option value="0">正常渲染</option>
+      <option value="1">仅折射</option>
+      <option value="2">泡沫遮罩</option>
+      <option value="3">水深/雾</option>
+      <option value="4">遮挡检验(泡沫vs折射)</option>
+    </select>
+  </div>
+
+  <fieldset>
+    <legend>太阳</legend>
+    <div class="row"><label>方位角</label>
+      <input id="sunAz" type="range" min="0" max="360" step="1" value="235"><output id="sunAzV"></output></div>
+    <div class="row"><label>高度角</label>
+      <input id="sunEl" type="range" min="2" max="85" step="1" value="32"><output id="sunElV"></output></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>海洋</legend>
+    <div class="row"><label>风速</label>
+      <input id="wind" type="range" min="0" max="20" step="0.1" value="8"><output id="windV"></output></div>
+    <div class="row"><label>潮位</label>
+      <input id="tide" type="range" min="-1.2" max="1.6" step="0.02" value="0"><output id="tideV"></output></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>风场参数对比（点击列头切换）</legend>
+    <table id="windTable">
+      <thead><tr><th>参数</th><th id="colA">A 风浪</th><th id="colB">B 长涌</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="hint">实测行为当前风场在 16×16 采样网格上的统计量。</div>
+  </fieldset>
+
+  <div class="hint">拖动画面可旋转视角。暂停后水面完全静止（时间冻结）。</div>
+</div>
+
+<script src="js/shaders.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
