@@ -1,0 +1,15 @@
+{
+  "name": "northlight-vector-export",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vector map viewport export with tiled 4x PNG rendering",
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "export:verify": "node scripts/export-and-compare.mjs",
+    "test": "node scripts/export-and-compare.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.65.1"
+  }
+}

@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Northlight — Vector Atlas</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Northlight Atlas">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32">
+              <path d="M16 2.5 28 9v14L16 29.5 4 23V9Z" />
+              <path d="m10 20 6-11 6 11-6-3Z" />
+            </svg>
+          </span>
+          <span class="brand-copy">
+            <strong>Northlight</strong>
+            <small>Vector Atlas</small>
+          </span>
+        </a>
+
+        <div class="document-path" aria-label="当前地图">
+          <span>Projects</span><i>/</i><span>Northlight</span><i>/</i>
+          <strong>Harbor District</strong>
+        </div>
+
+        <div class="topbar-actions">
+          <span class="source-pill"><span></span>Vector source</span>
+          <button class="icon-button" id="resetView" type="button" title="重置视图" aria-label="重置视图">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 4v6h6M20 20v-6h-6M5.5 15a7 7 0 0 0 11.8 2.3M18.5 9A7 7 0 0 0 6.7 6.7" />
+            </svg>
+          </button>
+          <button class="export-button" id="exportButton" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 16v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" />
+            </svg>
+            <span>Export 4× PNG</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <aside class="panel layers-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="eyebrow">Map composition</span>
+              <h2>Layers</h2>
+            </div>
+            <button class="tiny-icon" type="button" aria-label="添加图层">+</button>
+          </div>
+
+          <div class="layer-group">
+            <span class="group-label">Base</span>
+            <button class="layer-row is-active" type="button" data-layer="terrain">
+              <span class="drag-dots" aria-hidden="true">⠿</span>
+              <span class="layer-swatch terrain"></span>
+              <span class="layer-name">Terrain &amp; water</span>
+              <span class="visibility on" aria-hidden="true"></span>
+            </button>
+            <button class="layer-row is-active" type="button" data-layer="blocks">
+              <span class="drag-dots" aria-hidden="true">⠿</span>
+              <span class="layer-swatch blocks"></span>
+              <span class="layer-name">City blocks</span>
+              <span class="visibility on" aria-hidden="true"></span>
+            </button>
+          </div>
+
+          <div class="layer-group">
+            <span class="group-label">Network</span>
+            <button class="layer-row is-active" type="button" data-layer="roads">
+              <span class="drag-dots" aria-hidden="true">⠿</span>
+              <span class="layer-swatch roads"></span>
+              <span class="layer-name">Roads</span>
+              <span class="visibility on" aria-hidden="true"></span>
+            </button>
+            <button class="layer-row is-active" type="button" data-layer="transit">
+              <span class="drag-dots" aria-hidden="true">⠿</span>
+              <span class="layer-swatch transit"></span>
+              <span class="layer-name">Transit lines</span>
+              <span class="visibility on" aria-hidden="true"></span>
+            </button>
+          </div>
+
+          <div class="layer-group">
+            <span class="group-label">Annotations</span>
+            <button class="layer-row is-active" type="button" data-layer="labels">
+              <span class="drag-dots" aria-hidden="true">⠿</span>
+              <span class="layer-swatch labels">Aa</span>
+              <span class="layer-name">Labels</span>
+              <span class="visibility on" aria-hidden="true"></span>
+            </button>
+            <button class="layer-row is-active" type="button" data-layer="markers">
+              <span class="drag-dots" aria-hidden="true">⠿</span>
+              <span class="layer-swatch markers"></span>
+              <span class="layer-name">Landmarks</span>
+              <span class="visibility on" aria-hidden="true"></span>
+            </button>
+          </div>
+
+          <div class="layer-note">
+            <span class="note-icon">↗</span>
+            <p><strong>Resolution independent</strong>Everything is redrawn from vector geometry at the export scale.</p>
+          </div>
+        </aside>
+
+        <section class="map-column" aria-label="地图视图">
+          <div class="map-card">
+            <div class="map-toolbar">
+              <div class="search-box">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="11" cy="11" r="6" />
+                  <path d="m16 16 4 4" />
+                </svg>
+                <span>Search places, streets, coordinates</span>
+                <kbd>⌘ K</kbd>
+              </div>
+              <div class="zoom-control">
+                <button type="button" id="zoomOut" aria-label="缩小">−</button>
+                <span id="zoomLevel">100%</span>
+                <button type="button" id="zoomIn" aria-label="放大">+</button>
+              </div>
+            </div>
+
+            <div class="map-frame" id="mapFrame">
+              <canvas id="mapCanvas" aria-label="Northlight Harbor District 矢量地图"></canvas>
+
+              <div class="map-badge">
+                <span class="pulse-dot"></span>
+                LIVE VECTOR
+              </div>
+              <div class="north-arrow" aria-hidden="true">
+                <span>N</span><i></i>
+              </div>
+              <div class="scale-bar" aria-hidden="true">
+                <div><span id="scaleLabel">500 m</span></div>
+                <small>Viewport scale</small>
+              </div>
+              <div class="coordinate-readout" id="coordinateReadout">51° 30′ 24.6″ N · 0° 05′ 18.2″ W</div>
+
+              <div class="export-overlay" id="exportOverlay" hidden>
+                <div class="export-progress-card" role="status" aria-live="polite">
+                  <div class="progress-topline">
+                    <span class="export-glyph" aria-hidden="true">
+                      <svg viewBox="0 0 32 32">
+                        <path d="M16 4v15m0 0 5-5m-5 5-5-5M6 23v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2" />
+                      </svg>
+                    </span>
+                    <span class="progress-kicker" id="progressPhase">Preparing vector tiles</span>
+                    <span class="progress-percent" id="progressPercent">0%</span>
+                  </div>
+                  <h3 id="progressTitle">Rendering 4× export</h3>
+                  <p id="progressDetail">Allocating a 3,744 × 2,912 px PNG.</p>
+                  <div class="progress-track"><span id="progressBar"></span></div>
+                  <div class="progress-meta">
+                    <span id="progressTiles">Tile 0 / 0</span>
+                    <span id="progressMemory">Tile memory only</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="export-done" id="exportDone" hidden>
+                <span class="done-check">✓</span>
+                <div>
+                  <strong>4× export complete</strong>
+                  <span id="doneMeta">PNG ready</span>
+                </div>
+                <button id="downloadAgain" type="button">Download</button>
+                <button class="done-close" id="closeDone" type="button" aria-label="关闭">×</button>
+              </div>
+
+              <div class="map-toast" id="mapToast" hidden></div>
+            </div>
+          </div>
+
+          <div class="statusbar">
+            <span id="viewportSize">Viewport —</span>
+            <span class="status-divider"></span>
+            <span id="exportSize">4× output —</span>
+            <span class="status-divider"></span>
+            <span id="tileCount">— tiles</span>
+            <span class="status-spacer"></span>
+            <span>Web Mercator</span>
+            <span class="status-divider"></span>
+            <span>EPSG:3857</span>
+          </div>
+        </section>
+
+        <aside class="panel inspector-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="eyebrow">Output</span>
+              <h2>Export setup</h2>
+            </div>
+            <span class="pro-badge">4×</span>
+          </div>
+
+          <div class="export-preview">
+            <div class="preview-map">
+              <span class="preview-grid"></span>
+              <span class="preview-corner tl"></span>
+              <span class="preview-corner tr"></span>
+              <span class="preview-corner bl"></span>
+              <span class="preview-corner br"></span>
+              <strong>PNG</strong>
+              <small>Current viewport</small>
+            </div>
+            <div class="preview-copy">
+              <span>Export dimensions</span>
+              <strong id="previewDimensions">—</strong>
+              <small id="previewMegapixels">— megapixels</small>
+            </div>
+          </div>
+
+          <div class="setting-block">
+            <div class="setting-row">
+              <div><span>Scale</span><small>Device pixels per CSS px</small></div>
+              <div class="segmented" title="当前工作流固定为 4× 导出"><button type="button" disabled title="固定 4×">1×</button><button type="button" disabled title="固定 4×">2×</button><button class="selected" type="button" aria-pressed="true">4×</button></div>
+            </div>
+            <div class="setting-row">
+              <div><span>Tile size</span><small>Bounded offscreen canvas</small></div>
+              <strong class="mono">1024 px</strong>
+            </div>
+            <div class="setting-row">
+              <div><span>Transparent</span><small>Preserve paper background</small></div>
+              <span class="switch"><i></i></span>
+            </div>
+          </div>
+
+          <div class="export-facts">
+            <div><span class="fact-icon">↗</span><p><strong>Sharp vectors</strong>Paths, type and markers are rendered at the target resolution.</p></div>
+            <div><span class="fact-icon">▦</span><p><strong>Seamless tiling</strong>Tiles include a 16 px bleed before stitching.</p></div>
+          </div>
+
+          <div class="inspector-footer">
+            <span>Named</span>
+            <strong>harbor-district@4x.png</strong>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
