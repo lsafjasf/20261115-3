@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>海上风储微电网调度模拟 · 12 小时阵风事件</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>海上风储微电网调度台</h1>
+      <p class="sub">3 × 2 MW 风机 · 6 MWh 岸上电池 · 医院（不可中断）+ 工厂三条可中断线 · 目标：720 分钟零断电、电池 ≤ 65°C</p>
+    </div>
+    <div class="clock" id="clock">--:--</div>
+  </header>
+
+  <main class="layout">
+    <section class="stage">
+      <canvas id="scene" width="900" height="420"></canvas>
+      <canvas id="chart" width="900" height="180"></canvas>
+      <div class="event-log">
+        <h3>事件日志</h3>
+        <ul id="eventList"></ul>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="metrics" id="metrics"></div>
+
+      <fieldset>
+        <legend>风机桨距</legend>
+        <input type="range" id="pitch" min="0" max="60" value="0" step="1">
+        <div class="row"><span id="pitchVal">0°</span>
+          <small>≥45° 为顺桨，可防切出脱网</small></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>储能调度</legend>
+        <div class="seg" id="battMode">
+          <button data-mode="auto" class="active">自动</button>
+          <button data-mode="charge">强制充电</button>
+          <button data-mode="discharge">强制放电</button>
+          <button data-mode="hold">保持</button>
+        </div>
+        <input type="range" id="battMw" min="0.5" max="3.5" value="2" step="0.1">
+        <div class="row"><span id="battMwVal">2.0 MW</span>
+          <small>高温会自动降功率</small></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>可中断负荷切除（工厂）</legend>
+        <div class="seg" id="shedSeg">
+          <button data-n="0" class="active">全切在线</button>
+          <button data-n="1">切 1 条</button>
+          <button data-n="2">切 2 条</button>
+          <button data-n="3">仅保医院</button>
+        </div>
+        <label class="row">切除优先级
+          <select id="shedOrder">
+            <option value="0,1,2">线1(1.3MW) → 线2 → 线3</option>
+            <option value="2,1,0" selected>线3(0.7MW) → 线2 → 线1</option>
+          </select>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>运行控制</legend>
+        <div class="seg" id="speedSeg">
+          <button data-x="1">1×</button>
+          <button data-x="4" class="active">4×</button>
+          <button data-x="16">16×</button>
+          <button data-x="60">60×</button>
+        </div>
+        <div class="btn-row">
+          <button id="startBtn" class="primary">开始</button>
+          <button id="pauseBtn">暂停</button>
+          <button id="resetBtn">复位</button>
+        </div>
+        <div class="btn-row">
+          <button id="audioBtn">🔊 启动音效</button>
+          <button id="jsonBtn" disabled>导出 JSON 摘要</button>
+          <button id="csvBtn" disabled>导出 CSV</button>
+        </div>
+      </fieldset>
+    </aside>
+  </main>
+
+  <div class="modal hidden" id="modal">
+    <div class="modal-card">
+      <h2 id="modalTitle">运行结束</h2>
+      <pre id="modalBody"></pre>
+      <div class="btn-row">
+        <button id="modalJson" class="primary">下载 JSON</button>
+        <button id="modalCsv">下载 CSV</button>
+        <button id="modalClose">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/sim.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
