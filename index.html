@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#03171c" />
+    <title>深缆 ABYSSAL SPLICE</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main id="app">
+      <canvas id="scene" aria-label="深海维修作业场景"></canvas>
+      <div class="vignette" aria-hidden="true"></div>
+      <div class="scanlines" aria-hidden="true"></div>
+
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <div>
+            <h1>深缆 <em>ABYSSAL SPLICE</em></h1>
+            <p>ELASTIC UMBILICAL / DIVE 07</p>
+          </div>
+        </div>
+
+        <div class="mission" id="mission">
+          <span class="mission-kicker">任务链</span>
+          <div class="mission-nodes" id="missionNodes"></div>
+          <span class="mission-count" id="missionCount">0 / 3</span>
+        </div>
+
+        <div class="top-actions">
+          <div class="depth-readout">
+            <small>深度</small>
+            <strong id="depthValue">000</strong><span>m</span>
+          </div>
+          <button class="icon-btn" id="muteBtn" type="button" title="声音开关" aria-label="声音开关">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zm2.5 0a7 7 0 0 0-4-6.3v2.2a5 5 0 0 1 0 8.2v2.2A7 7 0 0 0 19 12z"/></svg>
+          </button>
+          <button class="action-btn compact" id="replayBtn" type="button">回放</button>
+        </div>
+      </header>
+
+      <aside class="tool-rail" aria-label="维修工具">
+        <span class="rail-label">TOOL RACK</span>
+        <button class="tool-card active" data-tool="1" type="button">
+          <span class="tool-key">1</span>
+          <span class="tool-icon cutter" aria-hidden="true"></span>
+          <span class="tool-copy"><strong>切割钳</strong><small>CUTTER / 甲</small></span>
+          <span class="tool-state">就绪</span>
+        </button>
+        <button class="tool-card" data-tool="2" type="button">
+          <span class="tool-key">2</span>
+          <span class="tool-icon splicer" aria-hidden="true"></span>
+          <span class="tool-copy"><strong>接续器</strong><small>SPLICER / 乙</small></span>
+          <span class="tool-state">就绪</span>
+        </button>
+        <button class="tool-card" data-tool="3" type="button">
+          <span class="tool-key">3</span>
+          <span class="tool-icon resin" aria-hidden="true"></span>
+          <span class="tool-copy"><strong>注胶枪</strong><small>RESIN / 丙</small></span>
+          <span class="tool-state">就绪</span>
+        </button>
+        <div class="load-card">
+          <span>有效负载</span>
+          <strong id="loadValue">24.0 <small>kg</small></strong>
+          <i><b id="loadBar"></b></i>
+        </div>
+      </aside>
+
+      <aside class="telemetry" aria-label="脐带遥测">
+        <div class="telemetry-head">
+          <span>UMBILICAL</span>
+          <i id="signalDot"></i>
+        </div>
+        <div class="tension-gauge">
+          <div class="gauge-track">
+            <div class="gauge-danger"></div>
+            <div class="gauge-fill" id="tensionFill"></div>
+            <div class="gauge-marker" id="tensionMarker"></div>
+          </div>
+          <div class="gauge-legend"><span>松</span><span>张力</span><span>断</span></div>
+        </div>
+        <div class="telemetry-row">
+          <span>张力</span><strong id="tensionValue">0.84</strong>
+        </div>
+        <div class="telemetry-row">
+          <span>缆长</span><strong id="lengthValue">260 m</strong>
+        </div>
+        <div class="telemetry-row">
+          <span>船体完好</span><strong id="integrityValue">100%</strong>
+        </div>
+        <div class="telemetry-row state-row">
+          <span>脐带状态</span><strong id="cableState">松弛</strong>
+        </div>
+        <div class="determinism">
+          <span class="det-title">DETERMINISM LOG</span>
+          <div><span>轨迹哈希</span><code id="traceHash">--------</code></div>
+          <div><span>回放帧</span><code id="replayFrame">-- / --</code></div>
+          <button id="verifyBtn" type="button">同输入逐帧校验</button>
+          <p id="verifyResult">等待本局结束</p>
+        </div>
+      </aside>
+
+      <div class="objective" id="objective">
+        <span class="objective-tool" id="objectiveTool"></span>
+        <div>
+          <small id="objectiveKicker">当前目标</small>
+          <strong id="objectiveText">展开脐带，前往甲号断点</strong>
+        </div>
+      </div>
+
+      <div class="alert" id="alert" role="status"></div>
+
+      <footer class="controls">
+        <div class="control-group">
+          <div class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div>
+          <span>四向推进</span>
+        </div>
+        <div class="control-group">
+          <div class="keys"><kbd>Q</kbd><kbd>E</kbd></div>
+          <span>放缆 / 收缆</span>
+        </div>
+        <div class="control-group">
+          <div class="keys"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></div>
+          <span>切换工具</span>
+        </div>
+        <div class="control-group">
+          <div class="keys"><kbd>R</kbd><kbd>M</kbd></div>
+          <span>重开 / 静音</span>
+        </div>
+      </footer>
+
+      <section class="result-panel" id="resultPanel" aria-live="polite">
+        <div class="result-code" id="resultCode">MISSION COMPLETE</div>
+        <h2 id="resultTitle">三处缆芯已接续</h2>
+        <p id="resultBody">维修舱安全回收。海流数据与输入轨迹已封存。</p>
+        <div class="result-stats">
+          <div><span>用时</span><strong id="statTime">--</strong></div>
+          <div><span>记录帧</span><strong id="statFrames">--</strong></div>
+          <div><span>轨迹哈希</span><code id="statHash">--------</code></div>
+        </div>
+        <div class="result-actions">
+          <button class="action-btn primary" id="playbackBtn" type="button">回放本局</button>
+          <button class="action-btn" id="restartBtn" type="button">再次下潜</button>
+        </div>
+      </section>
+
+      <div class="start-toast" id="startToast">
+        <span>DIVE 07</span>
+        <strong>脐带已解锁</strong>
+        <p>先用 <kbd>Q</kbd> 放缆，保持张力低于红色区。</p>
+      </div>
+    </main>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
