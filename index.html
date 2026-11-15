@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#080b12" />
+    <title>回声档案 · 双耳校准</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%23080b12'/%3E%3Cpath d='M10 13v6M16 9v14M22 12v8' stroke='%236ee7dd' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="noise-layer" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="回声档案首页">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>
+          <strong>回声档案</strong>
+          <small>BINAURAL FIELD UNIT</small>
+        </span>
+      </a>
+      <div class="system-state">
+        <span class="pulse-dot" aria-hidden="true"></span>
+        <span id="system-status">音频引擎待机</span>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section id="calibration-view" class="view">
+        <div class="intro">
+          <div>
+            <p class="eyebrow">HEADPHONE CALIBRATION / 03 STEPS</p>
+            <h1>让声音回到<br /><em>正确的位置</em></h1>
+            <p class="lede">
+              佩戴耳机，在安静环境中完成双耳校准。所有语音与音效均由浏览器实时合成。
+            </p>
+          </div>
+          <div class="headphone-figure" aria-hidden="true">
+            <div class="head-ring"></div>
+            <div class="ear left-ear"><span>L</span></div>
+            <div class="ear right-ear"><span>R</span></div>
+            <div class="head-core"></div>
+            <div class="signal-wave wave-a"></div>
+            <div class="signal-wave wave-b"></div>
+          </div>
+        </div>
+
+        <aside id="profile-restored" class="restored-panel" hidden>
+          <div>
+            <p class="eyebrow">PROFILE RECOVERED</p>
+            <h2>已恢复上次校准</h2>
+            <p id="restored-detail"></p>
+          </div>
+          <div class="restored-actions">
+            <button id="resume-scene" class="button primary" type="button">进入调查场景</button>
+            <button id="restart-calibration" class="button ghost" type="button">重新校准</button>
+          </div>
+        </aside>
+
+        <ol class="step-rail" aria-label="校准进度">
+          <li class="active" data-step="1"><b>01</b><span>声道</span></li>
+          <li data-step="2"><b>02</b><span>音色</span></li>
+          <li data-step="3"><b>03</b><span>空间</span></li>
+        </ol>
+
+        <div id="stage-root" class="stage-root">
+          <section id="stage-channel" class="stage-card active" aria-labelledby="channel-title">
+            <div class="stage-heading">
+              <div>
+                <p class="eyebrow">STAGE 01 / CHANNEL CHECK</p>
+                <h2 id="channel-title">先确认左右耳</h2>
+              </div>
+              <span class="stage-chip">双声道</span>
+            </div>
+            <p class="description">
+              系统会依次发出左侧和右侧提示。每次播放后，只凭听觉选择声音所在的耳朵。
+            </p>
+            <div id="channel-console" class="audio-console">
+              <div class="console-visual">
+                <div class="ear-zone left"><span>L</span></div>
+                <div class="scope"><canvas id="channel-scope" width="420" height="110"></canvas></div>
+                <div class="ear-zone right"><span>R</span></div>
+              </div>
+              <p id="channel-status" class="console-status" data-state="idle">准备开始声道测试</p>
+              <div id="channel-prompt" class="choice-prompt" hidden>
+                <p>刚才的声音在哪一侧？</p>
+                <div class="choice-row">
+                  <button id="answer-left" class="ear-button" type="button">
+                    <span class="ear-icon">L</span>
+                    <span><b>左耳</b><small>LEFT EAR</small></span>
+                  </button>
+                  <button id="answer-right" class="ear-button" type="button">
+                    <span><b>右耳</b><small>RIGHT EAR</small></span>
+                    <span class="ear-icon">R</span>
+                  </button>
+                </div>
+              </div>
+              <div id="channel-error" class="alert error" role="alert" hidden>
+                <strong>左右声道接反</strong>
+                <p id="channel-error-text"></p>
+                <div class="alert-actions">
+                  <button id="swap-retry" class="button danger" type="button">自动交换声道并重测</button>
+                  <button id="manual-retry" class="button ghost" type="button">已调整耳机，重测</button>
+                </div>
+              </div>
+              <div id="channel-success" class="alert success" role="status" hidden>
+                <strong>左右声道已确认</strong>
+                <p id="channel-success-text"></p>
+              </div>
+              <div class="stage-actions">
+                <button id="start-channel" class="button primary" type="button">开始声道测试</button>
+                <button id="to-tone" class="button primary" type="button" hidden>继续音色匹配</button>
+              </div>
+            </div>
+          </section>
+
+          <section id="stage-tone" class="stage-card" aria-labelledby="tone-title" hidden>
+            <div class="stage-heading">
+              <div>
+                <p class="eyebrow">STAGE 02 / PITCH + LEVEL</p>
+                <h2 id="tone-title">对齐音高与响度</h2>
+              </div>
+              <span class="stage-chip">连续匹配</span>
+            </div>
+            <p class="description">
+              先听参考音，再拖动两个连续控制轮，让测试音与参考音听起来完全一致。可反复 A/B 对比。
+            </p>
+            <div class="tone-grid">
+              <div class="reference-card">
+                <p class="eyebrow">REFERENCE SIGNAL</p>
+                <div class="reference-orb" aria-hidden="true"><span></span></div>
+                <p>稳定的参考纯音</p>
+                <button id="play-reference" class="button ghost" type="button">再听参考音</button>
+              </div>
+              <div class="match-card">
+                <div class="dial-heading">
+                  <label for="pitch-slider">连续音高</label>
+                  <span>低 <i></i> 高</span>
+                </div>
+                <input id="pitch-slider" class="calibration-range" type="range" min="150" max="620" step="0.1" aria-label="连续音高" />
+                <div class="dial-heading">
+                  <label for="level-slider">连续响度</label>
+                  <span>轻 <i></i> 响</span>
+                </div>
+                <input id="level-slider" class="calibration-range" type="range" min="-42" max="-12" step="0.1" aria-label="连续响度" />
+                <div class="compare-row">
+                  <button id="play-match" class="button ghost" type="button">试听我的音</button>
+                  <button id="compare-tone" class="button ghost" type="button">A / B 对比</button>
+                </div>
+              </div>
+            </div>
+            <div id="tone-feedback" class="tone-feedback" role="status">
+              <span class="meter-label">匹配读数</span>
+              <strong id="tone-result">调整后检查匹配</strong>
+            </div>
+            <div class="stage-actions">
+              <button id="check-tone" class="button primary" type="button">检查匹配</button>
+              <button id="to-spatial" class="button primary" type="button" hidden>继续空间校验</button>
+            </div>
+          </section>
+
+          <section id="stage-spatial" class="stage-card" aria-labelledby="spatial-title" hidden>
+            <div class="stage-heading">
+              <div>
+                <p class="eyebrow">STAGE 03 / FRONT + BACK</p>
+                <h2 id="spatial-title">追踪移动声源</h2>
+              </div>
+              <span id="spatial-counter" class="stage-chip">0 / 3</span>
+            </div>
+            <p class="description">
+              三段声源会从左向右掠过。闭眼聆听，判断每段声音位于身体前方还是后方。
+            </p>
+            <div class="spatial-stage">
+              <div class="spatial-radar" aria-hidden="true">
+                <div class="radar-ring ring-one"></div>
+                <div class="radar-ring ring-two"></div>
+                <div class="radar-cross"></div>
+                <div class="radar-head"><span></span></div>
+                <div id="radar-sweep" class="radar-sweep"></div>
+                <div class="radar-caption"><span>FRONT</span><span>BACK</span></div>
+              </div>
+              <div class="spatial-actions">
+                <p id="spatial-status" class="console-status">等待第一段声源</p>
+                <button id="play-spatial" class="button primary" type="button">播放第 1 段</button>
+                <div id="spatial-prompt" class="direction-prompt" hidden>
+                  <p>声源在哪一侧空间？</p>
+                  <div class="choice-row">
+                    <button id="answer-front" class="direction-button" type="button">前方</button>
+                    <button id="answer-back" class="direction-button" type="button">后方</button>
+                  </div>
+                </div>
+                <div id="spatial-error" class="alert error compact" role="alert" hidden>
+                  <strong>方向未通过</strong>
+                  <p>本轮声源位置判断不准确，请重听这一段。</p>
+                </div>
+                <div id="spatial-studies" class="trial-dots" aria-label="空间校验进度">
+                  <span></span><span></span><span></span>
+                </div>
+              </div>
+            </div>
+            <div id="calibration-complete" class="alert success complete-card" role="status" hidden>
+              <div>
+                <p class="eyebrow">CALIBRATION COMPLETE</p>
+                <strong>双耳校准已通过</strong>
+                <p id="complete-detail"></p>
+              </div>
+              <button id="save-calibration" class="button primary" type="button">保存并应用到调查</button>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="scene-view" class="view scene-view" hidden>
+        <div class="scene-header">
+          <div>
+            <p class="eyebrow">INVESTIGATION / SCENE 04</p>
+            <h1>深夜档案室</h1>
+            <p class="lede">校准后的空间音频已接入现场。点击三个线索点，判断声音来自前方还是后方。</p>
+          </div>
+          <div id="scene-profile" class="profile-card">
+            <p class="eyebrow">CALIBRATION APPLIED</p>
+            <dl>
+              <div><dt>声道映射</dt><dd id="profile-swap">标准</dd></div>
+              <div><dt>参考音高</dt><dd id="profile-pitch">-- Hz</dd></div>
+              <div><dt>主增益</dt><dd id="profile-gain">-- dB</dd></div>
+              <div><dt>空间校验</dt><dd id="profile-spatial">--</dd></div>
+            </dl>
+          </div>
+        </div>
+        <div class="scene-room">
+          <div class="room-grid" aria-hidden="true"></div>
+          <div class="room-depth-label front-label">FRONT / 前方</div>
+          <div class="room-depth-label back-label">BACK / 后方</div>
+          <button class="clue clue-one" data-clue="door" type="button">
+            <span class="clue-number">01</span><b>门缝细响</b><small>左前方</small>
+          </button>
+          <button class="clue clue-two" data-clue="recorder" type="button">
+            <span class="clue-number">02</span><b>磁带录音机</b><small>右前方</small>
+          </button>
+          <button class="clue clue-three" data-clue="steps" type="button">
+            <span class="clue-number">03</span><b>身后脚步</b><small>后方偏左</small>
+          </button>
+          <div class="scene-listener" aria-hidden="true">
+            <span class="listener-head"></span><span class="listener-body"></span>
+            <small>YOU</small>
+          </div>
+        </div>
+        <div class="scene-footer">
+          <div id="scene-feedback" class="scene-feedback" role="status">
+            校准已载入。选择一个线索开始监听。
+          </div>
+          <button id="back-to-calibration" class="button ghost" type="button">查看校准参数</button>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>

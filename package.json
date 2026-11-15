@@ -1,0 +1,14 @@
+{
+  "name": "echo-file-binaural-calibration",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "test": "node tests/calibration.e2e.mjs",
+    "verify": "node tests/calibration.e2e.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.65.1"
+  }
+}
