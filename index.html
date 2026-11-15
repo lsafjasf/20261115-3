@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#111818" />
+    <title>云层观测台 · Volumetric Canvas Study</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <canvas
+        id="cloud-canvas"
+        aria-label="可旋转的体积云层。拖动画布改变视角，滚轮改变俯仰。"
+      ></canvas>
+      <div class="scene-vignette" aria-hidden="true"></div>
+
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>STRATUS / 观测编号 047</span>
+        </div>
+        <div class="topbar-actions">
+          <span class="live-pill" id="live-pill">
+            <i aria-hidden="true"></i><b id="live-label">实时仿真</b>
+          </span>
+          <button class="ghost-button" id="open-compare" type="button">
+            <span class="button-icon" aria-hidden="true">◫</span>
+            三视角对照
+          </button>
+        </div>
+      </header>
+
+      <section class="hero-copy" aria-labelledby="page-title">
+        <p class="eyebrow">TWO-DIMENSIONAL / VOLUMETRIC STUDY</p>
+        <h1 id="page-title">云在海平线<br /><em>翻涌</em></h1>
+        <p class="lede">
+          同一团积云, 从三个方向看都有不同轮廓. 拖动画面环绕机位,
+          近景会压住远云, 逆光只留在边缘.
+        </p>
+        <div class="view-presets" role="group" aria-label="视角预设">
+          <button type="button" data-view="-24" aria-label="转向左舷 24 度">
+            <span>左舷</span><b>-24°</b>
+          </button>
+          <button type="button" data-view="0" class="is-active" aria-label="回到正前视角">
+            <span>正前</span><b>0°</b>
+          </button>
+          <button type="button" data-view="24" aria-label="转向右舷 24 度">
+            <span>右舷</span><b>+24°</b>
+          </button>
+          <button type="button" data-view="current" class="view-readout" aria-label="当前视角">
+            <span>机位</span><b id="view-readout">0.0°</b>
+          </button>
+        </div>
+      </section>
+
+      <aside class="control-panel" aria-label="云层控制台">
+        <div class="panel-heading">
+          <div>
+            <p class="panel-kicker">CLOUD CONSOLE</p>
+            <h2>云层参数</h2>
+          </div>
+          <div class="weather-glyph" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+
+        <div class="slider-stack">
+          <label class="slider-row" for="density">
+            <span class="slider-label"><span>密度</span><output id="density-value">92%</output></span>
+            <input id="density" type="range" min="25" max="165" value="92" step="1" />
+            <span class="slider-ends"><i>稀薄</i><i>浓积云</i></span>
+          </label>
+
+          <label class="slider-row" for="wind">
+            <span class="slider-label"><span>风力</span><output id="wind-value">7.0 m/s</output></span>
+            <input id="wind" type="range" min="0" max="20" value="7" step="0.1" />
+            <span class="slider-ends"><i>静风</i><i>强风</i></span>
+          </label>
+
+          <label class="slider-row" for="sun">
+            <span class="slider-label"><span>太阳高度</span><output id="sun-value">14°</output></span>
+            <input id="sun" type="range" min="-4" max="52" value="14" step="1" />
+            <span class="slider-ends"><i>暮光</i><i>正午</i></span>
+          </label>
+
+          <label class="slider-row" for="view">
+            <span class="slider-label"><span>水平视角</span><output id="view-value">0°</output></span>
+            <input id="view" type="range" min="-32" max="32" value="0" step="0.5" />
+            <span class="slider-ends"><i>左舷</i><i>右舷</i></span>
+          </label>
+        </div>
+
+        <div class="quality-block">
+          <div class="field-label">
+            <span>渲染质量</span>
+            <small id="quality-meta">1,260 粒子</small>
+          </div>
+          <div class="segmented" role="group" aria-label="渲染质量档位">
+            <button type="button" data-quality="low">低</button>
+            <button type="button" data-quality="medium" class="is-active">高</button>
+            <button type="button" data-quality="ultra">极致</button>
+          </div>
+        </div>
+
+        <div class="action-grid">
+          <button type="button" id="pause-button" class="action-button">
+            <span class="action-icon" aria-hidden="true">Ⅱ</span>
+            <span id="pause-label">暂停</span>
+            <kbd>Space</kbd>
+          </button>
+          <button type="button" id="shot-button" class="action-button">
+            <span class="action-icon" aria-hidden="true">⌁</span>
+            <span>截图</span>
+            <kbd>S</kbd>
+          </button>
+        </div>
+
+        <div class="verification">
+          <div class="verification-copy">
+            <span class="verify-state" id="verify-state">未校验</span>
+            <small id="verify-detail">暂停后比对全部粒子与画布</small>
+          </div>
+          <button type="button" id="verify-button" aria-label="验证暂停冻结">冻结校验</button>
+        </div>
+
+        <div class="telemetry">
+          <div><span>FPS</span><b id="fps-value">--</b></div>
+          <div><span>仿真帧</span><b id="frame-value">00000</b></div>
+          <div><span>云团</span><b id="cluster-value">12</b></div>
+        </div>
+      </aside>
+
+      <div class="scene-footer">
+        <p class="drag-hint"><i aria-hidden="true">↔</i> 拖动环绕 · 滚轮俯仰</p>
+        <p class="scene-caption" id="scene-caption">层积云 / 海平线 18° / 逆光 14°</p>
+      </div>
+
+      <section class="compare-drawer" id="compare-drawer" aria-labelledby="compare-title" aria-hidden="true">
+        <div class="drawer-head">
+          <div>
+            <p class="panel-kicker">ORBIT COMPARISON</p>
+            <h2 id="compare-title">同一团云, 三种机位</h2>
+          </div>
+          <button type="button" class="drawer-close" id="close-compare" aria-label="关闭视角对照">×</button>
+        </div>
+        <div class="compare-grid" id="compare-grid"></div>
+        <div class="drawer-note">
+          <span>粒子位置完全一致</span>
+          <span>仅改变相机水平角</span>
+          <span>近景遮挡随视差移动</span>
+        </div>
+      </section>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <div class="loading-screen" id="loading-screen" aria-hidden="true">
+        <div class="loading-whorl" aria-hidden="true"></div>
+        <span>正在凝聚云层</span>
+      </div>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
