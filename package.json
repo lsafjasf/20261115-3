@@ -1,0 +1,14 @@
+{
+  "name": "three-camera-stage-program",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "verify": "node tests/verify.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.65.1"
+  }
+}

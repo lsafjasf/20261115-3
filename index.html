@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ORBIT / 三机位舞台导播台</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="ORBIT 节目台首页">
+          <span class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i>
+          </span>
+          <span class="brand-copy">
+            <strong>ORBIT</strong>
+            <small>LIVE STAGE / 03</small>
+          </span>
+        </a>
+
+        <div class="session">
+          <span class="session-dot"></span>
+          <span>SESSION 15-03</span>
+          <span class="session-divider"></span>
+          <span>120 BPM</span>
+          <span class="session-divider"></span>
+          <span>15.0 SEC</span>
+        </div>
+
+        <div class="transport" aria-label="播放控制">
+          <button class="icon-button" id="restartBtn" type="button" title="回到开头" aria-label="回到开头">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14M18 6l-8 6 8 6V6z"/></svg>
+          </button>
+          <button class="play-button" id="playBtn" type="button" aria-label="播放节目">
+            <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7V5z"/></svg>
+            <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM14 5h4v14h-4z"/></svg>
+            <span id="playLabel">播放</span>
+          </button>
+          <div class="timecode" id="timecode">00:00:00:00</div>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="program-column">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">PROGRAM OUT</span>
+              <h1>轨道幻境 <span>· 15 秒节目</span></h1>
+            </div>
+            <div class="program-status">
+              <span class="status-pill" id="liveBadge"><i></i> READY</span>
+              <span class="resolution">1280 × 720 / 30 FPS</span>
+            </div>
+          </div>
+
+          <div class="monitor-frame" id="monitorFrame">
+            <canvas id="programCanvas" width="1280" height="720" aria-label="节目主监看画面"></canvas>
+            <div class="monitor-shade"></div>
+            <div class="monitor-top">
+              <div class="tally" id="tally"><i></i><span>CAM 01</span></div>
+              <div class="monitor-meta">
+                <span id="shotReadout">SHOT 01 / WIDE</span>
+                <span class="monitor-separator">/</span>
+                <span>PGM</span>
+              </div>
+            </div>
+            <div class="monitor-bottom">
+              <div class="next-cut">
+                <span>NEXT CUT</span>
+                <strong id="nextCut">00:04.00</strong>
+              </div>
+              <div class="beat-meter" aria-label="节拍指示">
+                <span>BEAT</span>
+                <div class="beat-dots" id="beatDots">
+                  <i></i><i></i><i></i><i></i>
+                </div>
+                <strong id="barReadout">01.1</strong>
+              </div>
+              <div class="record-time" id="programClock">00:00.00</div>
+            </div>
+            <div class="safe-frame" aria-hidden="true"></div>
+            <div class="export-progress" id="exportProgress" aria-live="polite">
+              <div class="export-progress-copy">
+                <span>EXPORTING WEBM</span>
+                <strong id="exportPercent">0%</strong>
+              </div>
+              <div class="export-progress-track"><i id="exportBar"></i></div>
+            </div>
+          </div>
+
+          <div class="camera-strip">
+            <div class="strip-label">
+              <span class="eyebrow">MULTIVIEW</span>
+              <strong>固定机位</strong>
+              <small>镜头间共享同一场景时钟</small>
+            </div>
+            <button class="camera-preview" data-camera="cam-a" type="button">
+              <canvas class="preview-canvas" width="384" height="216" aria-label="CAM 1 广角预览"></canvas>
+              <span class="camera-index">01</span>
+              <span class="camera-name">WIDE</span>
+              <span class="camera-tally"></span>
+            </button>
+            <button class="camera-preview" data-camera="cam-b" type="button">
+              <canvas class="preview-canvas" width="384" height="216" aria-label="CAM 2 左侧预览"></canvas>
+              <span class="camera-index">02</span>
+              <span class="camera-name">LEFT / 65</span>
+              <span class="camera-tally"></span>
+            </button>
+            <button class="camera-preview" data-camera="cam-c" type="button">
+              <canvas class="preview-canvas" width="384" height="216" aria-label="CAM 3 特写预览"></canvas>
+              <span class="camera-index">03</span>
+              <span class="camera-name">CLOSE / 120</span>
+              <span class="camera-tally"></span>
+            </button>
+          </div>
+
+          <section class="timeline-panel" aria-label="镜头时间线">
+            <div class="timeline-header">
+              <div>
+                <span class="eyebrow">DIRECTOR TIMELINE</span>
+                <h2>镜头表 <span id="shotCount">4 段 / 3 切点</span></h2>
+              </div>
+              <div class="timeline-actions">
+                <span class="snap-note"><i></i> 切点吸附 1/2 拍</span>
+                <button class="button button-quiet" id="addCutBtn" type="button">
+                  <span>＋</span> 添加切点
+                </button>
+              </div>
+            </div>
+            <div class="timeline-shell">
+              <div class="track-label">
+                <span>CAM / CUT</span>
+                <small>点击片段编辑</small>
+              </div>
+              <div class="timeline-main">
+                <div class="ruler" id="ruler"></div>
+                <div class="timeline-track" id="timelineTrack">
+                  <div class="beat-grid" id="beatGrid"></div>
+                  <div class="shot-blocks" id="shotBlocks"></div>
+                  <div class="playhead" id="playhead"><i></i></div>
+                </div>
+              </div>
+            </div>
+            <div class="timeline-legend">
+              <span><i class="legend-beat"></i> 音频节拍 120 BPM</span>
+              <span><i class="legend-cut"></i> 镜头切点</span>
+              <span class="timeline-tip">← → 选择镜头 · 空格播放</span>
+            </div>
+          </section>
+        </section>
+
+        <aside class="control-column">
+          <div class="panel inspector-panel">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">SHOT INSPECTOR</span>
+                <h2 id="inspectorTitle">镜头 02</h2>
+              </div>
+              <span class="shot-chip" id="inspectorChip">CUT 01</span>
+            </div>
+
+            <div class="field-group">
+              <div class="field-label">
+                <label for="cutTimeInput">切入时间</label>
+                <span>SECONDS</span>
+              </div>
+              <div class="time-input-wrap">
+                <input id="cutTimeInput" type="number" min="0.5" max="14.5" step="0.5" value="4.00" />
+                <span>s</span>
+              </div>
+              <p class="field-hint" id="timeHint">第 8 拍 · 第 3 小节第 1 拍</p>
+            </div>
+
+            <div class="field-group">
+              <div class="field-label">
+                <span>使用机位</span>
+                <span>3 AVAILABLE</span>
+              </div>
+              <div class="camera-picker" id="cameraPicker">
+                <button type="button" data-pick-camera="cam-a">
+                  <span class="pick-index">01</span>
+                  <span><strong>广角</strong><small>WIDE</small></span>
+                  <i></i>
+                </button>
+                <button type="button" data-pick-camera="cam-b">
+                  <span class="pick-index">02</span>
+                  <span><strong>左侧</strong><small>LEFT</small></span>
+                  <i></i>
+                </button>
+                <button type="button" data-pick-camera="cam-c">
+                  <span class="pick-index">03</span>
+                  <span><strong>近景</strong><small>CLOSE</small></span>
+                  <i></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <div class="field-label">
+                <label for="transitionSelect">转场方式</label>
+                <span>IN</span>
+              </div>
+              <div class="select-wrap">
+                <select id="transitionSelect">
+                  <option value="cut">硬切 / CUT</option>
+                  <option value="dissolve">叠化 / DISSOLVE</option>
+                  <option value="wipe">侧向擦除 / WIPE</option>
+                  <option value="slide">推入 / SLIDE</option>
+                  <option value="dip">闪黑 / DIP</option>
+                </select>
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
+              </div>
+            </div>
+
+            <button class="button button-danger" id="removeShotBtn" type="button">
+              删除此镜头
+            </button>
+          </div>
+
+          <div class="panel verification-panel">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">CUT VALIDATION</span>
+                <h2>切点自检</h2>
+              </div>
+              <span class="check-summary" id="checkSummary">3 / 3</span>
+            </div>
+            <div class="check-list" id="checkList"></div>
+            <div class="continuity-note">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>
+              <p><strong>场景时钟连续</strong><span>切点前后动画状态差值 &lt; 0.01 px</span></p>
+            </div>
+          </div>
+
+          <div class="panel export-panel">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">DELIVERABLES</span>
+                <h2>导出节目</h2>
+              </div>
+            </div>
+            <div class="export-meta">
+              <span>WEBM · VP9 / OPUS</span>
+              <span>15.0 SEC</span>
+            </div>
+            <button class="button button-primary" id="exportWebmBtn" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
+              导出 WebM
+            </button>
+            <button class="button button-secondary" id="exportJsonBtn" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6V3zm8 0v5h5M9 13h6M9 17h6"/></svg>
+              导出镜头表 JSON
+            </button>
+            <p class="export-hint">WebM 将实时渲染 15 秒；导出期间请保持此页在前台。</p>
+          </div>
+        </aside>
+      </main>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </div>
+    <script src="vendor/fix-webm-duration/fix-webm-duration.js"></script>
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
