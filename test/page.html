@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>sequencer test harness</title></head>
+<body>
+<script src="../sequencer.js"></script>
+<script>
+// Test harness: runs the sequencer, captures rendered audio through an
+// AudioWorklet tap, and exposes everything the Node runner needs.
+(async function () {
+  const ctx = new AudioContext();
+  await ctx.audioWorklet.addModule('capture-worklet.js');
+
+  const tap = ctx.createGain();
+  const captureNode = new AudioWorkletNode(ctx, 'capture-processor');
+  tap.connect(captureNode);
+  captureNode.connect(ctx.destination); // keep the graph pulled
+
+  const captured = [];        // {time, samples} chunks, time = audio clock of frame 0
+  let capturedFrames = 0;
+  captureNode.port.onmessage = (e) => {
+    captured.push(e.data);
+    capturedFrames += e.data.samples.length;
+  };
+
+  const seq = new StepSequencer(ctx, {
+    bpm: 140,
+    steps: 16,
+    destination: tap,
+  });
+
+  // Drain into {t0, samples}: t0 is the audio-clock time of samples[0].
+  function drainCapture() {
+    const out = new Float32Array(capturedFrames);
+    let offset = 0;
+    const t0 = captured.length ? captured[0].time : 0;
+    for (const chunk of captured) {
+      out.set(chunk.samples, offset);
+      offset += chunk.samples.length;
+    }
+    captured.length = 0;
+    capturedFrames = 0;
+    return { t0, samples: out };
+  }
+
+  // Onset detection: a click is a sharp attack; find upward threshold
+  // crossings with a refractory period of half a step.
+  // Returns audio-clock times (seconds on ctx.currentTime's timeline).
+  function findOnsets(buf, threshold = 0.1, refractorySec = 0.05) {
+    const { t0, samples } = buf;
+    const onsets = [];
+    const refractory = Math.floor(refractorySec * ctx.sampleRate);
+    let last = -refractory;
+    for (let i = 1; i < samples.length; i++) {
+      if (Math.abs(samples[i]) >= threshold && i - last >= refractory) {
+        onsets.push(t0 + i / ctx.sampleRate);
+        last = i;
+      }
+    }
+    return onsets;
+  }
+
+  function maxAbs(buf, fromSec = 0) {
+    const { samples } = buf;
+    const start = Math.floor(fromSec * ctx.sampleRate);
+    let peak = 0;
+    for (let i = start; i < samples.length; i++) {
+      const v = Math.abs(samples[i]);
+      if (v > peak) peak = v;
+    }
+    return peak;
+  }
+
+  window.testApi = {
+    ctx,
+    seq,
+    start: () => seq.start(),
+    pause: () => seq.pause(),
+    resume: () => seq.resume(),
+    setTempo: (bpm) => seq.setTempo(bpm),
+    seek: (step) => seq.seek(step),
+    now: () => ctx.currentTime,
+    pendingEventCount: () => seq.pendingEventCount,
+    scheduleLog: () => seq.scheduleLog.slice(),
+    drainCapture: () => drainCapture(),
+    findOnsets,
+    maxAbs,
+    sampleRate: ctx.sampleRate,
+  };
+  window.testReady = true;
+})();
+</script>
+</body>
+</html>

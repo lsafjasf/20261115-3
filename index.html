@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Step Sequencer — Web Audio 精确调度</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #14161a; color: #e8e8e8;
+         display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 32px; }
+  .grid { display: grid; grid-template-columns: repeat(16, 28px); gap: 6px; }
+  .cell { width: 28px; height: 28px; border-radius: 4px; background: #2a2e35;
+          cursor: pointer; border: 1px solid #3a3f47; }
+  .cell.on { background: #4f8cff; }
+  .cell.playing { box-shadow: 0 0 10px 2px #ffd166; }
+  .row { display: flex; gap: 12px; align-items: center; }
+  button { padding: 6px 14px; }
+</style>
+</head>
+<body>
+<h1>步进音序器</h1>
+<div class="grid" id="grid"></div>
+<div class="row">
+  <button id="play">▶ 播放</button>
+  <button id="stop">■ 停止</button>
+  <label>BPM <input id="bpm" type="number" value="140" min="40" max="240" style="width:64px"></label>
+  <button id="seek">跳到第 8 步</button>
+  <span id="pending"></span>
+</div>
+<script src="sequencer.js"></script>
+<script>
+const grid = document.getElementById('grid');
+const cells = [];
+const pattern = new Array(16).fill(false);
+[0, 4, 8, 12].forEach((i) => (pattern[i] = true));
+
+for (let i = 0; i < 16; i++) {
+  const cell = document.createElement('div');
+  cell.className = 'cell' + (pattern[i] ? ' on' : '');
+  cell.onclick = () => {
+    pattern[i] = !pattern[i];
+    cell.classList.toggle('on', pattern[i]);
+  };
+  grid.appendChild(cell);
+  cells.push(cell);
+}
+
+let ctx = null;
+let seq = null;
+let highlightTimer = null;
+
+function ensureSeq() {
+  if (seq) return;
+  ctx = new AudioContext();
+  seq = new StepSequencer(ctx, { bpm: +document.getElementById('bpm').value, pattern });
+  highlightTimer = setInterval(() => {
+    cells.forEach((c, i) => c.classList.toggle('playing', seq.isPlaying && i === (seq.currentStep + 15) % 16));
+    document.getElementById('pending').textContent = '队列事件: ' + seq.pendingEventCount;
+  }, 30);
+}
+
+document.getElementById('play').onclick = () => { ensureSeq(); ctx.resume(); seq.isPlaying ? seq.pause() : seq.resume(); };
+document.getElementById('stop').onclick = () => { if (seq) seq.stop(); };
+document.getElementById('bpm').onchange = (e) => { if (seq) seq.setTempo(+e.target.value); };
+document.getElementById('seek').onclick = () => { if (seq) seq.seek(8); };
+</script>
+</body>
+</html>

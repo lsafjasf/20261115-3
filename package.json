@@ -1,0 +1,27 @@
+{
+  "name": "web-audio-step-sequencer",
+  "version": "1.0.0",
+  "description": "Drift-free step sequencer using Web Audio precise scheduling with a cancellable event queue",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/run-test.mjs",
+    "test:quick": "node test/run-test.mjs --duration=15",
+    "serve": "npx http-server -p 8080 ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lsafjasf/20261115-3.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/lsafjasf/20261115-3/issues"
+  },
+  "homepage": "https://github.com/lsafjasf/20261115-3#readme",
+  "dependencies": {
+    "puppeteer": "^25.17.0",
+    "yauzl": "^3.4.0"
+  }
+}
