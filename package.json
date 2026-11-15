@@ -1,0 +1,12 @@
+{
+  "name": "spatial-trail-mixer",
+  "version": "1.0.0",
+  "description": "弯曲步道五声源空间音频编辑器：绘制听者路线、逐段设置环境声/衰减/混响、同步播放与双耳导出",
+  "type": "module",
+  "scripts": {
+    "test": "node --test './tests/**/*.test.js'",
+    "verify": "node tests/verify-walk.js",
+    "serve": "node server.js"
+  },
+  "license": "MIT"
+}
