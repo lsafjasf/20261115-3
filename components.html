@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NovaDesk 组件库</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1>NovaDesk — 桌面工具组件库</h1>
+    <p class="sub">按钮 · 开关 · 标签 · 滑杆 ｜ 正常 / 悬停 / 按下 / 禁用 / 键盘焦点</p>
+  </div>
+  <button class="theme-toggle" id="themeToggle" type="button">切换到深色主题</button>
+</header>
+
+<!-- ============ 状态画廊（静态展示五种状态） ============ -->
+<section class="panel" id="gallery-buttons">
+  <h2>按钮 Button</h2>
+  <div class="row"><span class="state-name">正常</span>
+    <button class="btn btn-primary" type="button" tabindex="-1">主要操作</button>
+    <button class="btn btn-secondary" type="button" tabindex="-1">次要操作</button>
+  </div>
+  <div class="row"><span class="state-name">悬停</span>
+    <button class="btn btn-primary is-hover" type="button" tabindex="-1">主要操作</button>
+    <button class="btn btn-secondary is-hover" type="button" tabindex="-1">次要操作</button>
+  </div>
+  <div class="row"><span class="state-name">按下</span>
+    <button class="btn btn-primary is-active" type="button" tabindex="-1">主要操作</button>
+    <button class="btn btn-secondary is-active" type="button" tabindex="-1">次要操作</button>
+  </div>
+  <div class="row"><span class="state-name">禁用</span>
+    <button class="btn btn-primary" type="button" disabled tabindex="-1">主要操作</button>
+    <button class="btn btn-secondary" type="button" disabled tabindex="-1">次要操作</button>
+  </div>
+  <div class="row"><span class="state-name">键盘焦点</span>
+    <button class="btn btn-primary is-focus" type="button" tabindex="-1">主要操作</button>
+    <button class="btn btn-secondary is-focus" type="button" tabindex="-1">次要操作</button>
+  </div>
+</section>
+
+<section class="panel" id="gallery-switches">
+  <h2>开关 Switch</h2>
+  <div class="row"><span class="state-name">正常</span>
+    <label class="switch"><input type="checkbox" checked tabindex="-1"><span class="track"></span><span class="switch-label">开启</span></label>
+    <label class="switch"><input type="checkbox" tabindex="-1"><span class="track"></span><span class="switch-label">关闭</span></label>
+  </div>
+  <div class="row"><span class="state-name">禁用</span>
+    <label class="switch disabled"><input type="checkbox" checked disabled><span class="track"></span><span class="switch-label">开启</span></label>
+    <label class="switch disabled"><input type="checkbox" disabled><span class="track"></span><span class="switch-label">关闭</span></label>
+  </div>
+  <div class="row"><span class="state-name">键盘焦点</span>
+    <label class="switch"><input type="checkbox" checked tabindex="-1"><span class="track is-focus"></span><span class="switch-label">开启</span></label>
+    <label class="switch"><input type="checkbox" tabindex="-1"><span class="track is-focus"></span><span class="switch-label">关闭</span></label>
+  </div>
+</section>
+
+<section class="panel" id="gallery-tags">
+  <h2>标签 Label / Tag</h2>
+  <div class="row"><span class="state-name">表单标签</span>
+    <div>
+      <label class="field-label" for="demoInput">项目名称</label>
+      <input id="demoInput" type="text" tabindex="-1" value="渲染农场任务" readonly
+        style="font:inherit;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);">
+    </div>
+  </div>
+  <div class="row"><span class="state-name">状态标签</span>
+    <span class="tag">运行中</span>
+    <span class="tag">已排队 <button class="tag-remove" type="button" aria-label="移除标签 已排队" tabindex="-1">×</button></span>
+    <span class="tag" aria-disabled="true">已归档</span>
+  </div>
+</section>
+
+<section class="panel" id="gallery-sliders">
+  <h2>滑杆 Slider</h2>
+  <div class="row"><span class="state-name">正常</span>
+    <div class="slider-wrap"><input class="slider" type="range" min="0" max="100" value="60" tabindex="-1"><span class="slider-value">60</span></div>
+  </div>
+  <div class="row"><span class="state-name">悬停</span>
+    <div class="slider-wrap"><input class="slider is-hover" type="range" min="0" max="100" value="60" tabindex="-1"><span class="slider-value">60</span></div>
+  </div>
+  <div class="row"><span class="state-name">按下</span>
+    <div class="slider-wrap"><input class="slider is-active" type="range" min="0" max="100" value="60" tabindex="-1"><span class="slider-value">60</span></div>
+  </div>
+  <div class="row"><span class="state-name">禁用</span>
+    <div class="slider-wrap"><input class="slider" type="range" min="0" max="100" value="60" disabled><span class="slider-value">60</span></div>
+  </div>
+  <div class="row"><span class="state-name">键盘焦点</span>
+    <div class="slider-wrap"><input class="slider is-focus" type="range" min="0" max="100" value="60" tabindex="-1"><span class="slider-value">60</span></div>
+  </div>
+</section>
+
+<!-- ============ 交互区（真实键盘遍历测试用） ============ -->
+<section class="panel" id="playground">
+  <h2>交互区（可用 Tab 遍历）</h2>
+  <div class="row">
+    <button class="btn btn-primary" type="button" data-kb="btn-primary">保存</button>
+    <button class="btn btn-secondary" type="button" data-kb="btn-secondary">取消</button>
+    <label class="switch">
+      <input type="checkbox" data-kb="switch" checked>
+      <span class="track"></span><span class="switch-label">自动同步</span>
+    </label>
+    <span class="tag">高优先级
+      <button class="tag-remove" type="button" aria-label="移除标签 高优先级" data-kb="tag-remove">×</button>
+    </span>
+    <div class="slider-wrap">
+      <label class="field-label" for="vol" style="margin:0;">音量</label>
+      <input class="slider" id="vol" type="range" min="0" max="100" value="40" data-kb="slider">
+      <span class="slider-value" id="volValue">40</span>
+    </div>
+  </div>
+</section>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+/* ===== Design tokens ===== */
+:root,
+:root[data-theme="light"] {
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --surface-2: #eef0f3;
+  --text: #1b1e24;
+  --text-muted: #4d5560;
+  --border: #b9bfc9;
+  --primary: #0057c2;
+  --primary-hover: #004aa6;
+  --primary-active: #003d8a;
+  --on-primary: #ffffff;
+  --track-off: #6b7280;
+  --focus-ring: #8a5cf6;
+  --danger: #b3261e;
+  --tag-bg: #e3ecfa;
+  --tag-text: #0b3d91;
+  --radius: 8px;
+}
+
+:root[data-theme="dark"] {
+  --bg: #14161b;
+  --surface: #1e2128;
+  --surface-2: #2a2e37;
+  --text: #eceef2;
+  --text-muted: #b6bcc7;
+  --border: #5c6470;
+  --primary: #7db0ff;
+  --primary-hover: #9cc2ff;
+  --primary-active: #bcd4ff;
+  --on-primary: #0b1c36;
+  --track-off: #8a919d;
+  --focus-ring: #c4a7ff;
+  --danger: #f2b8b5;
+  --tag-bg: #17345f;
+  --tag-text: #b9d4ff;
+  --radius: 8px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 32px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+h1 { font-size: 20px; margin: 0 0 4px; }
+h2 { font-size: 15px; margin: 0 0 12px; }
+p.sub { margin: 0 0 24px; color: var(--text-muted); }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+
+.row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.row + .row { margin-top: 16px; }
+.state-name {
+  width: 88px;
+  flex: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ===== Focus ring (shared) ===== */
+.btn:focus-visible,
+.switch input:focus-visible + .track,
+.tag-remove:focus-visible,
+.slider:focus-visible,
+.theme-toggle:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+/* Forced-state mirror used by the static gallery */
+.is-focus {
+  outline: 3px solid var(--focus-ring) !important;
+  outline-offset: 2px;
+}
+
+/* ===== Button ===== */
+.btn {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  padding: 8px 18px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-primary:hover, .btn-primary.is-hover { background: var(--primary-hover); }
+.btn-primary:active, .btn-primary.is-active { background: var(--primary-active); }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.btn-secondary:hover, .btn-secondary.is-hover { background: var(--surface-2); }
+.btn-secondary:active, .btn-secondary.is-active {
+  background: var(--surface-2);
+  border-color: var(--primary-active);
+  color: var(--primary-active);
+}
+
+.btn:disabled {
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ===== Toggle switch ===== */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.switch .track {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--track-off);
+  transition: background 0.15s ease;
+}
+.switch .track::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.15s ease;
+}
+.switch input:checked + .track { background: var(--primary); }
+.switch input:checked + .track::after { transform: translateX(18px); }
+.switch input:disabled + .track { opacity: 0.45; cursor: not-allowed; }
+.switch input:disabled ~ .switch-label { color: var(--text-muted); }
+.switch.disabled { cursor: not-allowed; }
+
+/* ===== Tag / label ===== */
+.field-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--tag-bg);
+  color: var(--tag-text);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.tag-remove {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+  padding: 0 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.tag-remove:hover { background: rgba(127, 127, 127, 0.25); }
+.tag[aria-disabled="true"] { opacity: 0.55; }
+
+/* ===== Slider ===== */
+.slider-wrap { display: flex; align-items: center; gap: 12px; min-width: 280px; }
+.slider {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 220px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--surface);
+}
+.slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--surface);
+}
+.slider:hover::-webkit-slider-thumb, .slider.is-hover::-webkit-slider-thumb {
+  background: var(--primary-hover);
+}
+.slider:active::-webkit-slider-thumb, .slider.is-active::-webkit-slider-thumb {
+  background: var(--primary-active);
+}
+.slider:disabled { opacity: 0.5; cursor: not-allowed; }
+.slider:disabled::-webkit-slider-thumb { background: var(--text-muted); }
+.slider-value {
+  min-width: 40px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  background: var(--surface-2);
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+
+/* ===== Theme toggle ===== */
+.theme-toggle {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 6px 14px;
+  font: inherit;
+  cursor: pointer;
+}
+.theme-toggle:hover { background: var(--surface-2); }
+
+header.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
