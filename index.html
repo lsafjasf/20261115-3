@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1016" />
+    <title>LithoSlice · 地层剖切台</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="LithoSlice 首页">
+          <span class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i><i></i>
+          </span>
+          <span>
+            <b>LithoSlice</b>
+            <small>地层剖切工作台</small>
+          </span>
+        </a>
+        <div class="topbar-context">
+          <span class="project-code">GS-07 / 北岭构造带</span>
+          <span class="live-pill"><span></span>双视图实时联动</span>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-button" id="reset-all" type="button" title="重置全部参数" aria-label="重置全部参数">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v6h6M20 20v-6h-6M5.5 15a7 7 0 0 0 11.8 2M18.5 9A7 7 0 0 0 6.7 7"/></svg>
+          </button>
+          <button class="export-button" id="export-svg" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>
+            导出剖面 SVG
+          </button>
+        </div>
+      </header>
+
+      <aside class="control-panel" aria-label="剖切与地层控制">
+        <div class="panel-scroll">
+          <section class="control-section">
+            <div class="section-heading">
+              <span class="section-kicker">01</span>
+              <h2>剖切控制</h2>
+              <span class="heading-rule"></span>
+            </div>
+            <label class="control-block" for="cut-angle">
+              <span class="control-label">
+                <span>剖切方位</span>
+                <output id="angle-output">075°</output>
+              </span>
+              <input id="cut-angle" class="range-input" type="range" min="0" max="180" value="75" step="1" />
+              <span class="range-scale"><i>0°</i><i>90°</i><i>180°</i></span>
+            </label>
+            <label class="control-block" for="cut-offset">
+              <span class="control-label">
+                <span>平移距离</span>
+                <output id="offset-output">+0.30 km</output>
+              </span>
+              <input id="cut-offset" class="range-input" type="range" min="-2.2" max="2.2" value="0.3" step="0.05" />
+              <span class="range-scale"><i>西</i><i>中心</i><i>东</i></span>
+            </label>
+            <div class="cut-readout">
+              <span><i class="compass" aria-hidden="true">✦</i><b id="cut-bearing">A—A′ · 北偏东 75°</b></span>
+              <span id="cut-length">剖面长 8.28 km</span>
+            </div>
+          </section>
+
+          <section class="control-section layers-section">
+            <div class="section-heading">
+              <span class="section-kicker">02</span>
+              <h2>地层厚度</h2>
+              <button id="reset-layers" class="text-button" type="button">恢复</button>
+            </div>
+            <div class="layer-editor" id="layer-editor"></div>
+            <p class="helper-text"><span></span>修改厚度后，三维块体、剖面与统计同步重算。</p>
+          </section>
+        </div>
+
+        <section class="metrics-panel" aria-label="剖面统计">
+          <div class="section-heading">
+            <span class="section-kicker">03</span>
+            <h2>剖面统计</h2>
+            <span class="sync-dot" title="实时计算"></span>
+          </div>
+          <div class="metric-grid">
+            <article><span>地层总厚</span><b id="metric-total">495<small> m</small></b></article>
+            <article><span>剖面长度</span><b id="metric-length">8.28<small> km</small></b></article>
+            <article><span>断层落差</span><b id="metric-fault">70<small> m</small></b></article>
+            <article><span>剖面均厚</span><b id="metric-average">496<small> m</small></b></article>
+          </div>
+          <div class="composition-head"><span>厚度构成</span><span id="composition-total">495 m</span></div>
+          <div class="composition-bar" id="composition-bar" role="img" aria-label="各层厚度占比"></div>
+          <div class="composition-legend" id="composition-legend"></div>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <div class="workspace-meta">
+          <div>
+            <span class="meta-path">剖面工作区 / LIVE SECTION</span>
+            <h1>北岭多层岩性构造模型</h1>
+          </div>
+          <div class="workspace-badges">
+            <span class="data-badge"><i></i>程序化地质体</span>
+            <span class="data-badge">无模型加载</span>
+            <span class="edit-flash" id="edit-flash">参数已同步</span>
+          </div>
+        </div>
+
+        <div class="views-grid">
+          <section class="view-card view-3d">
+            <header class="view-header">
+              <div class="view-title">
+                <span class="view-letter">A</span>
+                <div><h2>立体剖切</h2><p>拖拽旋转 · 滚轮缩放</p></div>
+              </div>
+              <div class="view-tools">
+                <span class="view-tag">PERSPECTIVE</span>
+                <button class="canvas-button" id="reset-camera" type="button" title="重置三维视角" aria-label="重置三维视角">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v6h6M20 20v-6h-6M5.5 15a7 7 0 0 0 11.8 2M18.5 9A7 7 0 0 0 6.7 7"/></svg>
+                </button>
+              </div>
+            </header>
+            <div class="canvas-wrap" id="view3d-wrap">
+              <canvas id="view3d" aria-label="可旋转的三维地层剖切模型"></canvas>
+              <span class="canvas-corner top-left">Z ↑</span>
+              <span class="canvas-corner bottom-left" id="camera-readout">方位 035° · 俯角 32°</span>
+              <span class="canvas-corner bottom-right">N ↗</span>
+              <span class="drag-cue" id="drag-cue">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 11V7a2 2 0 0 1 4 0v4-2a2 2 0 0 1 4 0v2-1a2 2 0 0 1 4 0v5c0 4-2 6-6 6H9c-2 0-3-1-4-3l-2-3a2 2 0 0 1 3-2l2 2"/></svg>
+                拖动探索
+              </span>
+            </div>
+          </section>
+
+          <section class="view-card view-2d">
+            <header class="view-header">
+              <div class="view-title">
+                <span class="view-letter">B</span>
+                <div><h2>二维地质剖面</h2><p id="section-subtitle">A—A′ · 方位 075° · 8.28 km</p></div>
+              </div>
+              <div class="view-tools">
+                <span class="view-tag section-tag">SECTION</span>
+                <span class="ve-badge" id="ve-badge">垂向 2.0×</span>
+              </div>
+            </header>
+            <div class="canvas-wrap section-wrap" id="view2d-wrap">
+              <canvas id="view2d" aria-label="二维地层剖面图"></canvas>
+              <span class="section-watermark">LITHOSLICE · SECTION A—A′</span>
+            </div>
+          </section>
+        </div>
+
+        <footer class="workspace-footer">
+          <span><i class="legend-swatch fault"></i>F₁ 正断层 · 西升东降</span>
+          <span><i class="legend-swatch plane"></i>剖切面 A—A′</span>
+          <span class="footer-note">层序由下至上 L1 → L7，断层位移保持层序连续</span>
+        </footer>
+      </main>
+    </div>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
