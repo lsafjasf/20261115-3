@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SVG 形态过渡工作台 · 圆形 → 星形</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header>
+        <h1>SVG 形态过渡工作台</h1>
+        <p class="sub">圆形 → 五角星 · 等弧长重采样自动匹配顶点 · 往返无缝循环</p>
+      </header>
+
+      <section class="stage-card">
+        <svg id="stage" viewBox="0 0 400 400" role="img" aria-label="形变预览"></svg>
+        <div id="badges" class="badges">
+          <span id="badge-self" class="badge">自交检查中…</span>
+          <span id="badge-flip" class="badge">翻转检查中…</span>
+          <span id="badge-mono" class="badge">扭转检查中…</span>
+          <span id="badge-loop" class="badge">首尾闭合检查中…</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="row">
+          <label>重采样顶点数
+            <input id="vertex-count" type="range" min="40" max="320" step="10" value="160" />
+            <output id="vertex-count-val">160</output>
+          </label>
+          <label>中间帧时刻
+            <input id="mid-t" type="range" min="0.2" max="0.8" step="0.05" value="0.5" />
+            <output id="mid-t-val">0.50</output>
+          </label>
+          <label>中间帧波纹幅度
+            <input id="ripple" type="range" min="0" max="40" step="1" value="14" />
+            <output id="ripple-val">14</output>
+          </label>
+        </div>
+
+        <div class="row">
+          <label>圆→中 缓动
+            <select id="ease-a"></select>
+          </label>
+          <label>中→星 缓动
+            <select id="ease-b"></select>
+          </label>
+          <label>循环时长（秒）
+            <input id="duration" type="number" min="1" max="10" step="0.5" value="4" />
+          </label>
+        </div>
+
+        <div class="row">
+          <label>编辑模式
+            <select id="edit-mode">
+              <option value="play" selected>播放 / 拖动时间轴</option>
+              <option value="mid">编辑中间路径（拖动顶点）</option>
+            </select>
+          </label>
+          <div class="buttons">
+            <button id="btn-play">▶ 播放 / 暂停</button>
+            <button id="btn-reset-mid">重置中间帧</button>
+            <button id="export-svg">导出动画 SVG</button>
+            <button id="export-final">导出最终星形 SVG</button>
+            <button id="export-webm">导出 WebM</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <label class="timeline">时间轴
+            <input id="scrub" type="range" min="0" max="1" step="0.001" value="0" />
+          </label>
+        </div>
+
+        <p id="status" class="status"></p>
+        <details>
+          <summary>顶点匹配 / 审计详情</summary>
+          <pre id="details"></pre>
+        </details>
+      </section>
+    </main>
+    <script type="module" src="workbench.js"></script>
+  </body>
+</html>
