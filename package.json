@@ -1,0 +1,15 @@
+{
+  "name": "skeleton-wave-editor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "七段骨骼二维角色骨架编辑器与挥手循环动画",
+  "scripts": {
+    "test": "node test/core.test.cjs && node test/e2e.test.cjs",
+    "test:unit": "node test/core.test.cjs",
+    "test:e2e": "node test/e2e.test.cjs",
+    "build:data": "node tools/generate-assets.cjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.65.1"
+  }
+}

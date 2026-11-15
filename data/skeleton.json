@@ -1,0 +1,92 @@
+{
+  "format": "skeleton/v1",
+  "root": {
+    "x": 280,
+    "y": 330
+  },
+  "bones": [
+    {
+      "id": "pelvis",
+      "name": "骨盆(根骨)",
+      "parent": null,
+      "length": 30,
+      "restAngle": -1.5707963267948966,
+      "color": "#e8603c",
+      "skin": {
+        "w0": 20,
+        "w1": 22
+      }
+    },
+    {
+      "id": "spine",
+      "name": "躯干",
+      "parent": "pelvis",
+      "length": 65,
+      "restAngle": 0,
+      "color": "#ff8a3d",
+      "skin": {
+        "w0": 22,
+        "w1": 26
+      }
+    },
+    {
+      "id": "head",
+      "name": "头部",
+      "parent": "spine",
+      "length": 32,
+      "restAngle": 0,
+      "color": "#ffd23d",
+      "skin": {
+        "radius": 18
+      }
+    },
+    {
+      "id": "upperArmL",
+      "name": "左上臂",
+      "parent": "spine",
+      "length": 58,
+      "restAngle": 2.69,
+      "color": "#4fa3ff",
+      "skin": {
+        "w0": 11,
+        "w1": 9
+      }
+    },
+    {
+      "id": "foreArmL",
+      "name": "左前臂",
+      "parent": "upperArmL",
+      "length": 52,
+      "restAngle": 0.35,
+      "color": "#7cc0ff",
+      "skin": {
+        "w0": 9,
+        "w1": 7
+      }
+    },
+    {
+      "id": "upperArmR",
+      "name": "右上臂(挥手)",
+      "parent": "spine",
+      "length": 58,
+      "restAngle": -2.69,
+      "color": "#35c46a",
+      "skin": {
+        "w0": 11,
+        "w1": 9
+      }
+    },
+    {
+      "id": "foreArmR",
+      "name": "右前臂(摆动)",
+      "parent": "upperArmR",
+      "length": 52,
+      "restAngle": -0.35,
+      "color": "#7fe0a3",
+      "skin": {
+        "w0": 9,
+        "w1": 7
+      }
+    }
+  ]
+}

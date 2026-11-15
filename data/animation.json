@@ -1,0 +1,66 @@
+{
+  "format": "animation/v1",
+  "duration": 1.2,
+  "frames": [
+    {
+      "time": 0,
+      "pose": {
+        "pelvis": 0,
+        "spine": 0,
+        "head": 0,
+        "upperArmL": 0,
+        "foreArmL": 0,
+        "upperArmR": -2.85,
+        "foreArmR": -0.25
+      }
+    },
+    {
+      "time": 0.3,
+      "pose": {
+        "pelvis": 0.02,
+        "spine": 0.03,
+        "head": -0.08,
+        "upperArmL": 0,
+        "foreArmL": 0,
+        "upperArmR": -2.85,
+        "foreArmR": 0.35
+      }
+    },
+    {
+      "time": 0.6,
+      "pose": {
+        "pelvis": -0.02,
+        "spine": -0.02,
+        "head": 0.06,
+        "upperArmL": 0,
+        "foreArmL": 0,
+        "upperArmR": -2.85,
+        "foreArmR": -0.55
+      }
+    },
+    {
+      "time": 0.9,
+      "pose": {
+        "pelvis": 0.02,
+        "spine": 0.03,
+        "head": -0.08,
+        "upperArmL": 0,
+        "foreArmL": 0,
+        "upperArmR": -2.85,
+        "foreArmR": 0.35
+      }
+    },
+    {
+      "time": 1.2,
+      "pose": {
+        "pelvis": 0,
+        "spine": 0,
+        "head": 0,
+        "upperArmL": 0,
+        "foreArmL": 0,
+        "upperArmR": -2.85,
+        "foreArmR": -0.25
+      }
+    }
+  ]
+}

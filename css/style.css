@@ -1,0 +1,188 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  background: #14181f;
+  color: #e7ecf3;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 18px;
+  padding: 18px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 18px;
+  margin: 0 0 10px;
+}
+
+h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8fa3bd;
+  margin: 16px 0 8px;
+}
+
+.canvas-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+}
+
+canvas {
+  width: 100%;
+  height: auto;
+  background: radial-gradient(circle at 50% 35%, #232b38, #171c25);
+  border: 1px solid #2c3747;
+  border-radius: 12px;
+  touch-action: none;
+  cursor: grab;
+}
+
+canvas.dragging {
+  cursor: grabbing;
+}
+
+.status {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #9fb4cf;
+  min-height: 18px;
+}
+
+.panel {
+  background: #1b222d;
+  border: 1px solid #2a3544;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+button,
+.file-btn {
+  background: #2f7cf6;
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+button:hover,
+.file-btn:hover {
+  background: #448bff;
+}
+
+button.ghost {
+  background: #2a3544;
+}
+
+button.ghost:hover {
+  background: #36455a;
+}
+
+.check {
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.slider {
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.slider input[type="range"] {
+  flex: 1;
+}
+
+.bone-name {
+  font-weight: 600;
+  color: #ffd23d;
+}
+
+.timeline {
+  position: relative;
+  height: 34px;
+  background: #11161d;
+  border: 1px solid #2a3544;
+  border-radius: 8px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.key-marker {
+  position: absolute;
+  top: 4px;
+  width: 10px;
+  height: 26px;
+  transform: translateX(-50%);
+  background: #ffd23d;
+  border-radius: 3px;
+}
+
+.playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #ff5d5d;
+  left: 0;
+}
+
+.small {
+  font-size: 12px;
+  color: #9fb4cf;
+  justify-content: space-between;
+}
+
+.ok {
+  color: #35c46a;
+}
+
+.warn {
+  color: #ff8a3d;
+}
+
+.hierarchy {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.hierarchy li span {
+  cursor: pointer;
+}
+
+.hierarchy li span:hover {
+  color: #7cc0ff;
+}
+
+@media (max-width: 880px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>七段骨骼挥手动画编辑器</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <section class="stage">
+        <h1>七段骨骼角色 · 挥手循环</h1>
+        <div class="canvas-wrap">
+          <canvas id="canvas" width="560" height="560"></canvas>
+          <div id="status" class="status">就绪：拖动白色关节调整姿态</div>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <h2>播放</h2>
+        <div class="row">
+          <button id="btnPlay">▶ 播放</button>
+          <button id="btnStop">■ 停止</button>
+          <label class="check"><input type="checkbox" id="chkLoop" checked /> 循环</label>
+        </div>
+        <div class="row">
+          <label class="slider">速度
+            <input type="range" id="speed" min="0.25" max="2" step="0.05" value="1" />
+            <span id="speedVal">1.00×</span>
+          </label>
+        </div>
+
+        <h2>关键帧</h2>
+        <div class="row">
+          <button id="btnAddKey">＋ 在当前时间记录</button>
+          <button id="btnDelKey">－ 删除最近帧</button>
+        </div>
+        <div class="row">
+          <button id="btnResetPose" class="ghost">复位姿态</button>
+          <button id="btnLoadWave" class="ghost">载入挥手示例</button>
+        </div>
+
+        <h2>选中骨骼</h2>
+        <div class="row">
+          <span id="boneName" class="bone-name">未选择</span>
+        </div>
+        <div class="row">
+          <label class="slider">局部旋转
+            <input type="range" id="rotSlider" min="-3.14159" max="3.14159" step="0.01" value="0" />
+          </label>
+          <span id="rotVal">0.00 rad</span>
+        </div>
+
+        <h2>保存 / 载入</h2>
+        <div class="row">
+          <button id="btnSave">💾 保存 JSON</button>
+          <button id="btnReload" class="ghost">♻ 重新载入</button>
+        </div>
+        <div class="row">
+          <label class="file-btn">导入骨骼 JSON
+            <input type="file" id="fileSkel" accept="application/json,.json" hidden />
+          </label>
+          <label class="file-btn">导入动画 JSON
+            <input type="file" id="fileAnim" accept="application/json,.json" hidden />
+          </label>
+        </div>
+        <div class="row">
+          <a id="dlSkel" class="file-btn" download="skeleton.json">导出骨骼</a>
+          <a id="dlAnim" class="file-btn" download="animation.json">导出动画</a>
+        </div>
+
+        <h2>声音</h2>
+        <div class="row">
+          <label class="check"><input type="checkbox" id="chkAudio" /> 启用 Web Audio 反馈</label>
+        </div>
+
+        <h2>时间轴</h2>
+        <div id="timeline" class="timeline">
+          <div id="playhead" class="playhead"></div>
+        </div>
+        <div class="row small">
+          <span id="timeLabel">t = 0.00 s</span>
+          <span id="gapLabel" class="ok"></span>
+        </div>
+
+        <h2>层级</h2>
+        <ol id="hierarchy" class="hierarchy"></ol>
+      </aside>
+    </main>
+
+    <script src="js/skeleton.js"></script>
+    <script src="js/animation.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/defaults.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
