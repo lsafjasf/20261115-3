@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FRAME/SYNC · 合成视频播放器</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%230b1623%22/><path d=%22M9 8h14v16H9z%22 fill=%22none%22 stroke=%22%2365dcf6%22 stroke-width=%222%22/><path d=%22M14 12l6 4-6 4z%22 fill=%22%23ffb84e%22/></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">F/S</div>
+        <div>
+          <h1>合成视频播放器</h1>
+          <p>帧请求取消 · 最新帧优先 · 音频同步恢复</p>
+        </div>
+      </div>
+      <div class="transport-state" id="transportState">
+        <span class="state-dot"></span>
+        <span id="statusText">已暂停</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="player-panel">
+        <div class="screen-bezel">
+          <canvas id="videoCanvas" width="960" height="540" aria-label="合成视频画面"></canvas>
+          <div class="screen-tag">
+            <span class="live-dot"></span>
+            SYNTHETIC FEED
+          </div>
+          <div class="subtitle-layer" id="subtitleLayer">
+            <span class="cue-chip" id="subtitleCue">CUE-01</span>
+            <p id="subtitleText">测试场尚未启动，所有轨道停在零点</p>
+          </div>
+        </div>
+
+        <div class="transport">
+          <button id="btnPlay" class="primary" type="button">▶ 播放</button>
+          <button id="btnPause" type="button">暂停</button>
+          <button id="btnStepBack" class="icon-button" type="button" aria-label="后退一帧">−1 帧</button>
+          <button id="btnStepForward" class="icon-button" type="button" aria-label="前进一帧">+1 帧</button>
+          <div class="transport-time">
+            <span id="liveTimecode">00:00.000</span>
+            <small>/ 00:48.000</small>
+          </div>
+          <div class="transport-spacer"></div>
+          <label class="mute-control">
+            <input id="muteToggle" type="checkbox">
+            <span>静音合成音频</span>
+          </label>
+          <button id="btnRapid" class="accent" type="button">快速拖动 5 次</button>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-head">
+            <span>PLAYHEAD / 30 FPS</span>
+            <span id="timelineReadout">#0000 · 0.000s</span>
+          </div>
+          <div class="scrubber">
+            <div class="cue-rail" id="cueRail"></div>
+            <input id="playhead" type="range" min="0" max="1799" step="1" value="0"
+                   aria-label="播放头，范围 0 到 1799 帧">
+          </div>
+          <div class="timeline-scale">
+            <span>00:00</span><span>00:12</span><span>00:24</span><span>00:36</span><span>00:48</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="sidebar">
+        <section class="card telemetry">
+          <div class="card-head">
+            <h2>同步读数</h2>
+            <span class="mini-tag">FRAME LOCK</span>
+          </div>
+          <div class="readout-grid">
+            <div class="readout">
+              <span>渲染帧号</span>
+              <strong id="frameValue">#0000</strong>
+            </div>
+            <div class="readout">
+              <span>音频时间</span>
+              <strong id="audioValue">00:00.000</strong>
+            </div>
+            <div class="readout wide">
+              <span>当前字幕</span>
+              <strong id="cueValue">CUE-01</strong>
+            </div>
+          </div>
+          <canvas id="audioScope" width="360" height="58" aria-label="合成音频波形"></canvas>
+          <div class="audio-caption">
+            <span>SYNTH AUDIO</span>
+            <span id="audioStateText">暂停 · 0.000s</span>
+          </div>
+        </section>
+
+        <section class="card diagnostics">
+          <div class="card-head">
+            <h2>请求序号 / 取消</h2>
+            <span class="mini-tag" id="pendingBadge">IDLE</span>
+          </div>
+          <div class="diag-list">
+            <div><span>最新请求序号</span><b id="diagSeq">#0</b></div>
+            <div><span>目标帧</span><b id="diagTarget">#0000</b></div>
+            <div><span>已取消旧请求</span><b id="diagAborted">0</b></div>
+            <div><span>迟到旧响应丢弃</span><b id="diagStale">0</b></div>
+            <div><span>已提交帧</span><b id="diagCommitted">0</b></div>
+          </div>
+          <div class="diag-note">
+            新拖动先递增序号并中止前一个请求；只有与当前序号相同的帧才允许提交。
+          </div>
+        </section>
+
+        <section class="card verification" id="verificationCard">
+          <div class="card-head">
+            <h2>五次快速拖动验收</h2>
+            <span class="verify-badge" id="verifyBadge">待运行</span>
+          </div>
+          <p class="verify-empty" id="verifyEmpty">点击“快速拖动 5 次”，检查最终帧号、音频时间和字幕是否来自同一帧。</p>
+          <div class="verify-result" id="verifyResult" hidden>
+            <div class="verify-grid">
+              <div><span>最终帧号</span><strong id="verifyFrame">—</strong></div>
+              <div><span>音频时间</span><strong id="verifyAudio">—</strong></div>
+              <div class="wide"><span>字幕</span><strong id="verifyCue">—</strong></div>
+            </div>
+            <div class="pass-line" id="passLine">—</div>
+            <ol class="event-list" id="dragEvents"></ol>
+            <div class="check-list" id="verifyChecks"></div>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <footer>
+      <span>拖动播放头或按五次验收按钮。</span>
+      <span>暂停后 <code>tick()</code> 不再推进帧 / 音频 / 字幕。</span>
+    </footer>
+  </div>
+
+  <script src="src/core.js"></script>
+  <script src="src/audio.js"></script>
+  <script src="src/renderer.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>
