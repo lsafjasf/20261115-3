@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07161b">
+  <title>白障 · 冰湖救援</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main id="app">
+    <canvas id="game" aria-label="冰湖救援游戏画面"></canvas>
+    <div class="screen-noise" aria-hidden="true"></div>
+    <div class="frame" aria-hidden="true"></div>
+
+    <header class="mission-panel glass">
+      <div class="mission-kicker"><span class="live-dot"></span> OPERATION WHITEOUT</div>
+      <div class="mission-row">
+        <div>
+          <h1>冰湖救援</h1>
+          <p>带回所有幸存者，并驶回南岸</p>
+        </div>
+        <div class="rescue-count" aria-label="已救援人数">
+          <span id="rescue-count">0</span><small>/ 3</small>
+        </div>
+      </div>
+      <div class="survivor-pips" id="survivor-pips">
+        <span class="pip" data-person="lin"><i></i><b>林岚</b></span>
+        <span class="pip" data-person="zhao"><i></i><b>赵海</b></span>
+        <span class="pip" data-person="cheng"><i></i><b>程野</b></span>
+      </div>
+    </header>
+
+    <section class="seed-chip glass">
+      <span>FIXED SEED</span>
+      <strong id="seed-label">20261115</strong>
+      <button id="mute" type="button" title="开关音效 (M)">音频 开</button>
+      <button id="restart" type="button" title="使用同一种子重新开始 (R)">↻ 重开</button>
+    </section>
+
+    <section class="telemetry glass" aria-label="冰层遥测">
+      <div class="panel-heading">
+        <span>冰层遥测</span>
+        <span id="ice-readout" class="readout">稳定</span>
+      </div>
+      <div class="meter-block">
+        <div class="meter-label"><span>冰层应力</span><b id="stress-value">18%</b></div>
+        <div class="meter"><i id="stress-fill"></i><span class="danger-zone"></span></div>
+      </div>
+      <div class="telemetry-grid">
+        <div><span>当前载重</span><b id="mass-value">1.0 t</b></div>
+        <div><span>刹车距离</span><b id="brake-value">48 m</b></div>
+        <div><span>活动裂纹</span><b id="crack-value">12</b></div>
+        <div><span>拖救顺序</span><b id="order-value">—</b></div>
+      </div>
+      <div class="support-block">
+        <div class="meter-label"><span>局部承载力</span><b id="support-value">100%</b></div>
+        <div class="support-meter"><i id="support-fill"></i></div>
+      </div>
+    </section>
+
+    <section class="drive-panel glass">
+      <div class="speed-ring">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle class="ring-bg" cx="50" cy="50" r="42"></circle>
+          <circle class="ring-fill" id="speed-ring-fill" cx="50" cy="50" r="42"></circle>
+        </svg>
+        <div><b id="speed-value">0</b><span>km/h</span></div>
+      </div>
+      <div class="drive-copy">
+        <strong id="drive-state">待命</strong>
+        <span>W / S 油门 · A / D 转向</span>
+      </div>
+      <div class="gear"><span id="gear-value">N</span></div>
+    </section>
+
+    <div class="route-hint glass" id="route-hint">
+      <span class="route-key">点击湖面</span>
+      <span>设定自动转向航点</span>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <section class="overlay intro" id="intro">
+      <div class="intro-card">
+        <div class="eyebrow">北纬 63° · 冰情红色预警</div>
+        <h2>白障<span>WHITEOUT</span></h2>
+        <p class="lede">三人被困在开裂冰湖上。履带带来的每一秒振动，都会让裂纹继续生长。</p>
+        <div class="brief-grid">
+          <div><b>01</b><span>控制车速，减少冰面持续振动</span></div>
+          <div><b>02</b><span>绕开中央裂隙，规划拖救顺序</span></div>
+          <div><b>03</b><span>载重增加后，提前更长距离刹车</span></div>
+        </div>
+        <div class="seed-note">本次冰情固定种子 <strong>#20261115</strong></div>
+        <button class="primary" id="start-button" type="button">开始救援 <kbd>ENTER</kbd></button>
+        <div class="intro-controls">
+          <span><kbd>W</kbd><kbd>S</kbd> 油门 / 刹车</span>
+          <span><kbd>A</kbd><kbd>D</kbd> 转向</span>
+          <span><kbd>SPACE</kbd> 急刹</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="overlay result hidden" id="result">
+      <div class="result-card">
+        <div class="eyebrow" id="result-eyebrow">救援完成</div>
+        <h2 id="result-title">全员生还</h2>
+        <p id="result-copy"></p>
+        <div class="result-stats">
+          <div><span>用时</span><b id="result-time">00:00</b></div>
+          <div><span>拖救顺序</span><b id="result-order">—</b></div>
+          <div><span>裂纹增长</span><b id="result-cracks">0 m</b></div>
+        </div>
+        <button class="primary" id="result-button" type="button">再次挑战 <kbd>R</kbd></button>
+      </div>
+    </section>
+
+    <div class="mobile-controls" aria-label="触屏驾驶">
+      <button data-control="left" type="button">←</button>
+      <div>
+        <button data-control="throttle" type="button">前进</button>
+        <button data-control="brake" type="button">刹车</button>
+      </div>
+      <button data-control="right" type="button">→</button>
+    </div>
+    <div class="touch-pause" id="touch-pause" hidden></div>
+  </main>
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
