@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101116" />
+    <title>Orbit Keyframe Studio</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="brand">
+          <div class="brand-mark"><span></span><span></span></div>
+          <div>
+            <div class="brand-name">ORBIT</div>
+            <div class="brand-sub">KEYFRAME STUDIO</div>
+          </div>
+        </div>
+        <div class="project-chip">
+          <span class="status-dot"></span>
+          <input id="project-name" aria-label="工程名称" spellcheck="false" />
+          <span id="save-state" class="save-state">已保存</span>
+        </div>
+        <div class="header-actions">
+          <button id="undo-btn" class="icon-button" title="撤销 (Ctrl+Z)" aria-label="撤销"></button>
+          <button id="redo-btn" class="icon-button" title="重做 (Ctrl+Shift+Z)" aria-label="重做"></button>
+          <span class="header-divider"></span>
+          <button id="import-btn" class="button ghost">打开工程</button>
+          <button id="json-btn" class="button ghost">导出 JSON</button>
+          <button id="webm-btn" class="button primary">
+            <span class="record-dot"></span> 导出 WebM
+          </button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <aside class="panel hierarchy-panel">
+          <div class="panel-heading">
+            <div>
+              <div class="eyebrow">SCENE</div>
+              <h2>对象层级</h2>
+            </div>
+            <button id="add-menu-btn" class="icon-button add" title="添加对象" aria-label="添加对象">+</button>
+          </div>
+          <div id="add-menu" class="add-menu" hidden>
+            <button data-add="group">组 / Group</button>
+            <button data-add="rect">矩形 / Rect</button>
+            <button data-add="ellipse">椭圆 / Ellipse</button>
+            <button data-add="text">文字 / Text</button>
+          </div>
+          <div id="hierarchy" class="hierarchy"></div>
+          <div class="hierarchy-footer">
+            <button id="duplicate-btn" class="mini-button">复制对象</button>
+            <button id="demo-btn" class="mini-button" title="重新载入十秒示例">示例</button>
+            <button id="delete-btn" class="mini-button danger">删除</button>
+          </div>
+        </aside>
+
+        <section class="stage-panel">
+          <div class="stage-toolbar">
+            <div class="stage-title">
+              <span class="live-dot"></span>
+              <span id="scene-title">Beat Bloom</span>
+            </div>
+            <div class="stage-meta">
+              <span id="resolution-label">1280 × 720</span>
+              <span class="toolbar-separator"></span>
+              <button id="fit-btn" class="text-button">适应舞台</button>
+            </div>
+          </div>
+          <div class="stage-wrap">
+            <div class="stage-frame">
+              <canvas id="stage" width="1280" height="720" aria-label="动画舞台"></canvas>
+              <div id="canvas-hint" class="canvas-hint">拖动对象调整位置 · 单击选择</div>
+            </div>
+          </div>
+          <div class="transport">
+            <div class="transport-main">
+              <button id="jump-start" class="transport-button" title="回到开头">↤</button>
+              <button id="step-back" class="transport-button" title="上一帧">‹</button>
+              <button id="play-btn" class="play-button" aria-label="播放">
+                <span class="play-icon"></span>
+              </button>
+              <button id="step-forward" class="transport-button" title="下一帧">›</button>
+              <button id="jump-end" class="transport-button" title="跳到结尾">↦</button>
+              <div class="timecode"><span id="time-current">00:00.00</span><span class="timecode-sep">/</span><span id="time-total">00:10.00</span></div>
+            </div>
+            <div class="beat-monitor">
+              <span class="beat-label">BEAT</span>
+              <div id="beat-dots" class="beat-dots"></div>
+              <span id="beat-count" class="beat-count">01</span>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel inspector-panel">
+          <div class="panel-heading">
+            <div>
+              <div class="eyebrow">PROPERTIES</div>
+              <h2>属性检查器</h2>
+            </div>
+          </div>
+          <div id="inspector" class="inspector"></div>
+        </aside>
+      </main>
+
+      <section class="timeline-panel">
+        <div class="timeline-toolbar">
+          <div class="timeline-title">
+            <div class="eyebrow">TIMELINE</div>
+            <strong>关键帧</strong>
+          </div>
+          <div class="range-controls">
+            <span class="range-label">帧段</span>
+            <label>IN <input id="range-in" type="number" min="0" step="0.1" value="0" /></label>
+            <label>OUT <input id="range-out" type="number" min="0" step="0.1" value="2" /></label>
+            <button id="mark-beat-range" class="mini-button">设为四拍</button>
+          </div>
+          <div class="timeline-actions">
+            <button id="copy-range-btn" class="mini-button">复制帧段</button>
+            <button id="paste-range-btn" class="mini-button accent">粘贴到播放头</button>
+            <span class="toolbar-separator"></span>
+            <button id="zoom-out" class="mini-button square">−</button>
+            <span id="zoom-label" class="zoom-label">120 px/s</span>
+            <button id="zoom-in" class="mini-button square">+</button>
+          </div>
+        </div>
+        <div class="timeline-help">
+          <span><b>Shift</b> 拖动标尺选择帧段</span>
+          <span><b>拖动</b> 菱形关键帧改变时间</span>
+          <span><b>Space</b> 播放 / 暂停</span>
+          <span class="timeline-sync"><span class="sync-dot"></span> 播放头与节拍共用时钟</span>
+        </div>
+        <div id="timeline-scroll" class="timeline-scroll">
+          <div id="timeline-content" class="timeline-content">
+            <div class="ruler-row">
+              <div class="track-label ruler-label">
+                <span>时间</span>
+                <span id="fps-label">30 FPS</span>
+              </div>
+              <div id="ruler-lane" class="ruler-lane">
+                <div id="range-selection" class="range-selection"></div>
+                <div class="ruler-beats" id="ruler-beats"></div>
+                <div class="ruler-ticks" id="ruler-ticks"></div>
+              </div>
+            </div>
+            <div id="timeline-rows"></div>
+            <div class="audio-row">
+              <div class="track-label audio-label">
+                <span class="audio-icon"></span>
+                <div>
+                  <strong id="audio-name">节拍网格</strong>
+                  <small id="audio-meta">0.5s / 120 BPM</small>
+                </div>
+                <button id="audio-upload-btn" class="tiny-button">载入</button>
+              </div>
+              <div id="audio-lane" class="audio-lane">
+                <canvas id="waveform" height="42"></canvas>
+                <div id="audio-beats" class="audio-beats"></div>
+              </div>
+            </div>
+            <div id="playhead" class="playhead"><span></span></div>
+          </div>
+        </div>
+        <div class="timeline-status">
+          <span id="timeline-selection">未选择对象</span>
+          <span id="keyframe-status">拖动播放头定位时间</span>
+        </div>
+      </section>
+    </div>
+
+    <div id="toast" class="toast" role="status"></div>
+    <div id="export-overlay" class="export-overlay" hidden>
+      <div class="export-card">
+        <div class="export-icon"><span></span></div>
+        <div class="eyebrow">RENDERING</div>
+        <h2>正在导出 WebM</h2>
+        <p id="export-caption">逐帧渲染 10 秒动画，请保持页面打开。</p>
+        <div class="progress-track"><div id="export-progress" class="progress-fill"></div></div>
+        <div class="export-meta"><span id="export-percent">0%</span><span id="export-time">00:00 / 00:10</span></div>
+      </div>
+    </div>
+    <input id="file-input" type="file" accept=".json,application/json" hidden />
+    <input id="audio-input" type="file" accept="audio/*" hidden />
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
