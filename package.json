@@ -1,0 +1,26 @@
+{
+  "name": "uid515",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u00002\u00000\u00002\u00006\u00001\u00001\u00001\u00005\u0000-\u00003\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "verify": "node verify.mjs",
+    "e2e": "node e2e.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lsafjasf/20261115-3.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/lsafjasf/20261115-3/issues"
+  },
+  "homepage": "https://github.com/lsafjasf/20261115-3#readme",
+  "devDependencies": {
+    "playwright": "^1.65.1"
+  }
+}
