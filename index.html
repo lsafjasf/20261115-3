@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自适应游戏音乐 · 三层动态切换</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>自适应游戏音乐引擎</h1>
+  <p class="sub">探索 / 警戒 / 战斗 三层随危险值平滑切换 · Web Audio 实时合成 · 共享走带无缝衔接</p>
+</header>
+
+<main>
+  <section class="panel viz">
+    <canvas id="viz" width="960" height="420"></canvas>
+    <div class="statebar">
+      <div class="danger-wrap">
+        <div class="danger-track" id="dangerTrack">
+          <div class="danger-fill" id="dangerFill"></div>
+          <div class="th-mark" id="thMark1"></div>
+          <div class="th-mark" id="thMark2"></div>
+          <div class="danger-cursor" id="dangerCursor"></div>
+        </div>
+        <div class="danger-labels"><span>0</span><span id="dangerReadout">危险值 0</span><span>100</span></div>
+      </div>
+      <div class="state-badge" id="stateBadge">探索</div>
+    </div>
+  </section>
+
+  <section class="panel controls">
+    <div class="row transport">
+      <button id="btnStart" class="primary">▶ 开始</button>
+      <button id="btnSimulate" disabled>🔁 模拟完整循环</button>
+      <button id="btnSkipTest" disabled>⚡ 手动跳层测试</button>
+    </div>
+    <div class="grid">
+      <label>危险值
+        <input type="range" id="danger" min="0" max="100" value="0" step="1">
+        <output id="dangerOut">0</output>
+      </label>
+      <label>阈值① 探索→警戒
+        <input type="range" id="th1" min="5" max="90" value="33" step="1">
+        <output id="th1Out">33</output>
+      </label>
+      <label>阈值② 警戒→战斗
+        <input type="range" id="th2" min="10" max="95" value="66" step="1">
+        <output id="th2Out">66</output>
+      </label>
+      <label>淡入时间 (s)
+        <input type="range" id="fade" min="0.1" max="3" value="0.8" step="0.1">
+        <output id="fadeOut">0.8</output>
+      </label>
+      <label>重音间隔 (拍)
+        <input type="range" id="accentEvery" min="2" max="8" value="4" step="1">
+        <output id="accentEveryOut">4</output>
+      </label>
+      <label>重音强度
+        <input type="range" id="accentGain" min="0" max="1" value="0.5" step="0.05">
+        <output id="accentGainOut">0.50</output>
+      </label>
+    </div>
+  </section>
+
+  <section class="panel verify">
+    <h2>验证面板</h2>
+    <div id="verifyLog" class="log">等待运行…</div>
+  </section>
+</main>
+
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
