@@ -1,0 +1,11 @@
+{
+  "name": "metro-storm-evacuation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Canvas 地铁站暴雨倒灌应急调度游戏",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "test": "node --test tests/sim.test.js",
+    "validate": "node scripts/validate.js"
+  }
+}

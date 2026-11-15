@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>暴雨倒灌 · 地铁站应急调度</title>
+  <link rel="stylesheet" href="fonts/noto-sans-sc/index.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <span></span><span></span>
+        </div>
+        <div>
+          <p class="eyebrow">METRO CONTROL / LINE 04</p>
+          <h1>暴雨倒灌 <i>·</i> 站厅应急调度</h1>
+        </div>
+      </div>
+      <div class="weather-block">
+        <div class="weather-icon" aria-hidden="true"><b></b><b></b><b></b></div>
+        <div>
+          <p class="eyebrow">EXTERIOR</p>
+          <p class="weather-value">暴雨 <span>18°C</span></p>
+        </div>
+      </div>
+      <div class="clock-block">
+        <p class="eyebrow">MISSION CLOCK</p>
+        <p class="mission-clock" id="missionClock">15:00</p>
+      </div>
+      <div class="live-block">
+        <span class="live-dot"></span>
+        <div>
+          <p class="eyebrow">STATUS</p>
+          <p id="missionStatus">待命</p>
+        </div>
+      </div>
+      <button class="icon-button" id="audioToggle" aria-label="切换音效" title="切换音效">
+        <span class="audio-glyph" id="audioGlyph">◖</span>
+      </button>
+    </header>
+
+    <main class="dashboard">
+      <aside class="panel controls-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">FIELD CONTROLS</p>
+            <h2>现场处置</h2>
+          </div>
+          <span class="panel-index">01</span>
+        </div>
+
+        <section class="control-group" aria-labelledby="barrierTitle">
+          <div class="group-title">
+            <span class="group-icon barrier-icon"></span>
+            <div><h3 id="barrierTitle">入口挡水板</h3><p>全封止水，但会封闭出口</p></div>
+          </div>
+          <div class="device-card" data-device="barrier-a">
+            <div class="device-line">
+              <span class="device-code">A</span>
+              <div class="device-copy"><b>北侧主入口</b><span>暴雨倒灌点 · 出口容量 3.0</span></div>
+              <span class="device-state" id="barrierAState">半挡</span>
+            </div>
+            <div class="segmented" role="group" aria-label="北侧主入口挡水板">
+              <button data-action="barrier" data-id="a" data-value="open">开启</button>
+              <button data-action="barrier" data-id="a" data-value="half" class="selected">半挡</button>
+              <button data-action="barrier" data-id="a" data-value="closed">全封</button>
+            </div>
+          </div>
+          <div class="device-card" data-device="barrier-b">
+            <div class="device-line">
+              <span class="device-code">B</span>
+              <div class="device-copy"><b>东侧备用入口</b><span>较低倒灌量 · 出口容量 3.0</span></div>
+              <span class="device-state" id="barrierBState">开启</span>
+            </div>
+            <div class="segmented" role="group" aria-label="东侧备用入口挡水板">
+              <button data-action="barrier" data-id="b" data-value="open" class="selected">开启</button>
+              <button data-action="barrier" data-id="b" data-value="half">半挡</button>
+              <button data-action="barrier" data-id="b" data-value="closed">全封</button>
+            </div>
+          </div>
+          <div class="device-card compact" data-device="transformer-door">
+            <div class="device-line">
+              <span class="device-code red">T</span>
+              <div class="device-copy"><b>变电室防水门</b><span>站厅积水越过临界线时失守</span></div>
+              <span class="device-state good" id="transformerDoorState">密封</span>
+            </div>
+            <div class="segmented two" role="group" aria-label="变电室防水门">
+              <button data-action="transformer" data-value="sealed" class="selected">密封</button>
+              <button data-action="transformer" data-value="open">开启</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="control-group" aria-labelledby="pumpTitle">
+          <div class="group-title">
+            <span class="group-icon pump-icon"></span>
+            <div><h3 id="pumpTitle">排水泵组</h3><p>高功率排水快，但会积蓄热量</p></div>
+          </div>
+          <div class="pump-row">
+            <div class="pump-card" data-device="pump-1">
+              <div class="pump-top">
+                <span class="device-code">P1</span>
+                <div class="device-copy"><b>站厅西北泵</b><span id="pump1Rate">0 L/s</span></div>
+              </div>
+              <div class="pump-dial"><span id="pump1HeatBar"></span></div>
+              <div class="pump-readout"><span>电机温度</span><b id="pump1Heat">42°C</b></div>
+              <div class="segmented three" role="group" aria-label="P1 排水泵">
+                <button data-action="pump" data-id="1" data-value="off" class="selected">停</button>
+                <button data-action="pump" data-id="1" data-value="low">低</button>
+                <button data-action="pump" data-id="1" data-value="high">高</button>
+              </div>
+            </div>
+            <div class="pump-card" data-device="pump-2">
+              <div class="pump-top">
+                <span class="device-code">P2</span>
+                <div class="device-copy"><b>站厅东南泵</b><span id="pump2Rate">0 L/s</span></div>
+              </div>
+              <div class="pump-dial"><span id="pump2HeatBar"></span></div>
+              <div class="pump-readout"><span>电机温度</span><b id="pump2Heat">42°C</b></div>
+              <div class="segmented three" role="group" aria-label="P2 排水泵">
+                <button data-action="pump" data-id="2" data-value="off" class="selected">停</button>
+                <button data-action="pump" data-id="2" data-value="low">低</button>
+                <button data-action="pump" data-id="2" data-value="high">高</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="control-group" aria-labelledby="gateTitle">
+          <div class="group-title">
+            <span class="group-icon gate-icon"></span>
+            <div><h3 id="gateTitle">出站闸机方向</h3><p>反向出站可将通行量提升至 4.5 人/秒</p></div>
+          </div>
+          <div class="gate-row">
+            <div class="gate-card">
+              <div class="gate-header"><b>西闸机组</b><span>G1</span></div>
+              <div class="gate-arrows"><i>↑</i><span>出口方向</span></div>
+              <div class="segmented two" role="group" aria-label="西闸机组方向">
+                <button data-action="gate" data-id="1" data-value="entry" class="selected">进站</button>
+                <button data-action="gate" data-id="1" data-value="exit">出站</button>
+              </div>
+            </div>
+            <div class="gate-card">
+              <div class="gate-header"><b>东闸机组</b><span>G2</span></div>
+              <div class="gate-arrows"><i>↑</i><span>出口方向</span></div>
+              <div class="segmented two" role="group" aria-label="东闸机组方向">
+                <button data-action="gate" data-id="2" data-value="entry">进站</button>
+                <button data-action="gate" data-id="2" data-value="exit" class="selected">出站</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <section class="stage-panel">
+        <div class="stage-heading">
+          <div class="stage-title">
+            <p class="eyebrow">CONCOURSE A / LIVE MAP</p>
+            <h2>站厅态势图</h2>
+          </div>
+          <div class="stage-tools">
+            <span class="legend"><i class="legend-dot crowd"></i>客流</span>
+            <span class="legend"><i class="legend-dot water"></i>积水</span>
+            <div class="speed-control" aria-label="模拟速度">
+              <button data-speed="0" class="pause-button" title="暂停">Ⅱ</button>
+              <button data-speed="1" class="selected">1×</button>
+              <button data-speed="2">2×</button>
+              <button data-speed="4">4×</button>
+            </div>
+          </div>
+        </div>
+        <div class="canvas-wrap" id="canvasWrap">
+          <canvas id="stationCanvas" aria-label="地铁站厅实时态势图"></canvas>
+          <div class="canvas-corner top-left">
+            <span class="corner-code">SECTOR</span><b>B1 · 站厅层</b>
+          </div>
+          <div class="canvas-corner top-right">
+            <span class="corner-code">RAIN LOAD</span><b id="rainLoad">100%</b>
+          </div>
+          <div class="canvas-corner bottom-left">
+            <span class="corner-code">PAID AREA</span><b id="insideCount">0 人滞留</b>
+          </div>
+          <div class="toast" id="toast" role="status"></div>
+        </div>
+        <div class="mission-bar">
+          <div class="mission-copy">
+            <p class="eyebrow">EVACUATION OBJECTIVE</p>
+            <div class="objective-line">
+              <span>15:00 前疏散全部乘客</span><i></i><span>变电室不进水</span>
+            </div>
+          </div>
+          <div class="mission-actions">
+            <button class="ghost-button" id="presetButton">载入参考方案</button>
+            <button class="start-button" id="startButton">
+              <span class="start-icon">▶</span>
+              <span><b>开始应急疏散</b><small>按下计时，15:00 内完成撤离</small></span>
+            </button>
+          </div>
+        </div>
+        <div class="result-banner" id="resultBanner" aria-live="polite">
+          <div class="result-mark" id="resultMark">✓</div>
+          <div><p class="eyebrow" id="resultEyebrow">EVACUATION COMPLETE</p><h2 id="resultTitle">站厅已清空</h2><p id="resultCopy"></p></div>
+          <button id="restartButton">重新演练</button>
+        </div>
+      </section>
+
+      <aside class="panel telemetry-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">INCIDENT TELEMETRY</p>
+            <h2>实时监测</h2>
+          </div>
+          <span class="panel-index">02</span>
+        </div>
+
+        <section class="risk-card" id="riskCard">
+          <div class="risk-head">
+            <div>
+              <p class="eyebrow">CRUSH RISK</p>
+              <h3>踩踏风险</h3>
+            </div>
+            <span id="riskBadge">低</span>
+          </div>
+          <div class="risk-meter"><i id="riskFill"></i><em></em><em></em><em></em></div>
+          <div class="risk-foot"><b id="riskValue">08</b><span>/ 100</span><small id="riskZone">人群分布正常</small></div>
+        </section>
+
+        <section class="metric-grid">
+          <div class="metric">
+            <span class="metric-icon evac"></span>
+            <p>已撤离</p><b id="evacuatedCount">0</b><small id="evacuatedTotal">/ 0 人</small>
+          </div>
+          <div class="metric">
+            <span class="metric-icon water"></span>
+            <p>站厅积水</p><b id="waterLevel">0<small> cm</small></b><span class="spark" id="waterSpark"></span>
+          </div>
+          <div class="metric">
+            <span class="metric-icon transformer"></span>
+            <p>变电室水位</p><b id="transformerLevel">0<small> cm</small></b><span class="safe-tag" id="transformerTag">安全</span>
+          </div>
+          <div class="metric">
+            <span class="metric-icon pump"></span>
+            <p>泵组排水</p><b id="pumpTotal">0<small> L/s</small></b><small id="pumpStateLabel">待机</small>
+          </div>
+        </section>
+
+        <section class="log-section">
+          <div class="log-head"><div><p class="eyebrow">DISPATCH LOG</p><h3>处置记录</h3></div><span id="logCount">00</span></div>
+          <div class="event-log" id="eventLog">
+            <div class="log-item muted"><span>00:00</span><p>系统待命，等待值班员启动演练。</p></div>
+          </div>
+        </section>
+
+        <section class="brief-card">
+          <span class="brief-number">提示 01</span>
+          <p>挡水板可以止水，也会让出口消失。先观察客流去向，再决定封哪一道口。</p>
+          <span class="brief-line"></span>
+          <span class="brief-number">提示 02</span>
+          <p>高功率泵连续运行约 30 秒会过热停机。轮换 P1 / P2，比一直开高档更稳。</p>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script src="sim.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
