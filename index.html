@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="带版本号、校验和与多快照回退的本地游戏存档系统演示"
+    />
+    <title>SAVE//VAULT · 版本化本地存档</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="noise" aria-hidden="true"></div>
+    <main class="shell">
+      <header class="masthead">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">SV</span>
+          <div>
+            <p class="eyebrow">LOCAL ARCHIVE / ATOMIC SNAPSHOTS</p>
+            <h1>SAVE<span>//</span>VAULT</h1>
+          </div>
+        </div>
+        <div class="masthead-meta">
+          <span class="schema-pill">SCHEMA v3</span>
+          <span id="storage-pill" class="status-pill neutral">本地存储 · 未读取</span>
+        </div>
+      </header>
+
+      <section id="alert" class="alert neutral" role="status" aria-live="polite">
+        <div class="alert-icon" aria-hidden="true">i</div>
+        <div>
+          <p id="alert-title" class="alert-title">等待存档操作</p>
+          <p id="alert-text" class="alert-text">
+            写入时会保留上一份完整快照；读取会自动跳过损坏副本。
+          </p>
+        </div>
+        <button id="migrate-button" class="inline-action" type="button" hidden>
+          迁移并写入 v3
+        </button>
+      </section>
+
+      <div class="workspace">
+        <section class="panel editor-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">01 / PAYLOAD</p>
+              <h2>要写入的存档</h2>
+            </div>
+            <span class="editing-dot">EDITABLE</span>
+          </div>
+
+          <form id="save-form" novalidate>
+            <fieldset class="group">
+              <legend>游戏进度 <span>PROGRESS</span></legend>
+              <div class="field-grid">
+                <label class="field wide">
+                  <span>玩家名</span>
+                  <input id="player-name" name="playerName" maxlength="24" autocomplete="off" />
+                </label>
+                <label class="field">
+                  <span>等级</span>
+                  <input id="level" name="level" type="number" min="1" max="999" />
+                </label>
+                <label class="field">
+                  <span>分数</span>
+                  <input id="score" name="score" type="number" min="0" max="99999999" />
+                </label>
+                <label class="field wide">
+                  <span>游玩时长（秒）</span>
+                  <input
+                    id="play-time"
+                    name="playTimeSeconds"
+                    type="number"
+                    min="0"
+                    max="9999999"
+                  />
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset class="group">
+              <legend>设置 <span>SETTINGS</span></legend>
+              <div class="field-grid">
+                <label class="field range-field">
+                  <span>音乐 <b id="music-output">62</b></span>
+                  <input id="music" name="musicVolume" type="range" min="0" max="100" />
+                </label>
+                <label class="field range-field">
+                  <span>音效 <b id="sfx-output">84</b></span>
+                  <input id="sfx" name="sfxVolume" type="range" min="0" max="100" />
+                </label>
+                <label class="field">
+                  <span>界面主题</span>
+                  <select id="theme" name="theme">
+                    <option value="midnight">Midnight</option>
+                    <option value="daylight">Daylight</option>
+                    <option value="system">System</option>
+                  </select>
+                </label>
+                <label class="field checkbox-field">
+                  <input id="reduced-motion" name="reducedMotion" type="checkbox" />
+                  <span>减少动态效果</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset class="group">
+              <legend>回放摘要 <span>REPLAY</span></legend>
+              <div class="field-grid">
+                <label class="field wide">
+                  <span>回放 ID</span>
+                  <input id="replay-id" name="replayId" autocomplete="off" />
+                </label>
+                <label class="field">
+                  <span>回放时长（秒）</span>
+                  <input
+                    id="replay-duration"
+                    name="replayDuration"
+                    type="number"
+                    min="0"
+                    max="9999999"
+                  />
+                </label>
+                <label class="field">
+                  <span>事件数</span>
+                  <input id="replay-events" name="replayEvents" type="number" min="0" />
+                </label>
+                <label class="field">
+                  <span>结局</span>
+                  <select id="replay-outcome" name="replayOutcome">
+                    <option value="cleared">通关</option>
+                    <option value="retired">主动退出</option>
+                    <option value="abandoned">中断</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>回放分数</span>
+                  <input id="replay-score" name="replayScore" type="number" min="0" />
+                </label>
+              </div>
+            </fieldset>
+
+            <button id="save-button" class="primary-action" type="submit">
+              <span>写入新快照</span>
+              <small>不覆盖最新完整副本</small>
+            </button>
+          </form>
+        </section>
+
+        <section class="panel timeline-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">02 / SNAPSHOTS</p>
+              <h2>快照时间线</h2>
+            </div>
+            <button id="refresh-button" class="text-action" type="button">重新扫描</button>
+          </div>
+          <div id="timeline" class="timeline" aria-live="polite"></div>
+          <div class="timeline-legend">
+            <span><i class="dot complete"></i>完整</span>
+            <span><i class="dot active"></i>本次读取</span>
+            <span><i class="dot invalid"></i>损坏</span>
+            <span><i class="dot empty"></i>空槽</span>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel drill-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">03 / RECOVERY DRILLS</p>
+            <h2>实际恢复演练</h2>
+          </div>
+          <p class="drill-copy">所有按钮直接操作本地快照，不使用内存假数据。</p>
+        </div>
+        <div class="drill-grid">
+          <button id="normal-button" class="drill-card normal" type="button">
+            <span class="drill-index">A</span>
+            <span class="drill-title">正常恢复</span>
+            <span class="drill-text">重新扫描并载入序号最新的完整快照。</span>
+          </button>
+          <button id="corrupt-button" class="drill-card corrupt" type="button">
+            <span class="drill-index">B</span>
+            <span class="drill-title">模拟数据损坏</span>
+            <span class="drill-text">破坏最新副本的 payload，保留旧快照并回退。</span>
+          </button>
+          <button id="interrupt-button" class="drill-card interrupt" type="button">
+            <span class="drill-index">C</span>
+            <span class="drill-title">模拟写入中断</span>
+            <span class="drill-text">只写入约 38% 的新快照后中止，再重新载入。</span>
+          </button>
+          <button id="upgrade-button" class="drill-card upgrade" type="button">
+            <span class="drill-index">D</span>
+            <span class="drill-title">模拟旧版升级</span>
+            <span class="drill-text">生成一份有效 v2 快照，触发迁移提示。</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="panel log-panel">
+        <div class="panel-heading compact">
+          <div>
+            <p class="eyebrow">04 / EVENT LOG</p>
+            <h2>操作记录</h2>
+          </div>
+          <button id="clear-log-button" class="text-action" type="button">清空</button>
+        </div>
+        <ol id="event-log" class="event-log"></ol>
+      </section>
+    </main>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>

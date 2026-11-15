@@ -1,0 +1,14 @@
+{
+  "name": "versioned-local-archive",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/dev-server.mjs",
+    "test": "node --test",
+    "simulate": "node scripts/simulate.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
