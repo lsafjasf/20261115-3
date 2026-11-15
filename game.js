@@ -4,12 +4,49 @@
   const cv = document.getElementById("cv");
   const ctx = cv.getContext("2d");
   const msgEl = document.getElementById("msg");
+  const cvWrap = document.getElementById("cvWrap");
+  const srEl = document.getElementById("srStatus");
   let state = S.createState();
   let running = false;
   let speed = 1;
   let acc = 0;
   let lastTs = 0;
   let gameOver = false;
+
+  // ---------- 键盘交互状态(与鼠标共享同一份 state) ----------
+  let selectedZone = 0;   // 当前画布焦点选中的温室 0..2
+  let activeSlider = null; // 当前用方向键调节的滑杆:"heat" | "valve" | "shade" | null
+
+  function announce(text) {
+    if (!srEl) return;
+    srEl.textContent = "";
+    // 强制屏幕阅读器重新朗读同内容
+    setTimeout(function () { srEl.textContent = text; }, 30);
+  }
+
+  function zoneSummary(i) {
+    const z = state.zones[i];
+    const lamp = state.devices.lights[i];
+    return (i + 1) + "号棚 " + z.crop.name +
+      ",温度" + z.temp.toFixed(1) + "度" +
+      ",光照" + (z.light * 100).toFixed(0) + "% " +
+      ",水分" + (z.moisture * 100).toFixed(0) + "% " +
+      ",健康" + z.health.toFixed(0) + "% " +
+      ",补光灯" + (lamp.broken ? "已损坏" : lamp.on ? "开" : "关") +
+      ",热量分配" + (state.ctrl.heatAlloc[i] * 100).toFixed(0) + "%" +
+      ",水阀" + (state.ctrl.valve[i] * 100).toFixed(0) + "%" +
+      ",遮阳" + (state.ctrl.shade[i] * 100).toFixed(0) + "%";
+  }
+
+  function globalSummary() {
+    return "时间" + fmtTime(state.timeMin) +
+      ",室外" + state.outdoor.toFixed(1) + "度" +
+      ",电量" + state.battery.toFixed(0) + "%" +
+      ",燃料" + state.fuel.toFixed(0) + "%" +
+      ",锅炉" + (state.devices.boiler.broken ? "损坏" : state.ctrl.boilerOn ? "开" : "关") +
+      ",水泵" + (state.devices.pump.broken ? "损坏" : state.ctrl.pumpOn ? "开" : "关") +
+      (state.blackout ? ",警告:电量枯竭设备断电" : "");
+  }
 
   // ---------- 控制面板 ----------
   const panel = document.getElementById("panel");
@@ -22,13 +59,18 @@
       card.className = "card";
       card.innerHTML =
         "<h3>" + (i + 1) + " 号棚 · " + z.crop.name + "</h3>" +
-        '<label>热量分配 <input type="range" min="0" max="100" value="33" data-k="heat"></label>' +
-        '<label>水阀开度 <input type="range" min="0" max="100" value="50" data-k="valve"></label>' +
-        '<label>遮阳 <input type="range" min="0" max="100" value="0" data-k="shade"></label>' +
-        '<label>补光 <button data-k="light">关</button> <span data-k="wear"></span></label>';
+        '<label>热量分配 <input type="range" min="0" max="100" value="33" data-k="heat"' +
+        ' aria-label="' + (i + 1) + '号棚热量分配百分比"></label>' +
+        '<label>水阀开度 <input type="range" min="0" max="100" value="50" data-k="valve"' +
+        ' aria-label="' + (i + 1) + '号棚水阀开度百分比"></label>' +
+        '<label>遮阳 <input type="range" min="0" max="100" value="0" data-k="shade"' +
+        ' aria-label="' + (i + 1) + '号棚遮阳百分比"></label>' +
+        '<label>补光 <button data-k="light" type="button"' +
+        ' aria-pressed="false" aria-label="' + (i + 1) + '号棚补光灯开关">关</button> <span data-k="wear"></span></label>';
       panel.appendChild(card);
-      const refs = { card: card };
+      const refs = { card: card, sliders: {}, lightBtn: null };
       card.querySelectorAll("input[type=range]").forEach(function (inp) {
+        refs.sliders[inp.dataset.k] = inp;
         inp.addEventListener("input", function () {
           const v = inp.value / 100;
           if (inp.dataset.k === "heat") state.ctrl.heatAlloc[i] = v;
@@ -38,44 +80,108 @@
         });
       });
       const btn = card.querySelector("button[data-k=light]");
+      refs.lightBtn = btn;
       btn.addEventListener("click", function () {
-        state.ctrl.lightOn[i] = !state.ctrl.lightOn[i];
-        btn.textContent = state.ctrl.lightOn[i] ? "开" : "关";
-        btn.classList.toggle("on", state.ctrl.lightOn[i]);
+        toggleLight(i);
         ensureAudio();
       });
       zoneCards.push(refs);
     });
   }
 
+  // 唯一的补光灯切换入口:鼠标点击与键盘操作调用同一函数,保证状态一致
+  function toggleLight(i) {
+    const lamp = state.devices.lights[i];
+    if (lamp.broken) {
+      announce((i + 1) + "号棚补光灯已损坏,无法切换");
+      return;
+    }
+    state.ctrl.lightOn[i] = !state.ctrl.lightOn[i];
+    const btn = zoneCards[i] && zoneCards[i].lightBtn;
+    if (btn) {
+      btn.textContent = state.ctrl.lightOn[i] ? "开" : "关";
+      btn.classList.toggle("on", state.ctrl.lightOn[i]);
+      btn.setAttribute("aria-pressed", state.ctrl.lightOn[i] ? "true" : "false");
+    }
+    announce((i + 1) + "号棚补光灯" + (state.ctrl.lightOn[i] ? "已打开" : "已关闭"));
+  }
+
+  // 键盘调节滑杆后,把状态写回对应 HTML 控件,鼠标/键盘两条路径完全等价
+  function syncSliderToDOM(i, key) {
+    const refs = zoneCards[i];
+    if (!refs || !refs.sliders[key]) return;
+    const inp = refs.sliders[key];
+    if (key === "heat") inp.value = Math.round(state.ctrl.heatAlloc[i] * 100);
+    if (key === "valve") inp.value = Math.round(state.ctrl.valve[i] * 100);
+    if (key === "shade") inp.value = Math.round(state.ctrl.shade[i] * 100);
+  }
+
+  const SLIDER_STEP = 0.05;
+  function nudgeSlider(delta) {
+    if (!activeSlider) return;
+    const key = activeSlider;
+    const arr = state.ctrl[key === "heat" ? "heatAlloc" : key === "valve" ? "valve" : "shade"];
+    const cur = arr[selectedZone];
+    arr[selectedZone] = Math.max(0, Math.min(1, cur + delta * SLIDER_STEP));
+    syncSliderToDOM(selectedZone, key);
+    ensureAudio();
+    const name = key === "heat" ? "热量分配" : key === "valve" ? "水阀开度" : "遮阳";
+    announce((selectedZone + 1) + "号棚" + name + " " + (arr[selectedZone] * 100).toFixed(0) + "%");
+  }
+
   const btnBoiler = document.getElementById("btnBoiler");
   const btnPump = document.getElementById("btnPump");
-  btnBoiler.addEventListener("click", function () {
+  const btnStart = document.getElementById("btnStart");
+  const btnSpeed = document.getElementById("btnSpeed");
+  const btnReset = document.getElementById("btnReset");
+
+  // 以下 toggle* 函数是鼠标与键盘的共同入口,两条输入路径产生完全相同的状态变更
+  function toggleBoiler() {
+    if (state.devices.boiler.broken) { announce("锅炉已损坏,无法开关"); return; }
     state.ctrl.boilerOn = !state.ctrl.boilerOn;
     ensureAudio();
-  });
-  btnPump.addEventListener("click", function () {
+    syncUI();
+    announce("锅炉" + (state.ctrl.boilerOn ? "已开启" : "已关闭"));
+  }
+  function togglePump() {
+    if (state.devices.pump.broken) { announce("水泵已损坏,无法开关"); return; }
     state.ctrl.pumpOn = !state.ctrl.pumpOn;
     ensureAudio();
-  });
-  document.getElementById("btnStart").addEventListener("click", function () {
+    syncUI();
+    announce("水泵" + (state.ctrl.pumpOn ? "已开启" : "已关闭"));
+  }
+  function toggleRunning() {
+    if (gameOver) { announce("本局已结束,请按 R 重置后再开始"); return; }
     running = !running;
-    this.textContent = running ? "暂停" : "开始";
+    btnStart.textContent = running ? "暂停" : "开始";
     ensureAudio();
-  });
-  document.getElementById("btnSpeed").addEventListener("click", function () {
+    syncUI();
+    announce(running ? "模拟开始" : "模拟已暂停");
+  }
+  function cycleSpeed() {
     speed = speed >= 8 ? 1 : speed * 2;
-    this.textContent = "速度 ×" + speed;
-  });
-  document.getElementById("btnReset").addEventListener("click", reset);
+    btnSpeed.textContent = "速度 ×" + speed;
+    announce("播放速度 ×" + speed);
+  }
+
+  btnBoiler.addEventListener("click", toggleBoiler);
+  btnPump.addEventListener("click", togglePump);
+  btnStart.addEventListener("click", toggleRunning);
+  btnSpeed.addEventListener("click", cycleSpeed);
+  btnReset.addEventListener("click", reset);
 
   function reset() {
     state = S.createState();
     running = false;
     gameOver = false;
-    document.getElementById("btnStart").textContent = "开始";
+    speed = 1;
+    selectedZone = 0;
+    activeSlider = null;
+    btnStart.textContent = "开始";
+    btnSpeed.textContent = "速度 ×1";
     msgEl.textContent = "";
     buildPanel();
+    announce("已重置,回到初始状态。" + zoneSummary(0));
   }
 
   // ---------- Web Audio:泵机/锅炉/补光/警报 ----------
@@ -312,6 +418,24 @@
     ctx.fillStyle = "#8fa1b3";
     ctx.font = "10px sans-serif";
     ctx.fillText("灯寿命 " + Math.max(0, 100 - lamp.wear) + "%" + (lamp.broken ? " 已损坏" : ""), x + 8, y + h - 8);
+    // 键盘选中焦点框:仅包裹当前选中的温室,与 DOM 焦点环联动
+    if (i === selectedZone) {
+      ctx.save();
+      ctx.strokeStyle = "#7fd4ff";
+      ctx.lineWidth = 3;
+      ctx.setLineDash([10, 6]);
+      ctx.lineDashOffset = -tSec * 30;
+      ctx.strokeRect(x - 4, y - 34, w + 8, h + 38);
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#7fd4ff";
+      ctx.font = "bold 12px sans-serif";
+      ctx.fillText("▶ 键盘焦点 (" + (i + 1) + "号棚)", x + 8, y - 40);
+      if (activeSlider) {
+        const sName = activeSlider === "heat" ? "热量" : activeSlider === "valve" ? "水阀" : "遮阳";
+        ctx.fillText("调节中:" + sName + " ←/→", x + 150, y - 40);
+      }
+      ctx.restore();
+    }
     // 与锅炉/电池的热流与电流
     flowLine(300, 322, x, y + 240, "#ff6b4a", state.devices.boiler.on && state.ctrl.heatAlloc[i] > 0.03, tSec, 2);
     flowLine(300, 258, x, y + 60, "#ff9f5e", lamp.on, tSec, 2);
@@ -341,9 +465,87 @@
   function syncUI() {
     btnBoiler.textContent = "锅炉:" + (state.ctrl.boilerOn ? "开" : "关") + (state.devices.boiler.broken ? "(坏)" : "");
     btnBoiler.classList.toggle("on", state.ctrl.boilerOn);
+    btnBoiler.setAttribute("aria-pressed", state.ctrl.boilerOn ? "true" : "false");
     btnPump.textContent = "水泵:" + (state.ctrl.pumpOn ? "开" : "关") + (state.devices.pump.broken ? "(坏)" : "");
     btnPump.classList.toggle("on", state.ctrl.pumpOn);
+    btnPump.setAttribute("aria-pressed", state.ctrl.pumpOn ? "true" : "false");
   }
+
+  // ---------- 可见焦点 ----------
+  cv.addEventListener("focus", function () {
+    cvWrap.classList.add("focus-visible");
+    announce(globalSummary() + "。当前选中:" + zoneSummary(selectedZone));
+  });
+  cv.addEventListener("blur", function () {
+    cvWrap.classList.remove("focus-visible");
+    activeSlider = null;
+  });
+
+  function selectZone(i) {
+    selectedZone = Math.max(0, Math.min(state.zones.length - 1, i));
+    activeSlider = null;
+    announce("已选中" + zoneSummary(selectedZone));
+  }
+
+  // ---------- 画布键盘操作:与鼠标控件共用同一批状态变更函数 ----------
+  cv.addEventListener("keydown", function (e) {
+    const k = e.key;
+    let handled = true;
+    if (k === "ArrowRight") {
+      if (activeSlider) nudgeSlider(1);
+      else selectZone(selectedZone + 1);
+    } else if (k === "ArrowLeft") {
+      if (activeSlider) nudgeSlider(-1);
+      else selectZone(selectedZone - 1);
+    } else if (k === "ArrowUp") {
+      if (activeSlider) nudgeSlider(1);
+      else { activeSlider = "heat"; announce("已选中热量分配滑杆,用左右方向键微调。" + zoneSummary(selectedZone)); }
+    } else if (k === "ArrowDown") {
+      if (activeSlider) nudgeSlider(-1);
+      else { activeSlider = "heat"; announce("已选中热量分配滑杆,用左右方向键微调。" + zoneSummary(selectedZone)); }
+    } else if (k === "1" || k === "2" || k === "3") {
+      selectZone(Number(k) - 1);
+    } else if (k === "h" || k === "H") {
+      activeSlider = "heat";
+      announce("已选中" + (selectedZone + 1) + "号棚热量分配,左右方向键每次调整5%");
+    } else if (k === "v" || k === "V") {
+      activeSlider = "valve";
+      announce("已选中" + (selectedZone + 1) + "号棚水阀,左右方向键每次调整5%");
+    } else if (k === "s" || k === "S") {
+      activeSlider = "shade";
+      announce("已选中" + (selectedZone + 1) + "号棚遮阳,左右方向键每次调整5%");
+    } else if (k === "Enter") {
+      toggleLight(selectedZone);
+    } else if (k === " " || k === "Spacebar") {
+      toggleRunning();
+    } else if (k === "b" || k === "B") {
+      toggleBoiler();
+    } else if (k === "p" || k === "P") {
+      togglePump();
+    } else if (k === "+" || k === "=") {
+      cycleSpeed();
+    } else if (k === "-" || k === "_") {
+      speed = speed <= 1 ? 1 : speed / 2;
+      btnSpeed.textContent = "速度 ×" + speed;
+      announce("播放速度 ×" + speed);
+    } else if (k === "r" || k === "R") {
+      reset();
+    } else if (k === "Home") {
+      selectZone(0);
+    } else if (k === "End") {
+      selectZone(state.zones.length - 1);
+    } else if (k === "Escape") {
+      if (activeSlider) {
+        activeSlider = null;
+        announce("已退出滑杆调节模式。" + zoneSummary(selectedZone));
+      }
+    } else if (k === "Tab") {
+      handled = false; // 保留 Tab 自然焦点顺序
+    } else {
+      handled = false;
+    }
+    if (handled) e.preventDefault();
+  });
 
   function checkEnd() {
     if (gameOver) return;
@@ -352,17 +554,20 @@
       running = false;
       msgEl.textContent = "✘ 失败:" + state.failReason + "(" + fmtTime(state.timeMin) + ")——点击重置再来";
       msgEl.style.color = "#ff7b6b";
+      announce("游戏失败:" + state.failReason + "。按 R 键重置再来");
     } else if (state.timeMin >= S.DAY_MIN) {
       gameOver = true;
       running = false;
       if (S.isWin(state)) {
         msgEl.textContent = "✔ 成功!24 小时完成,作物健康,剩余电量 " + state.battery.toFixed(0) + "%";
         msgEl.style.color = "#6be08a";
+        announce("任务成功!24小时完成,作物健康,剩余电量" + state.battery.toFixed(0) + "%");
       } else {
         const bad = state.zones.filter(function (z) { return z.health < 50; }).map(function (z) { return z.crop.name; });
         msgEl.textContent = "✘ 未达标:" + (state.battery < 20 ? "电量不足两成(" + state.battery.toFixed(0) + "%)" : "") +
           (bad.length ? " 作物不健康:" + bad.join("、") : "");
         msgEl.style.color = "#ffb04a";
+        announce("任务未达标,按 R 键重置后再试一次");
       }
       document.getElementById("btnStart").textContent = "开始";
     }

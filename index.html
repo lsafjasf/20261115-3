@@ -19,12 +19,48 @@
   #global { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
   #global button { background: #2c3a4d; color: #dfe7ef; border: 1px solid #41546e; border-radius: 4px; padding: 4px 14px; cursor: pointer; }
   #msg { margin-top: 8px; font-size: 14px; min-height: 20px; }
+  canvas:focus { outline: none; }
+  .canvas-wrap { position: relative; }
+  .canvas-wrap.focus-visible::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    border: 3px solid #7fd4ff; border-radius: 10px;
+    box-shadow: 0 0 0 6px rgba(127, 212, 255, .25);
+  }
+  .canvas-wrap.focus-visible .focus-tag { display: block; }
+  .focus-tag {
+    display: none; position: absolute; top: 6px; right: 8px; z-index: 2;
+    background: #7fd4ff; color: #0b1220; font-size: 11px; font-weight: bold;
+    padding: 2px 8px; border-radius: 4px;
+  }
+  #kbdHelp { font-size: 12px; color: #8fa1b3; max-width: 1000px; margin-top: 6px; line-height: 1.8; }
+  #kbdHelp kbd {
+    background: #1c2635; border: 1px solid #41546e; border-bottom-width: 2px;
+    border-radius: 4px; padding: 1px 6px; font-family: monospace; color: #dfe7ef;
+  }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
 </style>
 </head>
 <body>
 <h1>温室群能源管理模拟</h1>
 <div id="tip">目标:24 小时内保持三块作物健康(≥50),结束时电量 ≥20%。寒潮 17:00 来袭,注意锅炉燃料与设备切换损耗。</div>
-<canvas id="cv" width="1000" height="560"></canvas>
+<div class="canvas-wrap" id="cvWrap">
+  <span class="focus-tag">键盘焦点</span>
+  <canvas id="cv" width="1000" height="560" tabindex="0" role="application"
+    aria-label="温室模拟画布,可使用键盘完全操作"
+    aria-describedby="kbdHelp srStatus"></canvas>
+</div>
+<div id="kbdHelp">
+  纯键盘操作:先按 <kbd>Tab</kbd> 聚焦画布,
+  <kbd>←</kbd>/<kbd>→</kbd> 或 <kbd>1</kbd>/<kbd>2</kbd>/<kbd>3</kbd> 选择温室,
+  <kbd>H</kbd>/<kbd>V</kbd>/<kbd>S</kbd> 选中热量/水阀/遮阳滑杆后用 <kbd>←</kbd>/<kbd>→</kbd> 微调,
+  <kbd>Enter</kbd> 开关补光灯、<kbd>B</kbd> 锅炉、<kbd>P</kbd> 水泵、
+  <kbd>空格</kbd> 开始/暂停、<kbd>+</kbd>/<kbd>-</kbd> 速度、
+  <kbd>Esc</kbd> 退出滑杆模式、<kbd>R</kbd> 重置。
+</div>
+<div id="srStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 <div id="global">
   <button id="btnStart">开始</button>
   <button id="btnSpeed">速度 ×1</button>

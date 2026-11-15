@@ -1,0 +1,26 @@
+{
+  "name": "uid543",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u00002\u00000\u00002\u00006\u00001\u00001\u00001\u00005\u0000-\u00003\u0000\r\u0000 \u0000",
+  "main": "game.js",
+  "scripts": {
+    "test": "node test_ui_smoke.js && node test_sim.js",
+    "test:e2e": "node test_keyboard_e2e.js",
+    "test:all": "node test_ui_smoke.js && node test_sim.js && node test_keyboard_e2e.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lsafjasf/20261115-3.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/lsafjasf/20261115-3/issues"
+  },
+  "homepage": "https://github.com/lsafjasf/20261115-3#readme",
+  "dependencies": {
+    "playwright": "^1.65.1"
+  }
+}
