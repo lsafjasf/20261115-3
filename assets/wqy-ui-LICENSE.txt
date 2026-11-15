@@ -1,0 +1,26 @@
+WenQuanYi Zen Hei — CJK subset used by Ducking Lab
+
+Copyright: 2007-2009, Qianqian Fang and The WenQuanYi Project Board of Trustees
+           1998-2004, Koanughi Un
+           1999-2004, Tsong-Min Wu, Tsong-Huey Wu
+           2005, Tsong-Min Wu, Tsong-Huey Wu and Edward G.J. Lee
+           2004, Firefly
+           2002-2008, M+ FONTS PROJECT
+
+License: GPL-2 with Font embedding exception and M+ FONTS License
+Source: http://wenq.org/
+
+This package is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License.
+
+As a special exception, if you create a document which uses this font,
+and embed this font or unaltered portions of this font into the document,
+this font does not by itself cause the resulting document to be covered
+by the GNU General Public License.
+
+M+ FONTS License:
+These fonts are free software. Unlimited permission is granted to use,
+copy, and distribute it, with or without modification, either
+commercially and noncommercially. THESE FONTS ARE PROVIDED "AS IS"
+WITHOUT WARRANTY.

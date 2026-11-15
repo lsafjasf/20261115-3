@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#10120f" />
+    <title>Ducking Lab — 广播自动闪避工作台</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+    <main class="app-shell">
+      <header class="masthead">
+        <a class="brand" href="#" aria-label="Ducking Lab 首页">
+          <span class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i><i></i>
+          </span>
+          <span>DUCKING<br />LAB</span>
+        </a>
+        <div class="masthead-copy">
+          <p class="eyebrow">SIDECHAIN / BROADCAST / MIX</p>
+          <h1>音乐退一步，<br /><em>信息往前走。</em></h1>
+        </div>
+        <div class="project-state">
+          <span class="status-dot"></span>
+          <div>
+            <strong>LOCAL SESSION</strong>
+            <small>44.1 kHz · stereo</small>
+          </div>
+        </div>
+      </header>
+
+      <section class="transport panel reveal" aria-label="播放控制">
+        <button class="play-button" id="playButton" type="button" aria-label="播放">
+          <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 5.5v13l10-6.5z" />
+          </svg>
+          <svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 5h3v14H8zM13 5h3v14h-3z" />
+          </svg>
+        </button>
+        <button class="icon-button" id="restartButton" type="button" aria-label="回到开始">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 5v14M19 6.5 9.5 12l9.5 5.5z" />
+          </svg>
+        </button>
+        <div class="timecode" aria-live="off">
+          <span id="currentTime">00:00.0</span>
+          <span class="time-divider">/</span>
+          <span id="totalTime">00:32.0</span>
+        </div>
+        <div class="transport-status">
+          <span id="transportLabel">已暂停</span>
+          <small id="recomputeLabel">包络就绪 · 3 段广播</small>
+        </div>
+        <div class="master-meter" aria-label="混音峰值">
+          <span>MIX</span>
+          <div class="meter-track"><i id="meterFill"></i></div>
+          <strong id="meterPeak">—</strong>
+        </div>
+        <button class="export-button" id="exportButton" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 19h14" />
+          </svg>
+          导出 WAV
+        </button>
+      </section>
+
+      <div class="workspace-grid">
+        <section class="timeline-card panel reveal" aria-labelledby="timelineTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">01 / ARRANGEMENT</p>
+              <h2 id="timelineTitle">时间线</h2>
+            </div>
+            <div class="legend">
+              <span><i class="legend-music"></i>音乐</span>
+              <span><i class="legend-voice"></i>广播</span>
+              <span><i class="legend-skip"></i>已跳过</span>
+            </div>
+          </div>
+          <div class="timeline-wrap" id="timelineWrap">
+            <div class="track-labels" aria-hidden="true">
+              <div class="ruler-spacer"></div>
+              <div><span>MUSIC</span><small>立体声铺底</small></div>
+              <div><span>BROADCAST</span><small>人声播报</small></div>
+            </div>
+            <div class="timeline-main">
+              <div class="timeline-ruler" id="timelineRuler"></div>
+              <div class="canvas-stack">
+                <canvas id="musicCanvas" aria-label="音乐波形"></canvas>
+                <canvas id="broadcastCanvas" aria-label="广播波形与区段"></canvas>
+                <div class="timeline-playhead" id="timelinePlayhead"><i></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="segment-strip" id="segmentStrip" aria-label="广播区段"></div>
+        </section>
+
+        <aside class="controls-card panel reveal" aria-labelledby="controlsTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">02 / CONTROL</p>
+              <h2 id="controlsTitle">闪避参数</h2>
+            </div>
+            <span class="live-badge">LIVE</span>
+          </div>
+
+          <label class="control-group" for="threshold">
+            <span class="control-topline">
+              <span>触发阈值</span>
+              <output id="thresholdValue">−28 dBFS</output>
+            </span>
+            <input id="threshold" type="range" min="-60" max="-6" step="1" value="-28" />
+            <span class="control-foot"><small>安静</small><small>响亮</small></span>
+          </label>
+
+          <label class="control-group" for="release">
+            <span class="control-topline">
+              <span>释放时间</span>
+              <output id="releaseValue">420 ms</output>
+            </span>
+            <input id="release" type="range" min="80" max="1600" step="10" value="420" />
+            <span class="control-foot"><small>紧</small><small>松弛</small></span>
+          </label>
+
+          <label class="control-group" for="attenuation">
+            <span class="control-topline">
+              <span>最大衰减</span>
+              <output id="attenuationValue">−14 dB</output>
+            </span>
+            <input id="attenuation" type="range" min="3" max="30" step="1" value="14" />
+            <span class="control-foot"><small>轻推</small><small>深压</small></span>
+          </label>
+
+          <div class="fixed-specs">
+            <div><span>启动</span><strong>60 ms</strong></div>
+            <div><span>保持</span><strong>500 ms</strong></div>
+            <div><span>曲线</span><strong>指数</strong></div>
+          </div>
+          <p class="control-note">
+            阈值检测使用 25 ms 短时 RMS。500 ms 保持窗避开语句间隙，防止反复抽吸。
+          </p>
+        </aside>
+      </div>
+
+      <section class="envelopes panel reveal" aria-labelledby="envelopesTitle">
+        <div class="section-heading envelope-heading">
+          <div>
+            <p class="eyebrow">03 / ENVELOPES</p>
+            <h2 id="envelopesTitle">两张包络</h2>
+          </div>
+          <div class="envelope-readouts">
+            <span>广播 <strong id="broadcastReadout">−∞ dBFS</strong></span>
+            <span>音乐增益 <strong id="gainReadout">0.0 dB</strong></span>
+          </div>
+        </div>
+        <div class="envelope-grid">
+          <article class="envelope-panel">
+            <header>
+              <div>
+                <span class="chart-number">A</span>
+                <h3>广播检测包络</h3>
+              </div>
+              <p>25 ms RMS / 阈值门限</p>
+            </header>
+            <canvas id="detectorCanvas" aria-label="广播检测包络"></canvas>
+          </article>
+          <article class="envelope-panel">
+            <header>
+              <div>
+                <span class="chart-number">B</span>
+                <h3>音乐增益包络</h3>
+              </div>
+              <p>启动 / 保持 / 释放</p>
+            </header>
+            <canvas id="gainCanvas" aria-label="音乐增益包络"></canvas>
+          </article>
+        </div>
+      </section>
+
+      <section class="compare panel reveal" aria-labelledby="compareTitle">
+        <div class="section-heading compare-heading">
+          <div>
+            <p class="eyebrow">04 / RELEASE TEST</p>
+            <h2 id="compareTitle">释放时间实测</h2>
+          </div>
+          <p class="compare-intro">使用当前阈值与衰减，完整渲染两版混音并检查峰值。</p>
+        </div>
+        <div class="compare-toolbar">
+          <label>
+            <span>方案 A</span>
+            <input id="releaseA" type="number" min="60" max="2000" step="10" value="150" />
+            <small>ms</small>
+          </label>
+          <span class="versus">VS</span>
+          <label>
+            <span>方案 B</span>
+            <input id="releaseB" type="number" min="60" max="2000" step="10" value="650" />
+            <small>ms</small>
+          </label>
+          <button class="compare-button" id="compareButton" type="button">
+            <span>运行渲染对比</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" /></svg>
+          </button>
+          <div class="compare-state" id="compareState">尚未运行</div>
+        </div>
+        <div class="compare-results" id="compareResults">
+          <article class="result-card result-a">
+            <header><span>A</span><strong id="resultALabel">150 ms 释放</strong></header>
+            <div class="result-peak"><small>混音峰值</small><strong id="resultAPeak">—</strong></div>
+            <dl>
+              <div><dt>最大衰减</dt><dd id="resultAGain">—</dd></div>
+              <div><dt>恢复至 −1 dB</dt><dd id="resultARecovery">—</dd></div>
+              <div><dt>最大增益斜率</dt><dd id="resultASlew">—</dd></div>
+            </dl>
+          </article>
+          <article class="result-card result-b">
+            <header><span>B</span><strong id="resultBLabel">650 ms 释放</strong></header>
+            <div class="result-peak"><small>混音峰值</small><strong id="resultBPeak">—</strong></div>
+            <dl>
+              <div><dt>最大衰减</dt><dd id="resultBGain">—</dd></div>
+              <div><dt>恢复至 −1 dB</dt><dd id="resultBRecovery">—</dd></div>
+              <div><dt>最大增益斜率</dt><dd id="resultBSlew">—</dd></div>
+            </dl>
+          </article>
+          <article class="verdict-card">
+            <span class="verdict-kicker">PEAK CHECK</span>
+            <strong id="verdictTitle">等待实测</strong>
+            <p id="verdictCopy">运行后会比较峰值、削波样本与增益变化速度。</p>
+            <span class="clip-chip" id="clipChip">未检查削波</span>
+          </article>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <span>DUCKING LAB / 2026</span>
+        <span>音乐平滑让位 · 广播清晰抵达</span>
+        <span>WAV · PCM 16 BIT · 44.1 kHz</span>
+      </footer>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="loading-screen" id="loadingScreen">
+      <div class="loading-mark"><i></i><i></i><i></i><i></i></div>
+      <p>正在生成示例音轨</p>
+      <small>MUSIC + BROADCAST / 32 SEC</small>
+    </div>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
