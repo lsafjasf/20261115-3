@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <title>Flowboard · 流程图工作台</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32">
+              <rect x="5" y="4" width="10" height="8" rx="2" />
+              <rect x="17" y="20" width="10" height="8" rx="2" />
+              <path d="M10 12v5h12v3" />
+            </svg>
+          </div>
+          <div>
+            <h1>Flowboard</h1>
+            <p>流程图工作台</p>
+          </div>
+        </div>
+
+        <div class="toolbar" role="toolbar" aria-label="流程图工具">
+          <div class="tool-group">
+            <button class="icon-button" id="undo-button" type="button" title="撤销 (Ctrl+Z)" aria-label="撤销">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 5 3 9l5 4V10c4 0 6 1.5 7 5 0-5-2-8-7-8V5Z" /></svg>
+            </button>
+            <button class="icon-button" id="redo-button" type="button" title="重做 (Ctrl+Shift+Z)" aria-label="重做">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12 5 5 4-5 4v-3c-4 0-6 1.5-7 5 0-5 2-8 7-8V5Z" /></svg>
+            </button>
+          </div>
+          <span class="toolbar-divider"></span>
+          <div class="add-cluster">
+            <select id="add-type" aria-label="新节点类型">
+              <option value="process">处理节点</option>
+              <option value="decision">判断节点</option>
+              <option value="merge">汇合节点</option>
+              <option value="start">开始节点</option>
+              <option value="end">结束节点</option>
+              <option value="comment">注释</option>
+            </select>
+            <button class="button button-soft" id="add-node-button" type="button">
+              <span>+</span> 添加
+            </button>
+          </div>
+          <span class="toolbar-divider"></span>
+          <button class="button button-quiet" id="reset-button" type="button">载入示例</button>
+          <button class="button button-quiet" id="verify-button" type="button">校验重载</button>
+          <span class="toolbar-divider"></span>
+          <button class="button button-quiet" id="import-button" type="button">导入 JSON</button>
+          <button class="button button-quiet" id="export-json-button" type="button">导出 JSON</button>
+          <button class="button button-primary" id="export-svg-button" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9m0 0 3.5-3.5M10 12 6.5 8.5M4 14v2h12v-2" /></svg>
+            导出 SVG
+          </button>
+          <input id="import-file" type="file" accept="application/json,.json" hidden />
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="canvas-panel" aria-label="流程图画布">
+          <div class="canvas-header">
+            <div>
+              <span class="eyebrow">FLOW CANVAS</span>
+              <h2 id="graph-title">审批流程 · 双分支与汇合</h2>
+            </div>
+            <div class="status-pill" id="route-status">
+              <span class="status-dot"></span>
+              <span id="route-status-text">6 条连线 · 自动避障</span>
+            </div>
+          </div>
+
+          <div class="canvas-frame">
+            <svg
+              id="flow-svg"
+              viewBox="0 0 1440 920"
+              preserveAspectRatio="xMidYMid meet"
+              role="application"
+              aria-label="可拖拽编辑的流程图"
+            >
+              <defs>
+                <pattern id="minor-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+                  <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#ece9e2" stroke-width="1" />
+                </pattern>
+                <pattern id="major-grid" width="120" height="120" patternUnits="userSpaceOnUse">
+                  <rect width="120" height="120" fill="url(#minor-grid)" />
+                  <path d="M 120 0 L 0 0 0 120" fill="none" stroke="#e2ded4" stroke-width="1" />
+                </pattern>
+                <filter id="soft-shadow" x="-20%" y="-20%" width="140%" height="150%">
+                  <feDropShadow dx="0" dy="4" stdDeviation="7" flood-color="#273248" flood-opacity="0.08" />
+                </filter>
+                <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M 1 1 L 9 5 L 1 9 Z" fill="#78859b" />
+                </marker>
+              </defs>
+              <rect class="canvas-bg" width="1440" height="920" />
+              <rect width="1440" height="920" fill="url(#major-grid)" opacity="0.6" />
+              <g data-layer="edges"></g>
+              <g data-layer="nodes"></g>
+              <path id="connection-preview" data-ui="true" />
+            </svg>
+          </div>
+
+          <div class="canvas-footer">
+            <div class="canvas-tip">
+              <span class="tip-icon">↕</span>
+              拖拽节点后，相连连线会自动避让重路由
+            </div>
+            <div class="canvas-tip muted">从节点侧边端口拖到另一节点即可连线</div>
+          </div>
+        </section>
+
+        <aside class="inspector" aria-label="属性面板">
+          <div class="inspector-heading">
+            <div>
+              <span class="eyebrow">INSPECTOR</span>
+              <h2>属性</h2>
+            </div>
+            <span class="inspector-badge">实时</span>
+          </div>
+
+          <section class="panel-section document-section">
+            <label class="field-label" for="graph-title-input">流程图名称</label>
+            <input id="graph-title-input" class="text-input" type="text" autocomplete="off" />
+          </section>
+
+          <section class="panel-section empty-state" id="empty-inspector">
+            <div class="empty-illustration" aria-hidden="true">
+              <svg viewBox="0 0 72 72">
+                <rect x="9" y="11" width="24" height="17" rx="5" />
+                <rect x="39" y="44" width="24" height="17" rx="5" />
+                <path d="M21 28v9h30v7" />
+              </svg>
+            </div>
+            <h3>选择一个元素</h3>
+            <p>点击节点或连线查看属性。拖动节点会实时重新计算路径，线段不会穿过节点。</p>
+          </section>
+
+          <section class="panel-section inspector-form" id="node-inspector" hidden>
+            <div class="section-title-row">
+              <h3>节点</h3>
+              <span class="id-tag" id="node-id-tag"></span>
+            </div>
+            <label class="field-label" for="node-text-input">文字内容</label>
+            <textarea id="node-text-input" class="text-input textarea" rows="3"></textarea>
+            <div class="field-grid">
+              <div>
+                <label class="field-label" for="node-type-select">类型</label>
+                <select id="node-type-select" class="text-input">
+                  <option value="start">开始</option>
+                  <option value="process">处理</option>
+                  <option value="decision">判断</option>
+                  <option value="merge">汇合</option>
+                  <option value="end">结束</option>
+                  <option value="comment">注释</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label">连接边</label>
+                <div class="readout" id="node-degree">0 条</div>
+              </div>
+            </div>
+            <div class="field-grid compact-grid">
+              <div>
+                <label class="field-label" for="node-x-input">X</label>
+                <input id="node-x-input" class="text-input" type="number" />
+              </div>
+              <div>
+                <label class="field-label" for="node-y-input">Y</label>
+                <input id="node-y-input" class="text-input" type="number" />
+              </div>
+            </div>
+            <button class="danger-button" id="delete-node-button" type="button">删除节点及相连边</button>
+          </section>
+
+          <section class="panel-section inspector-form" id="edge-inspector" hidden>
+            <div class="section-title-row">
+              <h3>连线</h3>
+              <span class="id-tag" id="edge-id-tag"></span>
+            </div>
+            <div class="edge-endpoints" id="edge-endpoints"></div>
+            <label class="field-label" for="edge-label-input">标签</label>
+            <input id="edge-label-input" class="text-input" type="text" placeholder="例如：通过" />
+            <button class="danger-button" id="delete-edge-button" type="button">删除这条连线</button>
+          </section>
+
+          <section class="panel-section shortcuts">
+            <span class="field-label">快捷键</span>
+            <div class="shortcut-row"><span>撤销 / 重做</span><kbd>⌘ Z</kbd><kbd>⇧ ⌘ Z</kbd></div>
+            <div class="shortcut-row"><span>删除选中</span><kbd>Delete</kbd></div>
+            <div class="shortcut-row"><span>取消选择</span><kbd>Esc</kbd></div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>

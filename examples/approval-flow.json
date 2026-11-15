@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "title": "审批流程 · 双分支与汇合",
+  "nodes": [
+    {
+      "id": "start",
+      "type": "start",
+      "text": "提交申请",
+      "x": 626,
+      "y": 42,
+      "width": 168,
+      "height": 56
+    },
+    {
+      "id": "review",
+      "type": "decision",
+      "text": "资料是否齐全？",
+      "x": 616,
+      "y": 150,
+      "width": 188,
+      "height": 104
+    },
+    {
+      "id": "branch-dept",
+      "type": "process",
+      "text": "部门审批",
+      "x": 304,
+      "y": 342,
+      "width": 196,
+      "height": 76
+    },
+    {
+      "id": "branch-fin",
+      "type": "process",
+      "text": "财务复核",
+      "x": 920,
+      "y": 342,
+      "width": 196,
+      "height": 76
+    },
+    {
+      "id": "merge",
+      "type": "merge",
+      "text": "审批结果汇合",
+      "x": 618,
+      "y": 510,
+      "width": 184,
+      "height": 72
+    },
+    {
+      "id": "done",
+      "type": "end",
+      "text": "归档完成",
+      "x": 626,
+      "y": 676,
+      "width": 168,
+      "height": 56
+    },
+    {
+      "id": "note-branches",
+      "type": "comment",
+      "text": "两条分支并行处理：审批不通过时回到部门补正，通过后继续汇合。",
+      "x": 1110,
+      "y": 260,
+      "width": 236,
+      "height": 118
+    },
+    {
+      "id": "note-merge",
+      "type": "comment",
+      "text": "汇合节点不判断结果，只表示两条路径在此重新进入主干。",
+      "x": 292,
+      "y": 548,
+      "width": 236,
+      "height": 118
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-start-review",
+      "from": "start",
+      "to": "review",
+      "fromPort": "south",
+      "toPort": "north",
+      "label": ""
+    },
+    {
+      "id": "e-review-dept",
+      "from": "review",
+      "to": "branch-dept",
+      "fromPort": "west",
+      "toPort": "north",
+      "label": "驳回"
+    },
+    {
+      "id": "e-review-fin",
+      "from": "review",
+      "to": "branch-fin",
+      "fromPort": "east",
+      "toPort": "north",
+      "label": "通过"
+    },
+    {
+      "id": "e-dept-merge",
+      "from": "branch-dept",
+      "to": "merge",
+      "fromPort": "south",
+      "toPort": "west",
+      "label": ""
+    },
+    {
+      "id": "e-fin-merge",
+      "from": "branch-fin",
+      "to": "merge",
+      "fromPort": "south",
+      "toPort": "east",
+      "label": ""
+    },
+    {
+      "id": "e-merge-done",
+      "from": "merge",
+      "to": "done",
+      "fromPort": "south",
+      "toPort": "north",
+      "label": ""
+    }
+  ]
+}
