@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Broad Phase Collision Demo - Grid / SAP / Brute</title>
+<style>
+  body { margin: 0; font-family: system-ui, sans-serif; background: #101418; color: #e6e9ec; }
+  #hud { padding: 8px 12px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+         background: #1a2027; border-bottom: 1px solid #2b333c; font-size: 13px; }
+  #hud label { display: flex; align-items: center; gap: 6px; }
+  canvas { display: block; background: #0c0f13; }
+  .metric { color: #7fd4ff; font-variant-numeric: tabular-nums; }
+  button, select { background: #25303a; color: #e6e9ec; border: 1px solid #3a4651;
+                   border-radius: 4px; padding: 4px 10px; cursor: pointer; }
+  button:hover { background: #31404d; }
+  .legend { display: flex; gap: 12px; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
+</style>
+</head>
+<body>
+<div id="hud">
+  <label>Backend
+    <select id="backend">
+      <option value="grid" selected>Spatial Grid</option>
+      <option value="sap">Sweep &amp; Prune</option>
+      <option value="brute">Brute Force</option>
+    </select>
+  </label>
+  <label>Bodies <input id="count" type="number" value="400" min="20" max="1200" step="20" style="width:70px"></label>
+  <button id="restart">Restart</button>
+  <button id="pause">Pause</button>
+  <label><input id="showGrid" type="checkbox" checked> Grid cells</label>
+  <label><input id="showCandidates" type="checkbox" checked> Candidate links</label>
+  <label><input id="showContacts" type="checkbox" checked> Contact points</label>
+  <span>bodies: <span class="metric" id="mBodies">0</span></span>
+  <span>candidate pairs: <span class="metric" id="mCand">0</span></span>
+  <span>narrow tests: <span class="metric" id="mTests">0</span></span>
+  <span>touching: <span class="metric" id="mTouch">0</span></span>
+  <span>contacts: <span class="metric" id="mPts">0</span></span>
+  <span>draw-time: <span class="metric" id="mTime">0.00</span> ms</span>
+  <span class="legend">
+    <span><span class="dot" style="background:#4ea1ff"></span>circle</span>
+    <span><span class="dot" style="background:#ffb84e"></span>rect</span>
+    <span><span class="dot" style="background:#7bff9e"></span>contact</span>
+    <span><span class="dot" style="background:#ff6b6b"></span>candidate</span>
+  </span>
+</div>
+<canvas id="view" width="1280" height="760"></canvas>
+<script>
+"use strict";
+
+const canvas = document.getElementById("view");
+const ctx = canvas.getContext("2d");
+const CELL = 64;
+const EPS = 1e-9;
+
+let bodies = new Map();
+let nextId = 0;
+let paused = false;
+let backend = "grid";
+const gridCells = new Map();   // "cx,cy" -> Set(id)
+const membership = new Map();  // id -> Set("cx,cy")
+let sapOrder = [];              // [{minX, id}]
+
+// ----------------------------- vector helpers -----------------------------
+const sub = (a, b) => [a[0] - b[0], a[1] - b[1]];
+const add = (a, b) => [a[0] + b[0], a[1] + b[1]];
+const mul = (a, s) => [a[0] * s, a[1] * s];
+const dot = (a, b) => a[0] * b[0] + a[1] * b[1];
+const len = a => Math.hypot(a[0], a[1]);
+const norm = a => {
+  const m = Math.hypot(a[0], a[1]) || 1;
+  return [a[0] / m, a[1] / m];
+};
+const perp = a => [-a[1], a[0]];
+const rot = (a, t) => {
+  const c = Math.cos(t), s = Math.sin(t);
+  return [a[0] * c - a[1] * s, a[0] * s + a[1] * c];
+};
+
+// ----------------------------- body model ---------------------------------
+function makeBody(id) {
+  const shape = Math.random() < 0.5 ? "circle" : "rect";
+  const body = {
+    id,
+    shape,
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    angle: Math.random() * Math.PI,
+    r: 8 + Math.random() * 14,
+    hw: 10 + Math.random() * 16,
+    hh: 8 + Math.random() * 12,
+    vx: (Math.random() - 0.5) * 60,
+    vy: (Math.random() - 0.5) * 60,
+    spin: (Math.random() - 0.5) * 1.2,
+    aabb: [0, 0, 0, 0],
+  };
+  recomputeAabb(body);
+  return body;
+}
+
+function recomputeAabb(b) {
+  if (b.shape === "circle") {
+    b.aabb = [b.x - b.r, b.y - b.r, b.x + b.r, b.y + b.r];
+    return;
+  }
+  const c = Math.abs(Math.cos(b.angle)), s = Math.abs(Math.sin(b.angle));
+  const ex = b.hw * c + b.hh * s, ey = b.hw * s + b.hh * c;
+  b.aabb = [b.x - ex, b.y - ey, b.x + ex, b.y + ey];
+}
+
+function rectVertices(b) {
+  const c = [b.x, b.y];
+  return [
+    add(c, rot([-b.hw, -b.hh], b.angle)),
+    add(c, rot([ b.hw, -b.hh], b.angle)),
+    add(c, rot([ b.hw,  b.hh], b.angle)),
+    add(c, rot([-b.hw,  b.hh], b.angle)),
+  ];
+}
+
+// ----------------------------- spatial grid --------------------------------
+function cellKeysFor(aabb) {
+  const x0 = Math.floor(aabb[0] / CELL), y0 = Math.floor(aabb[1] / CELL);
+  const x1 = Math.floor(aabb[2] / CELL), y1 = Math.floor(aabb[3] / CELL);
+  const keys = [];
+  for (let cx = x0; cx <= x1; cx++)
+    for (let cy = y0; cy <= y1; cy++) keys.push(cx + "," + cy);
+  return keys;
+}
+
+function gridAdd(b) {
+  const keys = new Set(cellKeysFor(b.aabb));
+  membership.set(b.id, keys);
+  for (const key of keys) {
+    let bucket = gridCells.get(key);
+    if (!bucket) gridCells.set(key, bucket = new Set());
+    bucket.add(b.id);
+  }
+}
+
+function gridRemove(id) {
+  const keys = membership.get(id);
+  if (!keys) return;
+  for (const key of keys) {
+    const bucket = gridCells.get(key);
+    if (!bucket) continue;
+    bucket.delete(id);
+    if (bucket.size === 0) gridCells.delete(key);
+  }
+  membership.delete(id);
+}
+
+function gridUpdate(b) {
+  const next = new Set(cellKeysFor(b.aabb));
+  const prev = membership.get(b.id);
+  if (!prev) { gridAdd(b); return; }
+  for (const key of prev) if (!next.has(key)) {
+    const bucket = gridCells.get(key);
+    if (bucket) { bucket.delete(b.id); if (bucket.size === 0) gridCells.delete(key); }
+  }
+  for (const key of next) if (!prev.has(key)) {
+    let bucket = gridCells.get(key);
+    if (!bucket) gridCells.set(key, bucket = new Set());
+    bucket.add(b.id);
+  }
+  membership.set(b.id, next);
+}
+
+// ----------------------------- broad phases --------------------------------
+function aabbOverlap(a, b) {
+  return !(a[2] < b[0] || b[2] < a[0] || a[3] < b[1] || b[3] < a[1]);
+}
+
+function brutePairs() {
+  const ids = [...bodies.keys()].sort((a, b) => a - b);
+  const pairs = [];
+  for (let i = 0; i < ids.length; i++)
+    for (let j = i + 1; j < ids.length; j++) {
+      const a = bodies.get(ids[i]), b = bodies.get(ids[j]);
+      if (aabbOverlap(a.aabb, b.aabb)) pairs.push([ids[i], ids[j]]);
+    }
+  return pairs;
+}
+
+function gridPairs() {
+  const seen = new Set(), pairs = [];
+  for (const bucket of gridCells.values()) {
+    if (bucket.size < 2) continue;
+    for (const idA of bucket) {
+      const boxA = bodies.get(idA).aabb;
+      for (const idB of bucket) {
+        if (idB <= idA) continue;
+        const key = idA + ":" + idB;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        if (aabbOverlap(boxA, bodies.get(idB).aabb)) pairs.push([idA, idB]);
+      }
+    }
+  }
+  return pairs;
+}
+
+function sapRebuild() {
+  sapOrder = [...bodies.values()]
+    .map(b => ({ minX: b.aabb[0], id: b.id }))
+    .sort((a, b) => a.minX - b.minX);
+}
+
+function sapPairs() {
+  if (sapOrder.length !== bodies.size) sapRebuild();
+  const active = [], pairs = [], seen = new Set();
+  for (const { minX, id } of sapOrder) {
+    let write = 0;
+    for (let i = 0; i < active.length; i++)
+      if (bodies.get(active[i]).aabb[2] >= minX) active[write++] = active[i];
+    active.length = write;
+    const box = bodies.get(id).aabb;
+    for (const other of active) {
+      const lo = Math.min(id, other), hi = Math.max(id, other);
+      const key = lo + ":" + hi;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      if (aabbOverlap(box, bodies.get(other).aabb)) pairs.push([lo, hi]);
+    }
+    active.push(id);
+  }
+  return pairs;
+}
+
+function candidatePairs() {
+  if (backend === "brute") return brutePairs();
+  if (backend === "sap") return sapPairs();
+  return gridPairs();
+}
+
+// ----------------------------- narrow phase (SAT) --------------------------
+function projectVerts(verts, axis) {
+  let lo = dot(verts[0], axis), hi = lo;
+  for (let i = 1; i < verts.length; i++) {
+    const p = dot(verts[i], axis);
+    if (p < lo) lo = p;
+    if (p > hi) hi = p;
+  }
+  return [lo, hi];
+}
+
+function polygonAxes(verts) {
+  const axes = [];
+  for (let i = 0; i < verts.length; i++) {
+    const edge = sub(verts[(i + 1) % verts.length], verts[i]);
+    const axis = norm(perp(edge));
+    if (axes.every(a => Math.abs(dot(a, axis)) < 1 - 1e-9)) axes.push(axis);
+  }
+  return axes;
+}
+
+function closestOnSegment(p, a, b) {
+  const seg = sub(b, a), l2 = dot(seg, seg);
+  if (l2 <= EPS) return a;
+  const t = Math.max(0, Math.min(1, dot(sub(p, a), seg) / l2));
+  return add(a, mul(seg, t));
+}
+
+function closestOnPolygon(p, verts) {
+  let best = verts[0], bestD = Infinity;
+  for (let i = 0; i < verts.length; i++) {
+    const q = closestOnSegment(p, verts[i], verts[(i + 1) % verts.length]);
+    const d = (q[0] - p[0]) ** 2 + (q[1] - p[1]) ** 2;
+    if (d < bestD) { bestD = d; best = q; }
+  }
+  return best;
+}
+
+function collide(a, b) {
+  if (a.shape === "circle" && b.shape === "circle") return circleCircle(a, b);
+  if (a.shape === "circle") return circlePoly(a, b);
+  if (b.shape === "circle") {
+    const m = circlePoly(b, a);
+    if (!m) return null;
+    return { pair: [a.id, b.id], points: m.points,
+             normal: [-m.normal[0], -m.normal[1]], depth: m.depth };
+  }
+  return polyPoly(a, b);
+}
+
+function circleCircle(a, b) {
+  const d = sub([b.x, b.y], [a.x, a.y]);
+  const d2 = dot(d, d), rs = a.r + b.r;
+  if (d2 > rs * rs + EPS) return null;
+  let normal, depth, point;
+  if (d2 > EPS) {
+    const dist = Math.sqrt(d2);
+    normal = [d[0] / dist, d[1] / dist];
+    depth = rs - dist;
+    point = add([a.x, a.y], mul(normal, a.r));
+  } else {
+    normal = [1, 0]; depth = rs; point = [a.x, a.y];
+  }
+  return { pair: [a.id, b.id], points: [point], normal, depth };
+}
+
+function circlePoly(circle, poly) {
+  const verts = rectVertices(poly);
+  const center = [circle.x, circle.y], radius = circle.r;
+  const axes = polygonAxes(verts);
+  let closest = verts[0];
+  for (const v of verts)
+    if ((v[0] - center[0]) ** 2 + (v[1] - center[1]) ** 2 <
+        (closest[0] - center[0]) ** 2 + (closest[1] - center[1]) ** 2)
+      closest = v;
+  const toward = sub(center, closest);
+  if (dot(toward, toward) > EPS) axes.push(norm(toward));
+
+  let bestOverlap = Infinity, bestAxis = null, contained = true;
+  for (const axis of axes) {
+    const [plo, phi] = projectVerts(verts, axis);
+    const cp = dot(center, axis);
+    const clo = cp - radius, chi = cp + radius;
+    const overlap = Math.min(phi, chi) - Math.max(plo, clo);
+    if (overlap < -EPS) return null;
+    if (clo < plo - EPS || chi > phi + EPS) contained = false;
+    if (overlap < bestOverlap) { bestOverlap = overlap; bestAxis = axis; }
+  }
+  if (dot(bestAxis, sub([poly.x, poly.y], center)) < 0)
+    bestAxis = [-bestAxis[0], -bestAxis[1]];
+  const nearest = closestOnPolygon(center, verts);
+  const delta = sub(nearest, center);
+  let point, normal, depth;
+  if (dot(delta, delta) > EPS && !contained) {
+    normal = norm(delta);
+    point = add(center, mul(normal, radius));
+    depth = radius - len(delta);
+  } else {
+    point = center; normal = bestAxis;
+    depth = contained ? radius + bestOverlap : Math.max(bestOverlap, EPS);
+  }
+  return { pair: [circle.id, poly.id], points: [point], normal, depth };
+}
+
+function faceIndex(verts, wanted) {
+  let best = 0, bestDot = -Infinity;
+  for (let i = 0; i < verts.length; i++) {
+    const edge = sub(verts[(i + 1) % verts.length], verts[i]);
+    const n = norm(perp(edge));
+    const score = dot(n, wanted);
+    if (score > bestDot) { bestDot = score; best = i; }
+  }
+  return best;
+}
+
+function clipToLine(points, normal, offset) {
+  if (points.length < 2) return [];
+  const inside = p => dot(normal, p) - offset >= -EPS;
+  const intersect = (s, e) => {
+    const dir = sub(e, s);
+    const denom = dot(normal, dir);
+    if (Math.abs(denom) <= EPS) return s;
+    const t = (offset - dot(normal, s)) / denom;
+    return add(s, mul(dir, t));
+  };
+  const out = [];
+  for (let i = 0; i < points.length; i++) {
+    const cur = points[i], prev = points[(i + points.length - 1) % points.length];
+    const cIn = inside(cur), pIn = inside(prev);
+    if (cIn) {
+      if (!pIn) out.push(intersect(prev, cur));
+      out.push(cur);
+    } else if (pIn) out.push(intersect(prev, cur));
+  }
+  return out;
+}
+
+function polyPoly(a, b) {
+  const va = rectVertices(a), vb = rectVertices(b);
+  const axesA = polygonAxes(va), axesB = polygonAxes(vb);
+  const axes = axesA.concat(axesB);
+  let bestOverlap = Infinity, bestIdx = -1, flip = false;
+  for (let i = 0; i < axes.length; i++) {
+    const [alo, ahi] = projectVerts(va, axes[i]);
+    const [blo, bhi] = projectVerts(vb, axes[i]);
+    const overlap = Math.min(ahi, bhi) - Math.max(alo, blo);
+    if (overlap < -EPS) return null;
+    if (overlap < bestOverlap) {
+      bestOverlap = overlap; bestIdx = i; flip = i >= axesA.length;
+    }
+  }
+  let normal = axes[bestIdx];
+  if (flip) normal = [-normal[0], -normal[1]];
+  if (dot(normal, sub([b.x, b.y], [a.x, a.y])) < 0)
+    normal = [-normal[0], -normal[1]];
+
+  const refVerts = flip ? vb : va;
+  const incVerts = flip ? va : vb;
+  const incIdx = faceIndex(incVerts, [-normal[0], -normal[1]]);
+  const incident = [incVerts[incIdx],
+                    incVerts[(incIdx + 1) % incVerts.length]];
+  const refIdx = faceIndex(refVerts, normal);
+  const v1 = refVerts[refIdx];
+  const v2 = refVerts[(refIdx + 1) % refVerts.length];
+  const tangent = norm(sub(v2, v1));
+  const faceNormal = [tangent[1], -tangent[0]];
+  let clipped = clipToLine(incident, tangent, dot(tangent, v1));
+  if (clipped.length < 2) return null;
+  clipped = clipToLine(clipped, [-tangent[0], -tangent[1]], -dot(tangent, v2));
+  if (clipped.length < 2) return null;
+  const refDist = dot(faceNormal, v1);
+  const points = [];
+  for (const p of clipped) {
+    const depth = refDist - dot(faceNormal, p);
+    if (depth >= -EPS) {
+      const q = add(p, mul(faceNormal, depth));
+      if (points.every(o => (o[0] - q[0]) ** 2 + (o[1] - q[1]) ** 2 > 1e-12))
+        points.push(q);
+    }
+  }
+  if (!points.length) return null;
+  return { pair: [a.id, b.id], points, normal, depth: bestOverlap };
+}
+
+// ----------------------------- simulation / index --------------------------
+function reset(count) {
+  bodies.clear();
+  gridCells.clear();
+  membership.clear();
+  sapOrder = [];
+  nextId = 0;
+  for (let i = 0; i < count; i++) {
+    const body = makeBody(nextId++);
+    bodies.set(body.id, body);
+    if (backend === "grid") gridAdd(body);
+  }
+  if (backend === "sap") sapRebuild();
+}
+
+function step(dt) {
+  for (const body of bodies.values()) {
+    const oldAabb = body.aabb.slice();
+    body.x += body.vx * dt;
+    body.y += body.vy * dt;
+    body.angle += body.spin * dt;
+    if (body.x < 0 || body.x > canvas.width) body.vx *= -1;
+    if (body.y < 0 || body.y > canvas.height) body.vy *= -1;
+    body.x = Math.max(0, Math.min(canvas.width, body.x));
+    body.y = Math.max(0, Math.min(canvas.height, body.y));
+    recomputeAabb(body);
+    if (backend === "grid" && oldAabb.join() !== body.aabb.join())
+      gridUpdate(body);
+  }
+  if (backend === "sap") sapRebuild();
+
+  // Continuous churn: remove a few bodies and add replacements.
+  if (Math.random() < 0.25) {
+    const ids = [...bodies.keys()];
+    for (let k = 0; k < 4 && ids.length; k++) {
+      const id = ids.splice(Math.floor(Math.random() * ids.length), 1)[0];
+      if (backend === "grid") gridRemove(id);
+      bodies.delete(id);
+    }
+    for (let k = 0; k < 4; k++) {
+      const body = makeBody(nextId++);
+      bodies.set(body.id, body);
+      if (backend === "grid") gridAdd(body);
+    }
+    if (backend === "sap") sapRebuild();
+  }
+}
+
+// ----------------------------- rendering -----------------------------------
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const showGrid = document.getElementById("showGrid").checked;
+  const showCand = document.getElementById("showCandidates").checked;
+  const showContact = document.getElementById("showContacts").checked;
+
+  if (showGrid && backend === "grid") {
+    ctx.strokeStyle = "#1d2630";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = 0; x < canvas.width; x += CELL) { ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); }
+    for (let y = 0; y < canvas.height; y += CELL) { ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); }
+    ctx.stroke();
+  }
+
+  const t0 = performance.now();
+  const pairs = candidatePairs();
+  const manifolds = [];
+  let contactPoints = 0;
+  for (const [ia, ib] of pairs) {
+    const manifold = collide(bodies.get(ia), bodies.get(ib));
+    if (manifold) { manifolds.push(manifold); contactPoints += manifold.points.length; }
+  }
+
+  if (showCand) {
+    ctx.strokeStyle = "rgba(255,107,107,0.35)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (const [ia, ib] of pairs) {
+      const a = bodies.get(ia), b = bodies.get(ib);
+      ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+    }
+    ctx.stroke();
+  }
+
+  for (const body of bodies.values()) {
+    ctx.strokeStyle = body.shape === "circle" ? "#4ea1ff" : "#ffb84e";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    if (body.shape === "circle") {
+      ctx.arc(body.x, body.y, body.r, 0, Math.PI * 2);
+    } else {
+      const verts = rectVertices(body);
+      ctx.moveTo(verts[0][0], verts[0][1]);
+      for (let i = 1; i < verts.length; i++) ctx.lineTo(verts[i][0], verts[i][1]);
+      ctx.closePath();
+    }
+    ctx.stroke();
+  }
+
+  if (showContact) {
+    ctx.fillStyle = "#7bff9e";
+    for (const manifold of manifolds)
+      for (const p of manifold.points) {
+        ctx.beginPath();
+        ctx.arc(p[0], p[1], 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+  }
+  const drawMs = performance.now() - t0;
+
+  document.getElementById("mBodies").textContent = bodies.size;
+  document.getElementById("mCand").textContent = pairs.length;
+  document.getElementById("mTests").textContent = pairs.length;
+  document.getElementById("mTouch").textContent = manifolds.length;
+  document.getElementById("mPts").textContent = contactPoints;
+  document.getElementById("mTime").textContent = drawMs.toFixed(2);
+}
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  if (!paused) step(dt);
+  draw();
+  requestAnimationFrame(frame);
+}
+
+// ----------------------------- UI wiring -----------------------------------
+document.getElementById("backend").addEventListener("change", e => {
+  backend = e.target.value;
+  gridCells.clear();
+  membership.clear();
+  sapOrder = [];
+  if (backend === "grid") for (const b of bodies.values()) gridAdd(b);
+  if (backend === "sap") sapRebuild();
+});
+document.getElementById("restart").addEventListener("click",
+  () => reset(parseInt(document.getElementById("count").value, 10) || 400));
+document.getElementById("pause").addEventListener("click", e => {
+  paused = !paused;
+  e.target.textContent = paused ? "Resume" : "Pause";
+});
+canvas.addEventListener("click", e => {
+  const rect = canvas.getBoundingClientRect();
+  const body = makeBody(nextId++);
+  body.x = e.clientX - rect.left;
+  body.y = e.clientY - rect.top;
+  recomputeAabb(body);
+  bodies.set(body.id, body);
+  if (backend === "grid") gridAdd(body);
+  if (backend === "sap") sapRebuild();
+});
+
+reset(parseInt(document.getElementById("count").value, 10) || 400);
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
