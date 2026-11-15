@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>标题形变实验室 · Title Morph Lab</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>标题形变实验室 <span>Title Morph Lab</span></h1>
+    <p class="subtitle">系统字体 · 代码模拟字重 / 字宽 / 倾斜 · 五档宽度对照 · 可拖拽参考线 · 导出 SVG</p>
+  </header>
+
+  <main class="workspace">
+    <aside class="panel" id="controlPanel">
+      <section class="control">
+        <label for="titleText">标题文字（中英混排）</label>
+        <textarea id="titleText" rows="2">字体实验 Typography Lab 2026</textarea>
+      </section>
+
+      <section class="control">
+        <div class="control-head">
+          <label for="weightRange">字重 <output id="weightValue">700</output></label>
+          <span class="hint" id="weightHint">stroke 模拟</span>
+        </div>
+        <input type="range" id="weightRange" min="300" max="900" step="100" value="700" />
+        <div class="ticks"><span>300</span><span>900</span></div>
+      </section>
+
+      <section class="control">
+        <div class="control-head">
+          <label for="slantRange">倾斜 <output id="slantValue">-8°</output></label>
+          <span class="hint">skewX 模拟</span>
+        </div>
+        <input type="range" id="slantRange" min="-20" max="20" step="1" value="-8" />
+        <div class="ticks"><span>-20°</span><span>0°</span><span>20°</span></div>
+      </section>
+
+      <section class="control">
+        <div class="control-head">
+          <label for="sizeRange">字号 <output id="sizeValue">64 px</output></label>
+        </div>
+        <input type="range" id="sizeRange" min="28" max="120" step="2" value="64" />
+      </section>
+
+      <section class="control">
+        <label>五档字宽（固定档位，仅代码矩阵控制）</label>
+        <div class="width-chips" id="widthChips"></div>
+      </section>
+
+      <section class="control colors">
+        <div>
+          <label for="fillColor">文字颜色</label>
+          <input type="color" id="fillColor" value="#15181d" />
+        </div>
+        <div>
+          <label for="bgColor">画布底色</label>
+          <input type="color" id="bgColor" value="#ffffff" />
+        </div>
+        <div>
+          <label for="guideColor">参考线颜色</label>
+          <input type="color" id="guideColor" value="#e0533d" />
+        </div>
+      </section>
+
+      <section class="control">
+        <label class="switch-line">
+          <input type="checkbox" id="showGuides" checked />
+          <span>显示排版参考线</span>
+        </label>
+        <label class="switch-line">
+          <input type="checkbox" id="exportGuides" checked />
+          <span>导出 SVG 时包含参考线</span>
+        </label>
+        <label class="switch-line">
+          <input type="checkbox" id="showLabels" checked />
+          <span>显示宽度档位标签</span>
+        </label>
+      </section>
+
+      <section class="control guide-actions">
+        <button class="btn" id="addHGuide" type="button">＋ 水平参考线</button>
+        <button class="btn" id="addVGuide" type="button">＋ 垂直参考线</button>
+      </section>
+
+      <section class="control">
+        <button class="btn btn-primary" id="exportBtn" type="button">导出 SVG</button>
+        <button class="btn" id="resetBtn" type="button">重置参考线</button>
+      </section>
+
+      <p class="tip">提示：拖动参考线调整位置；双击参考线可删除；参考线位置随 SVG 一起导出。</p>
+    </aside>
+
+    <section class="stage-wrap">
+      <div class="stage-toolbar">
+        <span id="statusText" class="status"></span>
+      </div>
+      <div class="stage-scroll" id="stageScroll">
+        <div class="stage" id="stage"></div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
