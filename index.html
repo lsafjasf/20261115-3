@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FRAMECUT — 程序化视频剪辑台</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23d9ff43'/%3E%3Cpath d='M8 20V12M14 23V9M20 19V13M26 21V11' stroke='%23080b0a' stroke-width='3'/%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Framecut 首页">
+          <span class="brand-mark"><i></i><i></i><i></i></span>
+          <span>FRAMECUT</span>
+          <small>PROCEDURAL STUDIO</small>
+        </a>
+        <div class="topbar-meta">
+          <span class="live-dot"></span>
+          <span>源素材已生成</span>
+          <strong id="source-clock">30.00s</strong>
+          <span class="meta-divider"></span>
+          <span>1280 × 720</span>
+          <span>30 FPS</span>
+        </div>
+        <div class="top-actions">
+          <button class="icon-button" id="reset-button" type="button" title="恢复默认剪辑">
+            <span class="reset-icon">↺</span>
+          </button>
+          <button class="export-shortcut" id="top-export-button" type="button">
+            导出 WebM
+          </button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="stage-column">
+          <div class="stage-header">
+            <div>
+              <span class="eyebrow">PROGRAM 01 / TIMELINE MASTER</span>
+              <h1>让裁切点，落在节拍上。</h1>
+            </div>
+            <div class="view-toggle" role="group" aria-label="预览模式">
+              <button class="is-active" id="view-source" type="button">源素材</button>
+              <button id="view-edit" type="button">成片</button>
+            </div>
+          </div>
+
+          <div class="monitor" id="monitor">
+            <canvas id="preview-canvas" width="1280" height="720"></canvas>
+            <div class="monitor-topline">
+              <span class="monitor-label" id="monitor-label">SOURCE / GENERATED</span>
+              <span class="quality-pill">4:2:0 <b>REC.709</b></span>
+            </div>
+            <div class="safe-frame" aria-hidden="true"></div>
+            <div class="monitor-time" id="monitor-time">00:00:00:00</div>
+            <button class="big-play" id="big-play" type="button" aria-label="播放">
+              <span class="play-triangle"></span>
+            </button>
+            <div class="monitor-bottom">
+              <span id="monitor-subtitle-status">字幕轨已烧录</span>
+              <div class="audio-meter" aria-label="音频电平">
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
+              <span id="monitor-mode">源预览</span>
+            </div>
+          </div>
+
+          <div class="transport">
+            <button id="transport-play" class="transport-play" type="button" aria-label="播放">
+              <span class="play-triangle"></span>
+            </button>
+            <span class="transport-time" id="transport-current">00:00.00</span>
+            <input id="scrubber" class="scrubber" type="range" min="0" max="30" step="0.01" value="0" />
+            <span class="transport-time muted" id="transport-duration">00:30.00</span>
+            <button id="transport-back" class="skip-button" type="button" aria-label="后退五秒">−5s</button>
+            <button id="transport-forward" class="skip-button" type="button" aria-label="前进五秒">+5s</button>
+            <button id="loop-toggle" class="skip-button" type="button" aria-pressed="false">LOOP</button>
+          </div>
+
+          <div class="sync-strip">
+            <span class="sync-pulse"></span>
+            <strong>SYNC LOCK</strong>
+            <span>字幕 / 音频 / 画面共用源时间码</span>
+            <span class="sync-detail" id="sync-detail">1.00× · 30.00s 素材</span>
+          </div>
+        </section>
+
+        <aside class="inspector">
+          <div class="inspector-head">
+            <div>
+              <span class="eyebrow">EDIT DECISIONS</span>
+              <h2>剪辑点</h2>
+            </div>
+            <button class="text-button" id="add-clip-button" type="button">＋ 添加片段</button>
+          </div>
+          <p class="inspector-note">三个入点、出点与转场。修改后会重新校验黑帧。</p>
+          <div id="clip-list" class="clip-list"></div>
+
+          <section class="export-panel">
+            <span class="eyebrow">DELIVERY GATE</span>
+            <div class="export-title-row">
+              <h2>导出 WebM</h2>
+              <span id="gate-pill" class="gate-pill is-locked">LOCKED</span>
+            </div>
+            <div class="check-card" id="check-card">
+              <div class="check-icon" id="check-icon">◌</div>
+              <div>
+                <strong id="check-title">黑帧检查待运行</strong>
+                <p id="check-description">导出前扫描全部成片帧，确认没有黑场断层。</p>
+              </div>
+              <span id="check-value" class="check-value">—</span>
+            </div>
+            <div class="check-stats" id="check-stats">
+              <span>采样 <b id="stat-samples">—</b></span>
+              <span>黑帧 <b id="stat-black">—</b></span>
+              <span>最低亮度 <b id="stat-luma">—</b></span>
+            </div>
+            <button class="secondary-button" id="check-button" type="button">运行黑帧检查</button>
+            <button class="primary-button" id="export-button" type="button" disabled>
+              导出选中的片段
+              <span>WEBM</span>
+            </button>
+            <div class="export-progress" id="export-progress" hidden>
+              <div class="progress-track"><i id="export-progress-bar"></i></div>
+              <span id="export-progress-label">渲染中 0%</span>
+            </div>
+          </section>
+        </aside>
+      </main>
+
+      <section class="timeline">
+        <div class="timeline-head">
+          <div class="timeline-title">
+            <span class="eyebrow">SEQUENCE 01</span>
+            <h2>时间线</h2>
+            <span class="clip-count" id="clip-count">3 段</span>
+          </div>
+          <div class="timeline-summary">
+            <span>总时长</span>
+            <strong id="total-duration">00:00.00</strong>
+            <span class="summary-divider"></span>
+            <span>拖动片段可重新排序</span>
+          </div>
+          <div class="zoom-control">
+            <span>−</span>
+            <input id="timeline-zoom" type="range" min="1" max="2.4" value="1.4" step="0.1" />
+            <span>＋</span>
+          </div>
+        </div>
+        <div class="timeline-scroll" id="timeline-scroll">
+          <div class="timeline-inner" id="timeline-inner">
+            <div class="ruler" id="ruler"></div>
+            <div class="track-row track-clips">
+              <div class="track-label"><span>V1</span>CLIPS</div>
+              <div class="track-content" id="clip-track"></div>
+            </div>
+            <div class="track-row track-captions">
+              <div class="track-label"><span>SUB</span>CAPTIONS</div>
+              <div class="track-content" id="caption-track"></div>
+            </div>
+            <div class="track-row track-audio">
+              <div class="track-label"><span>A1</span>SYNTH</div>
+              <div class="track-content">
+                <canvas id="audio-waveform" height="60"></canvas>
+              </div>
+            </div>
+            <div class="playhead" id="playhead"><span></span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="result-drawer" id="result-drawer" hidden>
+        <div class="result-copy">
+          <span class="eyebrow">EXPORTED / PLAYBACK VERIFIED</span>
+          <h2>WebM 已写入，正在回放。</h2>
+          <p id="result-file-meta">—</p>
+          <div class="result-actions">
+            <button class="primary-button" id="replay-export-button" type="button">重播导出文件 ↻</button>
+            <a class="secondary-button download-link" id="download-link" download="framecut-two-cuts.webm">下载 WebM</a>
+          </div>
+        </div>
+        <video id="result-video" controls playsinline aria-label="导出的 WebM 回放"></video>
+      </section>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./assets/vendor/fix-webm-duration.js"></script>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
