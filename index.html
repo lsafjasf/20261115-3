@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>色盲安全图表配色生成器</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>色盲安全图表配色生成器</h1>
+    <p class="subtitle">在正常视觉、红绿弱视（红色/绿色弱视）、蓝黄弱视与灰度下均可辨识 · 锁定关键色后重生成其余颜色</p>
+  </header>
+
+  <section class="controls" id="global-controls">
+    <div class="control">
+      <label>弱视严重度 <output id="severity-val">1.0</output></label>
+      <input type="range" id="severity" min="0.5" max="1" step="0.05" value="1" />
+    </div>
+    <div class="control">
+      <label>最小对比度（WCAG 亮度比）<output id="contrast-val">1.15</output></label>
+      <input type="range" id="min-contrast" min="1" max="2" step="0.05" value="1.15" />
+    </div>
+    <div class="control">
+      <label>最小色差 ΔE2000 <output id="deltae-val">7</output></label>
+      <input type="range" id="min-deltae" min="5" max="15" step="0.5" value="7" />
+    </div>
+    <div class="control actions">
+      <button id="regen-all" class="primary">重新生成两套</button>
+      <button id="run-verify">运行锁定验证</button>
+    </div>
+  </section>
+
+  <main id="palette-container"></main>
+
+  <section class="verify-panel">
+    <h2>锁定色跨视图一致性验证</h2>
+    <pre id="verify-output">点击「运行锁定验证」查看结果（同时可运行 node verify.js）。</pre>
+  </section>
+
+  <script src="color.js"></script>
+  <script src="generator.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
