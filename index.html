@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#071418" />
+    <title>潮汐堆场 · 集卡调度</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="ambient-grid" aria-hidden="true"></div>
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+        <div>
+          <p class="eyebrow">TIDAL YARD / SHIFT 07</p>
+          <h1>潮汐堆场</h1>
+        </div>
+      </div>
+      <div class="mission-strip" aria-label="本局状态">
+        <div class="metric">
+          <span class="metric-label">作业时钟</span>
+          <strong id="clock-value">00:00</strong>
+          <small>/ 30:00</small>
+        </div>
+        <div class="metric">
+          <span class="metric-label">任务进度</span>
+          <strong id="task-value">0 / 3</strong>
+          <small id="task-note">待调度</small>
+        </div>
+        <div class="metric">
+          <span class="metric-label">通道净宽</span>
+          <strong id="lane-value">2 格</strong>
+          <small id="lane-note">通畅</small>
+        </div>
+        <div class="metric">
+          <span class="metric-label">当前负载</span>
+          <strong id="load-value">18%</strong>
+          <div class="load-track"><i id="load-bar"></i></div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-button" id="help-button" type="button" aria-label="玩法说明">?</button>
+        <button class="icon-button" id="sound-button" type="button" aria-label="开关声音" aria-pressed="true">
+          <span class="sound-icon">◖</span>
+        </button>
+        <button class="primary-button compact" id="start-button" type="button">开始班次</button>
+      </div>
+    </header>
+
+    <main class="game-layout">
+      <section class="yard-stage" aria-label="堆场调度画布">
+        <div class="stage-head">
+          <div>
+            <p class="eyebrow">LIVE YARD MAP</p>
+            <h2>北区堆场 · 潮汐窗口</h2>
+          </div>
+          <div class="stage-legend">
+            <span><i class="legend-dot lane-a"></i>A 吊机</span>
+            <span><i class="legend-dot lane-b"></i>B 吊机</span>
+            <span><i class="legend-dot danger"></i>错叠风险</span>
+          </div>
+        </div>
+        <div class="canvas-shell">
+          <canvas id="yard-canvas" width="1180" height="720" aria-label="港口堆场俯视图"></canvas>
+          <div class="canvas-badge" id="canvas-badge">
+            <span class="pulse-dot"></span>
+            <span id="canvas-status">等待开始</span>
+          </div>
+          <div class="canvas-hint" id="canvas-hint">选择待卸集卡，再点击同目的地箱位</div>
+        </div>
+        <div class="stage-foot">
+          <div class="speed-control" role="group" aria-label="模拟速度">
+            <button type="button" data-speed="1" class="active">1×</button>
+            <button type="button" data-speed="2">2×</button>
+            <button type="button" data-speed="4">4×</button>
+          </div>
+          <button class="text-button" id="pause-button" type="button" disabled>暂停</button>
+          <button class="text-button danger-text" id="reset-button" type="button">重置本局</button>
+        </div>
+      </section>
+
+      <aside class="control-deck" aria-label="调度控制台">
+        <section class="panel queue-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">TRUCK QUEUE</p>
+              <h3>车辆排队</h3>
+            </div>
+            <span class="count-badge" id="queue-count">3 辆</span>
+          </div>
+          <div class="truck-list" id="truck-list"></div>
+        </section>
+
+        <section class="panel dispatch-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">CRANE ORDER</p>
+              <h3>落箱指令</h3>
+            </div>
+            <span class="selection-tag" id="selection-tag">未选集卡</span>
+          </div>
+          <div class="cargo-summary" id="cargo-summary">
+            <div class="empty-state">从上方队列选择集卡<br />或直接点击画布中的车辆</div>
+          </div>
+          <div class="field-group">
+            <span class="field-label">指派吊机</span>
+            <div class="segmented" id="crane-picker">
+              <button type="button" data-crane="A" class="active">
+                <span class="crane-dot a"></span>吊机 A <small>空闲</small>
+              </button>
+              <button type="button" data-crane="B">
+                <span class="crane-dot b"></span>吊机 B <small>空闲</small>
+              </button>
+            </div>
+          </div>
+          <div class="field-group">
+            <span class="field-label">吊机路径</span>
+            <div class="route-picker" id="route-picker">
+              <button type="button" data-route="north"><b>北绕</b><small>通道外</small></button>
+              <button type="button" data-route="laneN" class="active"><b>北道</b><small>3 行</small></button>
+              <button type="button" data-route="laneS"><b>南道</b><small>4 行</small></button>
+              <button type="button" data-route="south"><b>南绕</b><small>通道外</small></button>
+            </div>
+          </div>
+          <div class="target-line">
+            <span>落箱位</span>
+            <strong id="target-name">点击画布选择</strong>
+          </div>
+          <button class="primary-button wide" id="dispatch-button" type="button" disabled>确认派工</button>
+          <button class="reorder-button wide" id="reorder-button" type="button" hidden>翻箱重排 · 点击执行</button>
+        </section>
+
+        <section class="panel event-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">YARD FEED</p>
+              <h3>现场动态</h3>
+            </div>
+            <span class="live-tag"><i></i>LIVE</span>
+          </div>
+          <ol class="event-list" id="event-list" aria-live="polite"></ol>
+        </section>
+      </aside>
+    </main>
+
+    <div class="modal-backdrop" id="modal" hidden>
+      <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <p class="eyebrow" id="modal-eyebrow">SHIFT BRIEF</p>
+        <h2 id="modal-title">班次说明</h2>
+        <div class="modal-body" id="modal-body"></div>
+        <div class="modal-actions" id="modal-actions"></div>
+      </section>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
