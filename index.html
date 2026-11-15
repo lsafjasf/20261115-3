@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>仓库火场指挥模拟</title>
+<style>
+  body { margin: 0; background: #14171c; color: #dde3ea; font-family: "Microsoft YaHei", sans-serif; display: flex; }
+  #stage { padding: 10px; }
+  canvas { background: #1b1f26; border: 1px solid #333; display: block; }
+  #panel { width: 280px; padding: 10px; font-size: 13px; }
+  #panel h2 { font-size: 16px; margin: 6px 0; }
+  .row { margin: 6px 0; }
+  .gauge { height: 10px; background: #2a2f38; border-radius: 4px; overflow: hidden; }
+  .gauge > div { height: 100%; background: #4da3ff; }
+  button { background: #2d3542; color: #dde3ea; border: 1px solid #4a5568; border-radius: 4px; padding: 4px 10px; cursor: pointer; margin: 2px; }
+  button:hover { background: #3a4454; }
+  button.active { background: #4da3ff; color: #10141a; }
+  input[type=range] { width: 140px; vertical-align: middle; }
+  #log { height: 170px; overflow-y: auto; background: #10141a; border: 1px solid #2a2f38; padding: 4px; font-size: 12px; }
+  #log div { margin: 1px 0; }
+  .hose-item { border: 1px solid #2a2f38; border-radius: 4px; padding: 4px; margin: 4px 0; }
+  .burst-tag { color: #ff6b6b; font-weight: bold; }
+  #status { font-weight: bold; }
+</style>
+</head>
+<body>
+  <div id="stage"><canvas id="cv" width="960" height="624"></canvas></div>
+  <div id="panel">
+    <h2>仓库火场指挥</h2>
+    <div class="row">时间 <span id="clock">00:00</span> / 20:00　<span id="status">待命</span></div>
+    <div class="row">
+      <button id="btnStart">开始</button>
+      <button id="btnSpeed">1x</button>
+      <button id="btnRestart">重开</button>
+      <button id="btnLay">铺设水带</button>
+    </div>
+    <div class="row">泵A 转速 <input id="pumpA" type="range" min="0" max="100" value="0"> <span id="pumpAv">0%</span></div>
+    <div class="row">主干A 压力 <div class="gauge"><div id="gaugeA" style="width:0%"></div></div> <span id="pressA">0.0 bar</span></div>
+    <div class="row">泵B 转速 <input id="pumpB" type="range" min="0" max="100" value="0"> <span id="pumpBv">0%</span></div>
+    <div class="row">主干B 压力 <div class="gauge"><div id="gaugeB" style="width:0%"></div></div> <span id="pressB">0.0 bar</span></div>
+    <h2>水带支路</h2>
+    <div id="hoses"></div>
+    <h2>事件</h2>
+    <div id="log"></div>
+    <div class="row" style="color:#8b94a3">操作：点“铺设水带”后，先点主干(A下/B上)选接口，再点目标位置。开启支路越多水压越低；水带可能破裂，需关闭支路并重新铺设。</div>
+  </div>
+  <script src="sim.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
