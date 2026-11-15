@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#091117">
+  <title>TerraFlow · 山地河网模拟台</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40"><path d="M4 30 14 12l7 12 6-10 9 16H4Z"/><path d="m20 25 4 2 3 4H14l3-5 3-1Z"/></svg>
+        </div>
+        <div>
+          <div class="brand-title">TERRAFLOW <span>/ LAB 03</span></div>
+          <div class="brand-subtitle">山地河网 · 侵蚀沉积实验台</div>
+        </div>
+      </div>
+      <div class="top-metrics">
+        <div class="metric-chip"><span>SIM TIME</span><strong id="topTime">0.0 a</strong></div>
+        <div class="metric-chip"><span>SEED</span><strong id="topSeed">467</strong></div>
+        <div class="metric-chip"><span>STEP</span><strong id="topStep">000</strong></div>
+      </div>
+      <div class="run-state" id="runState">
+        <span class="pulse-dot"></span>
+        <span id="runStateText">运行中</span>
+      </div>
+    </header>
+
+    <main class="dashboard">
+      <aside class="left-stack">
+        <section class="panel controls-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">FORCING</p>
+              <h2>环境参数</h2>
+            </div>
+            <span class="micro-badge">LIVE</span>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <label for="rainfall">降雨强度</label>
+              <output id="rainfallValue">100 <small>mm/h</small></output>
+            </div>
+            <input id="rainfall" class="range range-rain" type="range" min="20" max="180" step="5" value="100">
+            <div class="range-scale"><span>20 干旱</span><span>100 基准</span><span>180 暴雨</span></div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <label for="hardness">岩层硬度</label>
+              <output id="hardnessValue">1.10 <small>×</small></output>
+            </div>
+            <input id="hardness" class="range range-rock" type="range" min="0.45" max="2.2" step="0.05" value="1.1">
+            <div class="range-scale"><span>软弱</span><span>抗蚀</span></div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <label for="timeStep">时间步长</label>
+              <output id="timeStepValue">1.0 <small>a/步</small></output>
+            </div>
+            <input id="timeStep" class="range range-time" type="range" min="0.25" max="4" step="0.25" value="1">
+            <div class="range-scale"><span>精细</span><span>快速</span></div>
+          </div>
+
+          <div class="transport-rule">
+            <span class="rule-icon">↯</span>
+            <p><strong>输移规则</strong> 高流量 + 陡坡以侵蚀为主；低坡汇流区转为沉积。</p>
+          </div>
+        </section>
+
+        <section class="panel tools-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">TERRAIN BRUSH</p>
+              <h2>局部地形</h2>
+            </div>
+            <span class="tool-hint">拖拽画布</span>
+          </div>
+          <div class="tool-toggle" role="group" aria-label="地形笔刷">
+            <button class="tool-btn active" id="raiseTool" data-tool="raise"><span>+</span> 抬高</button>
+            <button class="tool-btn" id="carveTool" data-tool="carve"><span>-</span> 下切</button>
+          </div>
+          <div class="control-label brush-label">
+            <label for="brushSize">笔刷半径</label>
+            <output id="brushSizeValue">5 <small>cells</small></output>
+          </div>
+          <input id="brushSize" class="range range-rock" type="range" min="2" max="12" step="1" value="5">
+          <p class="tool-note">释放鼠标后，重算受影响的上游流域与汇流路径。</p>
+        </section>
+
+        <section class="panel seed-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">REPRODUCIBILITY</p>
+              <h2>种子与导出</h2>
+            </div>
+          </div>
+          <div class="seed-row">
+            <label class="sr-only" for="seedInput">地形 seed</label>
+            <input id="seedInput" type="text" inputmode="numeric" value="467" aria-label="地形 seed">
+            <button id="applySeedBtn" class="square-btn" title="应用 seed">↻</button>
+          </div>
+          <div class="button-grid">
+            <button id="saveSeedBtn" class="ghost-btn">保存 seed</button>
+            <button id="exportPngBtn" class="ghost-btn">高程图 PNG</button>
+            <button id="exportCsvBtn" class="ghost-btn span-2">导出水文 CSV</button>
+          </div>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <article class="panel map-panel">
+          <div class="map-header">
+            <div>
+              <p class="eyebrow">DIGITAL ELEVATION MODEL</p>
+              <h1>流域地形与汇流网络</h1>
+            </div>
+            <div class="map-actions">
+              <div class="layer-toggles">
+                <label><input id="riverLayer" type="checkbox" checked><span></span>河流</label>
+                <label><input id="depositLayer" type="checkbox" checked><span></span>沉积</label>
+              </div>
+              <div class="transport-buttons">
+                <button id="playBtn" class="primary-btn" aria-label="暂停模拟">
+                  <span id="playIcon">Ⅱ</span><span id="playText">暂停</span>
+                </button>
+                <button id="stepBtn" class="icon-btn" title="单步推进" aria-label="单步推进">→|</button>
+                <button id="resetBtn" class="icon-btn" title="重置地形" aria-label="重置地形">↺</button>
+              </div>
+            </div>
+          </div>
+          <div class="canvas-wrap" id="mapWrap">
+            <canvas id="terrainCanvas" aria-label="高程、河流与沉积图层"></canvas>
+            <div class="canvas-coordinates" id="coordinates">X 60 · Y 70</div>
+            <div class="compass"><span>N</span><i></i></div>
+            <div class="map-loading" id="mapLoading"><span></span>构建流域…</div>
+          </div>
+          <div class="map-footer">
+            <div class="legend">
+              <span class="legend-item"><i class="grad-elev"></i>高程 <b id="elevRange">62—2011 m</b></span>
+              <span class="legend-item"><i class="line-river"></i>河道</span>
+              <span class="legend-item"><i class="dot-deposit"></i>沉积</span>
+              <span class="legend-item"><i class="area-affected"></i>重算流域</span>
+            </div>
+            <div class="scale-bar"><i></i><span>2 km</span></div>
+          </div>
+        </article>
+
+        <article class="panel profile-panel">
+          <div class="profile-header">
+            <div>
+              <p class="eyebrow">TRANSECT</p>
+              <h2>横向剖面 <span id="profileLocation">A—A′ · ROW 36</span></h2>
+            </div>
+            <div class="profile-legend">
+              <span><i class="swatch-surface"></i>地表</span>
+              <span><i class="swatch-water"></i>水面</span>
+              <span><i class="swatch-rock"></i>基岩</span>
+            </div>
+          </div>
+          <canvas id="profileCanvas" aria-label="地形横剖面"></canvas>
+        </article>
+      </section>
+
+      <aside class="right-stack">
+        <section class="panel hydro-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">WATER BALANCE</p>
+              <h2>出口水文</h2>
+            </div>
+            <span class="live-badge"><i></i>实时</span>
+          </div>
+          <div class="flow-readout">
+            <div class="flow-number"><span id="outletFlow">129.024</span><small>m³/s</small></div>
+            <div class="flow-caption">OUTLET DISCHARGE</div>
+          </div>
+          <div class="balance-box">
+            <div class="balance-head">
+              <span>流量守恒误差</span>
+              <strong id="conservationError">4.41e-16</strong>
+            </div>
+            <div class="error-track"><i id="errorFill"></i></div>
+            <div class="balance-foot"><span>输入 <b id="inputFlow">129.024</b> m³/s</span><span id="auditState" class="audit-ok">✓ 审计通过</span></div>
+          </div>
+          <div class="stat-grid">
+            <div><span>河道长度</span><strong id="channelLength">42.45</strong><small>km</small></div>
+            <div><span>累计侵蚀</span><strong id="erodedVolume">0.0</strong><small>10³ m³</small></div>
+            <div><span>累计沉积</span><strong id="depositedVolume">0.0</strong><small>10³ m³</small></div>
+            <div><span>河道单元</span><strong id="channelCells">1,372</strong><small>cells</small></div>
+          </div>
+        </section>
+
+        <section class="panel integrity-panel">
+          <div class="integrity-title">
+            <div class="integrity-icon">✓</div>
+            <div><h3>河网连续性</h3><p id="continuityText">全网格 D8 路径闭合至出口</p></div>
+          </div>
+          <div class="integrity-rows">
+            <div><span>断流单元</span><b id="discontinuity">0</b></div>
+            <div><span>拓扑环</span><b id="cycles">0</b></div>
+            <div><span>出口单元</span><b id="outletLabel">(60, 70)</b></div>
+          </div>
+        </section>
+
+        <section class="panel impact-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">CATCHMENT EDIT</p>
+              <h2>受影响流域</h2>
+            </div>
+            <span id="impactBadge" class="micro-badge muted">待编辑</span>
+          </div>
+          <div class="impact-ring-row">
+            <div class="impact-ring" id="impactRing"><span id="impactPercent">0</span><small>%</small></div>
+            <div class="impact-copy">
+              <strong id="impactCount">尚未修改</strong>
+              <p id="impactDetail">编辑地形后展示上下游影响范围。</p>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <section class="panel comparison-panel">
+        <div class="comparison-head">
+          <div>
+            <p class="eyebrow">RAINFALL ENSEMBLE / SAME SEED</p>
+            <h2>三组降雨对比</h2>
+          </div>
+          <div class="comparison-actions">
+            <div class="repro-status" id="reproStatus"><span class="spinner"></span>正在验证复现…</div>
+            <button id="rerunCompareBtn" class="icon-btn" title="重新运行对比" aria-label="重新运行对比">↻</button>
+            <button id="exportCompareBtn" class="ghost-btn small">导出结果</button>
+          </div>
+        </div>
+        <div class="comparison-grid" id="comparisonGrid">
+          <div class="compare-placeholder">等待水文场景计算…</div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <span>D8 ROUTING · SINGLE OUTLET · FIXED-SEED MONTE CARLO</span>
+      <span id="footerHash">HASH —</span>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
