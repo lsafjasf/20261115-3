@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#071119" />
+    <title>沿江泵站联合调度</title>
+    <link rel="stylesheet" href="fonts.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 42 42">
+              <circle cx="21" cy="21" r="17" />
+              <path d="M8 25c4-5 7-5 11 0s8 5 15 0" />
+              <path d="M15 15h12v7H15z" />
+              <path d="M18 12v-3h6v3M21 8V4" />
+            </svg>
+          </div>
+          <div>
+            <span class="eyebrow">RIVER OPERATIONS / 06H</span>
+            <h1>沿江泵站 <span>联合调度</span></h1>
+          </div>
+        </div>
+
+        <div class="storm-chip">
+          <span class="live-dot"></span>
+          <span>暴雨橙色预警</span>
+          <strong>18:00—24:00</strong>
+        </div>
+
+        <div class="header-metrics">
+          <div class="header-metric">
+            <label>模拟时间</label>
+            <strong class="mono" id="clock">00:00</strong>
+          </div>
+          <div class="header-metric">
+            <label>雨强</label>
+            <strong class="mono" id="rainNow">22 mm/h</strong>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button class="ghost-button" id="btnAudio" type="button" aria-pressed="false">
+            <span class="audio-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span>声音</span>
+          </button>
+          <button class="icon-button" id="btnHelp" type="button" aria-label="查看调度规则">?</button>
+        </div>
+      </header>
+
+      <main class="main-grid">
+        <section class="stage-panel">
+          <div class="stage-heading">
+            <div>
+              <span class="eyebrow">LIVE DIGITAL TWIN</span>
+              <h2>河道 · 城市 · 电力一图态势</h2>
+            </div>
+            <div class="stage-status">
+              <span class="status-pill running" id="missionStatus">
+                <i></i>调度中
+              </span>
+              <span class="weather-readout" id="weatherReadout">南风 5级 · 能见度低</span>
+            </div>
+          </div>
+
+          <div class="canvas-shell">
+            <canvas id="scene" aria-label="河道、泵站、电力和城市积水的实时示意图"></canvas>
+            <div class="canvas-vignette"></div>
+
+            <div class="hud-metrics">
+              <article class="hud-card power-card">
+                <label>共用母线</label>
+                <strong><span id="busCurrent">0</span><small>/ 188 A</small></strong>
+                <div class="micro-bar"><i id="busBar"></i><b></b></div>
+                <span id="busCaption">待机</span>
+              </article>
+              <article class="hud-card">
+                <label>河道水位</label>
+                <strong><span id="riverLevel">5.02</span><small>m</small></strong>
+                <span class="hud-note" id="riverNote">警戒 5.32 m</span>
+              </article>
+              <article class="hud-card">
+                <label>当前排量</label>
+                <strong><span id="totalFlow">0.0</span><small>m³/s</small></strong>
+                <span class="hud-note" id="flowNote">三泵待机</span>
+              </article>
+            </div>
+
+            <div class="alarm-stack" id="alarmStack" aria-live="polite"></div>
+            <div class="canvas-coach" id="canvasCoach">
+              <span>操作提示</span>
+              <strong>水泵逐台启动</strong>，错开 3 分钟浪涌；医院可切至柴发释放母线容量。
+            </div>
+          </div>
+
+          <div class="timeline-panel">
+            <div class="timeline-controls">
+              <button class="primary-play" id="btnTransport" type="button">
+                <span class="transport-icon" aria-hidden="true"></span>
+                <span id="transportLabel">开始调度</span>
+              </button>
+              <button class="step-button" id="btnStep" type="button">
+                <span aria-hidden="true">+1′</span> 单步
+              </button>
+              <div class="speed-control" aria-label="模拟速度">
+                <button type="button" data-speed="1" class="active">1×</button>
+                <button type="button" data-speed="2">2×</button>
+                <button type="button" data-speed="4">4×</button>
+              </div>
+              <button class="text-button" id="btnReset" type="button">重置场景</button>
+              <div class="timeline-legend">
+                <span><i class="legend-rain"></i>雨强</span>
+                <span><i class="legend-event"></i>设备事件</span>
+              </div>
+            </div>
+
+            <div class="timeline-track" id="timelineTrack">
+              <div class="rain-profile" id="rainProfile"></div>
+              <div class="timeline-fill" id="timelineFill"></div>
+              <div class="timeline-events" id="timelineEvents"></div>
+              <div class="timeline-playhead" id="timelinePlayhead">
+                <span id="playheadTime">00:00</span>
+              </div>
+            </div>
+            <div class="timeline-axis">
+              <span>18:00</span><span>19:00</span><span>20:00</span>
+              <span>21:00</span><span>22:00</span><span>23:00</span><span>24:00</span>
+            </div>
+          </div>
+        </section>
+
+        <aside class="side-panel">
+          <section class="mission-card">
+            <div class="card-heading">
+              <div>
+                <span class="eyebrow">MISSION / 6H</span>
+                <h2>守住重点区域</h2>
+              </div>
+              <div class="mission-clock mono" id="missionClock">06:00</div>
+            </div>
+            <div class="objective-list">
+              <div class="objective" id="objectiveHospital">
+                <span class="objective-icon power">⚡</span>
+                <div><strong>医院支线不断电</strong><small id="hospitalObjectiveNote">当前由共用母线供电</small></div>
+                <i class="objective-state"></i>
+              </div>
+              <div class="objective" id="objectiveZones">
+                <span class="objective-icon water">≋</span>
+                <div><strong>三处片区不进水</strong><small id="zoneObjectiveNote">监测中 · 暂无进水</small></div>
+                <i class="objective-state"></i>
+              </div>
+              <div class="objective" id="objectiveTime">
+                <span class="objective-icon clock">◷</span>
+                <div><strong>完成六小时调度</strong><small>18:00 至 24:00</small></div>
+                <i class="objective-state"></i>
+              </div>
+            </div>
+            <div class="strategy-note">
+              <span>调度建议</span>
+              <p>先保医院，再按片区水位错峰调泵。母线超过 188 A 会触发保护。</p>
+            </div>
+            <div class="bus-protection">
+              <span id="busProtectionText"><i></i>母线保护就绪</span>
+              <button id="btnResetBus" type="button" disabled>母线复位</button>
+            </div>
+          </section>
+
+          <section class="hospital-card">
+            <div class="hospital-head">
+              <div class="hospital-icon" aria-hidden="true">+</div>
+              <div>
+                <span class="eyebrow">CRITICAL LOAD</span>
+                <h3>医院支线</h3>
+              </div>
+              <span class="load-value mono">24 A</span>
+            </div>
+            <div class="hospital-stats">
+              <div><label>供电状态</label><strong id="hospitalPower">正常</strong></div>
+              <div><label>柴发余量</label><strong id="generatorFuel">260 min</strong></div>
+            </div>
+            <div class="source-switch" id="sourceSwitch">
+              <button type="button" data-source="bus" class="active">
+                <span>共用母线</span><small>零切换</small>
+              </button>
+              <button type="button" data-source="generator">
+                <span>柴油发电机</span><small>释放 24 A</small>
+              </button>
+            </div>
+            <div class="fuel-track"><i id="fuelBar"></i></div>
+          </section>
+
+          <div class="section-label">
+            <span>泵组控制</span>
+            <small>额定 / 超频 110%</small>
+          </div>
+          <div class="pump-list" id="pumpList"></div>
+
+          <section class="log-card">
+            <div class="log-head">
+              <span>调度事件</span>
+              <small id="eventCount">0 条</small>
+            </div>
+            <div class="event-log" id="eventLog" aria-live="polite"></div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <div class="modal-backdrop" id="resultModal" hidden>
+      <div class="result-modal" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+        <div class="result-emblem" id="resultEmblem">✓</div>
+        <span class="eyebrow" id="resultEyebrow">SIMULATION COMPLETE</span>
+        <h2 id="resultTitle">六小时调度完成</h2>
+        <p id="resultDescription">三处重点区域保持安全，医院支线供电正常。</p>
+        <div class="result-reasons" id="resultReasons"></div>
+        <div class="result-stats" id="resultStats"></div>
+        <div class="modal-actions">
+          <button class="primary-action" id="btnResultRestart" type="button">重新调度</button>
+          <button class="secondary-action" id="btnResultClose" type="button">查看现场</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="helpModal" hidden>
+      <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+        <button class="modal-close" id="btnHelpClose" type="button" aria-label="关闭">×</button>
+        <span class="eyebrow">OPERATIONS MANUAL</span>
+        <h2 id="helpTitle">联合调度规则</h2>
+        <p>三座泵站抢排城市积水，但共用一条 380V 母线。医院支线是最高优先级，任何失电都视为任务失败。</p>
+        <div class="manual-grid">
+          <article><span>01</span><h3>错峰启动</h3><p>启泵会带来约 3 分钟浪涌。多泵同时启动极易触发母线保护，建议逐台启动并观察电流回落。</p></article>
+          <article><span>02</span><h3>负荷切换</h3><p>将医院切至柴发可释放 24 A 母线容量，但柴发只有 260 分钟燃料；耗尽后会无扰切回健康母线。</p></article>
+          <article><span>03</span><h3>持续超载</h3><p>单泵电流超过额定值并连续 24 分钟，会损伤设备并跳闸。降低转速或停机可中断过载计时。</p></article>
+          <article><span>04</span><h3>故障恢复</h4><p>设备损伤后点击“抢修”，12 分钟后恢复；母线跳闸后等待 3 分钟复位，再逐台重新启泵。</p></article>
+        </div>
+        <div class="manual-footer">
+          <span><kbd>空格</kbd> 暂停/继续</span>
+          <span><kbd>S</kbd> 单步 1 分钟</span>
+          <span><kbd>R</kbd> 重置</span>
+          <button class="primary-action" id="btnHelpStart" type="button">知道了</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>

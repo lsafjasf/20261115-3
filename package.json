@@ -1,0 +1,12 @@
+{
+  "name": "river-pump-command",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "沿江泵站联合调度模拟",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/simulation.test.js",
+    "fonts": "node scripts/build-fonts.mjs"
+  }
+}
