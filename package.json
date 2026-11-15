@@ -1,0 +1,13 @@
+{
+  "name": "rescue-dispatch-game",
+  "version": "1.0.0",
+  "description": "双城区三事故救援调度游戏（Canvas + Web Audio，固定 seed 可复现）",
+  "type": "module",
+  "main": "index.html",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "simulate": "node scripts/simulate.js",
+    "smoke": "node scripts/browser-smoke.mjs",
+    "serve": "node scripts/serve.mjs"
+  }
+}

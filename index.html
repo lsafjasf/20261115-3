@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>双城救援调度 · Canvas + Web Audio</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --panel: #162033;
+      --line: #26344d;
+      --accent: #36c5f0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      background: #0b1220;
+      color: #e2e8f0;
+      display: flex;
+      min-height: 100vh;
+    }
+    #map-wrap {
+      padding: 14px;
+      flex: 1;
+    }
+    canvas {
+      width: 100%;
+      max-width: 880px;
+      background: #0a101b;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      cursor: crosshair;
+    }
+    aside {
+      width: 360px;
+      padding: 14px;
+      background: var(--panel);
+      border-left: 1px solid var(--line);
+      overflow-y: auto;
+      max-height: 100vh;
+    }
+    h1 { font-size: 18px; margin: 0 0 8px; }
+    h2 { font-size: 14px; margin: 16px 0 8px; color: #9fb4d4; }
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      background: #0e1728;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    button, select, input {
+      font: inherit;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #0e1728;
+      color: #e2e8f0;
+      padding: 7px 10px;
+    }
+    button { cursor: pointer; }
+    button:hover { border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .vehicle-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      background: #0e1728;
+      font-size: 12px;
+    }
+    .vehicle-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+    .vehicle-card.stranded { border-color: #ff5c5c; }
+    #log {
+      height: 210px;
+      overflow-y: auto;
+      background: #0e1728;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    #log .warn { color: #fbbf24; }
+    #log .bad { color: #ff7b7b; }
+    #log .good { color: #6ee7a8; }
+    #banner {
+      display: none;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    #banner.win { display: block; background: #10331f; color: #86efac; border: 1px solid #2f7d4f; }
+    #banner.fail { display: block; background: #3a1414; color: #fca5a5; border: 1px solid #8a3535; }
+    label { font-size: 12px; color: #9fb4d4; }
+  </style>
+</head>
+<body>
+  <main id="map-wrap">
+    <canvas id="canvas" width="880" height="560"></canvas>
+    <h2>伤员生命体征（随时间恶化，上车后恶化速度降至 40%）</h2>
+    <canvas id="victim-canvas" width="880" height="120" style="height:120px"></canvas>
+  </main>
+  <aside>
+    <h1>双城救援调度</h1>
+    <div id="banner"></div>
+    <div class="stat"><span>固定 Seed</span><strong id="seed"></strong></div>
+    <div class="stat"><span>模拟时间</span><strong id="clock"></strong></div>
+    <div class="stat"><span>已转运 / 目标</span><strong id="delivered"></strong></div>
+    <div class="stat"><span>可调度车辆</span><strong id="dispatchable"></strong></div>
+    <div class="stat"><span>担架员（站内）</span><strong id="medics"></strong></div>
+
+    <h2>模拟控制</h2>
+    <div class="row">
+      <button id="play">暂停</button>
+      <select id="speed">
+        <option value="500">1x（0.5秒/分钟）</option>
+        <option value="250" selected>2x</option>
+        <option value="100">5x</option>
+        <option value="1">极速</option>
+      </select>
+      <button id="mute">🔊 音效开</button>
+      <button id="restart">重开（同 seed）</button>
+    </div>
+
+    <h2>调度操作（先选车，再选目标节点）</h2>
+    <div class="row">
+      <label>担架人数
+        <input id="medic-count" type="number" min="1" max="3" value="2" style="width:70px" />
+      </label>
+      <button id="btn-dispatch" disabled>派车到选中节点</button>
+      <button id="btn-reroute" disabled>中途换线</button>
+      <button id="btn-refuel" disabled>回站补能</button>
+    </div>
+    <p style="font-size:12px;color:#9fb4d4">
+      点击地图节点选择目标，点击车辆卡片或地图车辆进行选择。
+      黄色道路=有车占用，红色虚线=临时封锁。
+    </p>
+
+    <h2>车辆状态</h2>
+    <div id="vehicle-list"></div>
+
+    <h2>调度事件 / 警报</h2>
+    <div id="log"></div>
+  </aside>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
