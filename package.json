@@ -1,0 +1,11 @@
+{
+  "name": "karaoke-synth",
+  "version": "1.0.0",
+  "description": "合成旋律的八小节卡拉 OK 字幕工具：逐字时间/音高编辑、节拍同步高亮、WebVTT 与伴奏 WAV 导出",
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/serve.js",
+    "test": "node --test test/"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>八小节卡拉 OK 字幕工坊</title>
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>八小节卡拉 OK 字幕工坊</h1>
+      <div class="controls">
+        <button id="play-btn" type="button">▶ 播放</button>
+        <button id="pause-btn" type="button">⏸ 暂停</button>
+        <button id="stop-btn" type="button">⏹ 停止</button>
+        <label class="rate">
+          速度
+          <select id="rate-select">
+            <option value="0.5">0.5×</option>
+            <option value="0.75">0.75×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.25">1.25×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2×</option>
+          </select>
+        </label>
+        <span id="clock" class="clock">00:00.0 / 00:19.2</span>
+        <button id="export-vtt" type="button">导出 WebVTT</button>
+        <button id="export-wav" type="button">导出伴奏 WAV</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="player">
+        <input id="scrubber" type="range" min="0" max="19.2" step="0.01" value="0" />
+        <div id="lyrics" class="lyrics" aria-live="polite"></div>
+      </section>
+
+      <section class="editor">
+        <h2>逐字时间与音高编辑</h2>
+        <p class="hint">修改开始时间、时长或音高后，歌词高亮与导出立即更新；播放头不受影响。</p>
+        <div id="editor-rows"></div>
+      </section>
+    </main>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
