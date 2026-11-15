@@ -1,0 +1,138 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #0b1020;
+  color: #e2e8f0;
+}
+
+header {
+  padding: 18px 28px 8px;
+}
+
+header h1 { margin: 0 0 4px; font-size: 22px; }
+header p { margin: 0; color: #94a3b8; font-size: 13px; }
+
+main {
+  display: flex;
+  gap: 20px;
+  padding: 16px 28px;
+  flex-wrap: wrap;
+}
+
+.stage-panel { flex: 0 0 auto; }
+
+.mode-row { display: flex; gap: 10px; margin-bottom: 12px; }
+
+button {
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+button:hover { border-color: #60a5fa; }
+
+button.active {
+  background: #2563eb;
+  border-color: #60a5fa;
+}
+
+button.primary {
+  background: #059669;
+  border-color: #34d399;
+  width: 100%;
+  margin-top: 10px;
+}
+
+#stage {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  touch-action: none;
+}
+
+#persistStatus {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+#persistStatus.ok { background: rgba(16,185,129,0.15); color: #6ee7b7; }
+#persistStatus.bad { background: rgba(248,113,113,0.15); color: #fca5a5; }
+
+.side-panel {
+  flex: 1 1 360px;
+  min-width: 320px;
+  max-width: 480px;
+}
+
+.side-panel h2 {
+  font-size: 14px;
+  margin: 16px 0 6px;
+  color: #93c5fd;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  margin: 8px 0;
+  color: #cbd5e1;
+}
+
+select, input[type="number"] {
+  width: 100%;
+  margin-top: 4px;
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+input[type="range"] { width: 100%; margin-top: 6px; }
+
+.btn-row { display: flex; gap: 10px; margin-top: 10px; }
+.btn-row button { flex: 1; }
+
+.hint { font-size: 12px; color: #94a3b8; margin-top: 8px; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+th, td {
+  text-align: left;
+  padding: 5px 6px;
+  border-bottom: 1px solid #1e293b;
+}
+
+th { color: #93c5fd; font-weight: 600; }
+
+.selftest {
+  margin: 8px 28px 32px;
+  padding: 16px 20px;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+}
+
+.selftest h2 { font-size: 15px; margin: 0 0 10px; }
+
+pre {
+  margin: 12px 0 0;
+  padding: 12px;
+  background: #020617;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}

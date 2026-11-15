@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>四声道空间播放器</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>四声道空间播放器</h1>
+    <p>拖动声源 S、监听器 L 或墙面蓝点；延迟、增益与频段随距离实时变化。</p>
+  </header>
+
+  <main>
+    <section class="stage-panel">
+      <div class="mode-row">
+        <button class="mode-btn" data-mode="stereo">普通立体声</button>
+        <button class="mode-btn" data-mode="binaural">双耳 (ITD/ILD)</button>
+        <button class="mode-btn" data-mode="quad">四点环绕</button>
+      </div>
+      <canvas id="stage" width="720" height="560"></canvas>
+      <div id="persistStatus" class="ok">坐标保持：尚未切换模式</div>
+    </section>
+
+    <section class="side-panel">
+      <h2>控制</h2>
+      <label>信号源
+        <select id="signalType">
+          <option value="sine">440Hz 正弦</option>
+          <option value="sweep">频率扫描</option>
+          <option value="pink">粉红噪声</option>
+          <option value="white">白噪声</option>
+        </select>
+      </label>
+      <label>渲染时长（秒）<input id="duration" type="number" min="0.5" max="10" step="0.5" value="2"></label>
+      <label>监听器朝向 <input id="angleRange" type="range" min="-180" max="180" value="0"></label>
+      <label>距离衰减系数 <input id="rolloffRange" type="range" min="0.2" max="3" step="0.1" value="1"></label>
+      <div class="btn-row">
+        <button id="playBtn">实时播放</button>
+        <button id="stopBtn">停止</button>
+      </div>
+      <button id="exportBtn" class="primary">导出 WAV + 参数 JSON</button>
+      <div id="exportStatus" class="hint"></div>
+
+      <h2>几何</h2>
+      <table><tbody id="coordBox"></tbody></table>
+
+      <h2>声学（直达声）</h2>
+      <table><tbody id="acousticBox"></tbody></table>
+
+      <h2>每通道汇总</h2>
+      <table>
+        <thead><tr><th>通道</th><th>总增益</th><th>最短延迟</th><th>低通</th></tr></thead>
+        <tbody id="channelBox"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <section class="selftest">
+    <h2>页面内自检：三位置 × 三模式坐标保持验证</h2>
+    <button id="selftestBtn">运行自检</button>
+    <pre id="selftestOut">点击按钮运行（与 Node 脚本 test/verify.js 使用同一引擎）。</pre>
+  </section>
+
+  <script type="module" src="js/selftest.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
