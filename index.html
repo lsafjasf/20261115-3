@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="拖拽式数据可视化工作台，支持折线图、柱状图、散点图与 PNG/SVG 导出。">
+  <title>Fieldnote · 数据可视化工作台</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <svg class="icon-sprite" aria-hidden="true">
+    <symbol id="icon-grid" viewBox="0 0 24 24">
+      <rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/>
+      <rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>
+    </symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>
+    </symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24">
+      <rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/>
+    </symbol>
+    <symbol id="icon-tag" viewBox="0 0 24 24">
+      <path d="m20 13-7 7L4 11V4h7l9 9Z"/><circle cx="8" cy="8" r="1.5"/>
+    </symbol>
+    <symbol id="icon-hash" viewBox="0 0 24 24">
+      <path d="M10 3 8 21M16 3l-2 18M4 9h17M3 15h17"/>
+    </symbol>
+    <symbol id="icon-download" viewBox="0 0 24 24">
+      <path d="M12 3v12m0 0 5-5m-5 5-5-5M5 20h14"/>
+    </symbol>
+    <symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="icon-alert" viewBox="0 0 24 24">
+      <path d="M12 3 2.8 20h18.4L12 3Z"/><path d="M12 9v5M12 17.6v.1"/>
+    </symbol>
+    <symbol id="icon-database" viewBox="0 0 24 24">
+      <ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/>
+      <path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>
+    </symbol>
+    <symbol id="icon-line" viewBox="0 0 24 24"><path d="m3 17 5-6 4 3 7-9"/></symbol>
+    <symbol id="icon-bar" viewBox="0 0 24 24"><path d="M5 20V10h4v10M11 20V4h4v16M17 20v-7h4v7"/></symbol>
+    <symbol id="icon-scatter" viewBox="0 0 24 24">
+      <circle cx="6" cy="16" r="2"/><circle cx="11" cy="10" r="2"/><circle cx="17" cy="5" r="2"/><circle cx="18" cy="15" r="2"/>
+    </symbol>
+    <symbol id="icon-spark" viewBox="0 0 24 24"><path d="M12 2v20M2 12h20M5 5l14 14M19 5 5 19"/></symbol>
+    <symbol id="icon-reset" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 2 7M4 4v6h6"/></symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24"><path d="m7 7 10 10M17 7 7 17"/></symbol>
+    <symbol id="icon-table" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M9 9v11"/>
+    </symbol>
+  </svg>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Fieldnote 首页">
+        <span class="brand-mark"><span></span><span></span><span></span></span>
+        <span>fieldnote</span>
+      </a>
+      <span class="topbar-divider"></span>
+      <div class="project-name">视觉分析 / <strong>零售经营概览</strong></div>
+      <div class="topbar-actions">
+        <span class="save-state"><span></span>自动保存</span>
+        <button class="button button-ghost" id="previewDataBtn" type="button">
+          <svg><use href="#icon-table"></use></svg>查看数据
+        </button>
+        <button class="button button-ghost" id="resetBtn" type="button">
+          <svg><use href="#icon-reset"></use></svg>重置
+        </button>
+        <button class="avatar" type="button" aria-label="用户菜单">YJ</button>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <aside class="sidebar">
+        <div class="sidebar-heading">
+          <div>
+            <p class="eyebrow">DATASET</p>
+            <h2>数据字段</h2>
+          </div>
+          <span class="count-badge" id="fieldCount">0</span>
+        </div>
+        <button class="dataset-card" id="datasetCard" type="button">
+          <span class="dataset-icon"><svg><use href="#icon-database"></use></svg></span>
+          <span class="dataset-copy">
+            <strong>零售经营数据</strong>
+            <small>示例数据 · CSV</small>
+          </span>
+          <svg class="chevron"><use href="#icon-chevron"></use></svg>
+        </button>
+        <label class="search-box">
+          <svg><use href="#icon-search"></use></svg>
+          <input id="fieldSearch" type="search" placeholder="搜索字段" autocomplete="off">
+          <kbd>/</kbd>
+        </label>
+        <div class="field-section-label">
+          <span>字段</span>
+          <span>拖拽至映射槽</span>
+        </div>
+        <div class="field-list" id="fieldList"></div>
+        <div class="sidebar-note">
+          <span class="note-icon"><svg><use href="#icon-spark"></use></svg></span>
+          <div>
+            <strong>自动类型推断</strong>
+            <p>系统会识别日期、文本和数值字段，并忽略缺失的度量值。</p>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <section class="page-heading">
+          <div>
+            <p class="eyebrow">VISUAL BUILDER</p>
+            <h1>把字段拖进画布，<span>让数据自己说话。</span></h1>
+            <p class="heading-copy">共享一套映射，比较两种图表表达。所有标签均由同一数据快照计算。</p>
+          </div>
+          <div class="snapshot-chip">
+            <span class="pulse-dot"></span>
+            <div><small>数据快照</small><strong id="snapshotLabel">24 行 · 刚刚更新</strong></div>
+          </div>
+        </section>
+
+        <section class="mapping-card" aria-labelledby="mappingTitle">
+          <div class="mapping-head">
+            <div>
+              <div class="title-row">
+                <h2 id="mappingTitle">字段映射</h2>
+                <span class="shared-pill">A + B 共享</span>
+              </div>
+              <p>从左侧拖拽字段到槽位，图表与图例会即时更新。</p>
+            </div>
+            <div class="mapping-controls">
+              <label class="select-control">
+                <span>排序</span>
+                <select id="sortSelect">
+                  <option value="x">X 轴升序</option>
+                  <option value="y-desc">Y 值降序</option>
+                  <option value="source">原始顺序</option>
+                </select>
+              </label>
+              <label class="switch-control">
+                <input id="labelsToggle" type="checkbox" checked>
+                <span class="switch"></span>
+                <span>数值标签</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="mapping-slots">
+            <div class="mapping-slot" data-slot="x" tabindex="0" role="button" aria-label="X 轴映射槽">
+              <div class="slot-label"><span class="slot-dot slot-x"></span>X 轴 <em id="xType">分类</em></div>
+              <div class="slot-content" id="slotX"></div>
+              <button class="slot-clear" type="button" data-clear="x" aria-label="清除 X 轴字段">
+                <svg><use href="#icon-x"></use></svg>
+              </button>
+            </div>
+            <span class="slot-link" aria-hidden="true"></span>
+            <div class="mapping-slot" data-slot="y" tabindex="0" role="button" aria-label="Y 轴映射槽">
+              <div class="slot-label"><span class="slot-dot slot-y"></span>Y 轴 <em id="yType">数值</em></div>
+              <div class="slot-content" id="slotY"></div>
+              <button class="slot-clear" type="button" data-clear="y" aria-label="清除 Y 轴字段">
+                <svg><use href="#icon-x"></use></svg>
+              </button>
+            </div>
+            <span class="slot-link slot-link-soft" aria-hidden="true"></span>
+            <div class="mapping-slot mapping-slot-series" data-slot="series" tabindex="0" role="button" aria-label="系列映射槽">
+              <div class="slot-label"><span class="slot-dot slot-series"></span>系列 <em>可选</em></div>
+              <div class="slot-content" id="slotSeries"></div>
+              <button class="slot-clear" type="button" data-clear="series" aria-label="清除系列字段">
+                <svg><use href="#icon-x"></use></svg>
+              </button>
+            </div>
+          </div>
+          <div class="mapping-message" id="mappingMessage" role="status" aria-live="polite"></div>
+        </section>
+
+        <section class="charts-grid" aria-label="图表对比">
+          <article class="chart-card" data-chart-card="a">
+            <header class="chart-head">
+              <div class="chart-identity">
+                <span class="chart-letter">A</span>
+                <div><h2 id="chartATitle">区域销售额趋势</h2><p id="chartASubtitle">按月汇总 · 单位：万元</p></div>
+              </div>
+              <div class="chart-actions">
+                <div class="chart-type" role="group" aria-label="图表 A 类型">
+                  <button class="type-button active" data-chart="a" data-type="line" title="折线图"><svg><use href="#icon-line"></use></svg></button>
+                  <button class="type-button" data-chart="a" data-type="bar" title="柱状图"><svg><use href="#icon-bar"></use></svg></button>
+                  <button class="type-button" data-chart="a" data-type="scatter" title="散点图"><svg><use href="#icon-scatter"></use></svg></button>
+                </div>
+                <div class="export-menu">
+                  <button class="icon-button export-trigger" type="button" data-chart="a" aria-label="导出图表 A" aria-expanded="false">
+                    <svg><use href="#icon-download"></use></svg>
+                  </button>
+                  <div class="export-popover">
+                    <button type="button" data-export="png" data-chart="a">导出 PNG <small>2× 高清</small></button>
+                    <button type="button" data-export="svg" data-chart="a">导出 SVG <small>矢量</small></button>
+                  </div>
+                </div>
+              </div>
+            </header>
+            <div class="chart-stage" id="chartStageA"></div>
+            <footer class="chart-foot">
+              <div class="chart-legend" id="legendA"></div>
+              <span class="missing-note" id="missingA"></span>
+            </footer>
+          </article>
+
+          <article class="chart-card" data-chart-card="b">
+            <header class="chart-head">
+              <div class="chart-identity">
+                <span class="chart-letter chart-letter-b">B</span>
+                <div><h2 id="chartBTitle">区域销售额对比</h2><p id="chartBSubtitle">按月汇总 · 单位：万元</p></div>
+              </div>
+              <div class="chart-actions">
+                <div class="chart-type" role="group" aria-label="图表 B 类型">
+                  <button class="type-button" data-chart="b" data-type="line" title="折线图"><svg><use href="#icon-line"></use></svg></button>
+                  <button class="type-button active" data-chart="b" data-type="bar" title="柱状图"><svg><use href="#icon-bar"></use></svg></button>
+                  <button class="type-button" data-chart="b" data-type="scatter" title="散点图"><svg><use href="#icon-scatter"></use></svg></button>
+                </div>
+                <div class="export-menu">
+                  <button class="icon-button export-trigger" type="button" data-chart="b" aria-label="导出图表 B" aria-expanded="false">
+                    <svg><use href="#icon-download"></use></svg>
+                  </button>
+                  <div class="export-popover">
+                    <button type="button" data-export="png" data-chart="b">导出 PNG <small>2× 高清</small></button>
+                    <button type="button" data-export="svg" data-chart="b">导出 SVG <small>矢量</small></button>
+                  </div>
+                </div>
+              </div>
+            </header>
+            <div class="chart-stage" id="chartStageB"></div>
+            <footer class="chart-foot">
+              <div class="chart-legend" id="legendB"></div>
+              <span class="missing-note" id="missingB"></span>
+            </footer>
+          </article>
+        </section>
+
+        <section class="verify-card" id="verifyCard" aria-labelledby="verifyTitle">
+          <div class="verify-main">
+            <span class="verify-icon" id="verifyIcon"><svg><use href="#icon-check"></use></svg></span>
+            <div>
+              <div class="title-row"><h2 id="verifyTitle">数值标签一致性</h2><span class="status-pill ok" id="verifyPill">已通过</span></div>
+              <p id="verifyCopy">正在比较两张图表的标签数据…</p>
+            </div>
+          </div>
+          <div class="verify-stats">
+            <div><small>可比标签</small><strong id="labelCount">0</strong></div>
+            <div><small>图表 A 合计</small><strong id="totalA">—</strong></div>
+            <div><small>图表 B 合计</small><strong id="totalB">—</strong></div>
+          </div>
+          <button class="button button-dark" id="verifyDetailsBtn" type="button">查看校验明细</button>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <dialog class="data-dialog" id="dataDialog">
+    <div class="dialog-head">
+      <div><p class="eyebrow">SOURCE DATA</p><h2>零售经营数据</h2></div>
+      <button class="icon-button" id="closeDataBtn" type="button" aria-label="关闭"><svg><use href="#icon-x"></use></svg></button>
+    </div>
+    <div class="dialog-summary" id="dataSummary"></div>
+    <div class="table-wrap"><table id="sourceTable"></table></div>
+  </dialog>
+
+  <dialog class="data-dialog verify-dialog" id="verifyDialog">
+    <div class="dialog-head">
+      <div><p class="eyebrow">VALIDATION</p><h2>标签校验明细</h2></div>
+      <button class="icon-button" id="closeVerifyBtn" type="button" aria-label="关闭"><svg><use href="#icon-x"></use></svg></button>
+    </div>
+    <p class="dialog-copy" id="verifyDialogCopy"></p>
+    <div class="table-wrap"><table id="verifyTable"></table></div>
+  </dialog>
+
+  <div class="toast-region" id="toastRegion" aria-live="assertive"></div>
+  <script src="data.js"></script>
+  <script src="font-data.js"></script>
+  <script src="charts.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
