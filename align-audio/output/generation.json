@@ -1,0 +1,9 @@
+{
+  "sampleRate": 48000,
+  "frames": 192000,
+  "durationSec": 4,
+  "trueDelaySamplesB": 317,
+  "trueDelayMsB": 6.6042,
+  "gainB_db": -0.7,
+  "note": "take_b is take_a delayed by trueDelaySamplesB samples (same synthesis source)"
+}

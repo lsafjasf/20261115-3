@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>双轨音频相位对齐工作台</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header>
+  <h1>双轨音频相位对齐工作台</h1>
+  <p class="sub">同一合成源 · 不同延迟 · 拖动波形标记相位偏移</p>
+</header>
+
+<section class="loader card">
+  <div class="load-row">
+    <label>轨道 A（参考）
+      <input type="file" id="fileA" accept=".wav" />
+    </label>
+    <label>轨道 B（待对齐）
+      <input type="file" id="fileB" accept=".wav" />
+    </label>
+    <button id="demoBtn" type="button">载入内置示例</button>
+  </div>
+  <div id="loadInfo" class="load-info">尚未载入音频（示例为 48 kHz / 4 s，B 相对 A 延迟 317 采样 ≈ 6.60 ms）</div>
+</section>
+
+<section class="card">
+  <div class="wave-head">
+    <h2>波形与相位标记</h2>
+    <div class="hint">在波形区<strong>横向拖动</strong>移动 B 的相位标记；滚轮微调；双击复位。</div>
+  </div>
+  <canvas id="wave" height="260"></canvas>
+  <div class="marker-row">
+    <label>标记延迟
+      <input type="range" id="lagSlider" min="-2000" max="2000" step="1" value="0" />
+    </label>
+    <div class="steppers">
+      <button data-step="-10" type="button">−10</button>
+      <button data-step="-1" type="button">−1</button>
+      <button data-step="1" type="button">+1</button>
+      <button data-step="10" type="button">+10</button>
+    </div>
+    <label class="pol">
+      <input type="checkbox" id="polarity" /> B 反相
+    </label>
+  </div>
+</section>
+
+<section class="metrics card">
+  <h2>实时指标</h2>
+  <div class="grid">
+    <div class="metric"><span class="k">标记延迟</span><span class="v" id="mLag">0 采样 / 0.000 ms</span></div>
+    <div class="metric"><span class="k">声道相关值 ρ</span><span class="v" id="mCorr">—</span></div>
+    <div class="metric"><span class="k">抵消深度</span><span class="v" id="mCancel">—</span></div>
+    <div class="metric"><span class="k">求和峰值</span><span class="v" id="mPeakSum">—</span></div>
+    <div class="metric"><span class="k">差值峰值</span><span class="v" id="mPeakDiff">—</span></div>
+    <div class="metric"><span class="k">重叠长度</span><span class="v" id="mOverlap">—</span></div>
+  </div>
+  <canvas id="corrPlot" height="140"></canvas>
+  <div class="plot-cap">互相关曲线（虚线为当前标记，绿点为自动估计峰）</div>
+</section>
+
+<section class="card monitor">
+  <h2>试听（微调时感受变薄 / 变厚）</h2>
+  <div class="mon-row">
+    <button id="playSum" type="button">播放求和 A+B（变厚）</button>
+    <button id="playDiff" type="button">播放差值 A−B（抵消变薄）</button>
+    <button id="playA" type="button">独奏 A</button>
+    <button id="playB" type="button">独奏 B</button>
+    <button id="stopBtn" type="button">停止</button>
+  </div>
+  <div class="mon-row">
+    <button id="autoBtn" type="button" class="primary">自动估计延迟</button>
+    <button id="exportBtn" type="button" class="primary">保存延迟并导出混音 WAV</button>
+  </div>
+  <div id="exportInfo" class="load-info"></div>
+</section>
+
+<footer>
+  纯浏览器 DSP（自研 FFT 互相关 / Pearson 相关 / 抵消深度），无需联网或第三方库。
+</footer>
+
+<script src="dsp-browser.js"></script>
+<script src="metrics-browser.js"></script>
+<script src="state.js"></script>
+<script src="app.js"></script>
+<script src="interaction.js"></script>
+</body>
+</html>

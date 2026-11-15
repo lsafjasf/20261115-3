@@ -1,0 +1,40 @@
+{
+  "sampleRate": 48000,
+  "inputs": {
+    "a": "output/take_a.wav",
+    "b": "output/take_b.wav"
+  },
+  "estimated": {
+    "delaySamples": 317,
+    "delayMs": 6.6042,
+    "polarity": "normal"
+  },
+  "overlapFrames": 191683,
+  "before": {
+    "lagSamples": 0,
+    "channelCorrelation": -0.530334,
+    "peakA": 0.899963,
+    "peakB": 0.830292,
+    "peakSum": 0.903015,
+    "peakDiff": 1.360107,
+    "rmsA": 0.388114,
+    "rmsDiff": 0.652871,
+    "cancellationDepthDb": -4.52
+  },
+  "after": {
+    "lagSamples": 317,
+    "channelCorrelation": 1,
+    "peakA": 0.899963,
+    "peakB": 0.830292,
+    "peakSum": 1.730255,
+    "peakDiff": 0.069672,
+    "rmsA": 0.388434,
+    "rmsDiff": 0.030076,
+    "cancellationDepthDb": 22.22
+  },
+  "exports": {
+    "sum": "output/aligned_sum.wav",
+    "difference": "output/aligned_diff.wav",
+    "stereo": "output/aligned_stereo.wav"
+  }
+}
