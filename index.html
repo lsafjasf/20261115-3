@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hotfield Lab · 插值热力场</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <div>
+            <div class="brand-title">HOTFIELD <span>LAB</span></div>
+            <div class="brand-subtitle">空间插值 · 等值线实验台</div>
+          </div>
+        </div>
+        <div class="topbar-meta">
+          <span class="live-dot"></span>
+          <span>WEBGL-FREE / CANVAS PIXEL</span>
+        </div>
+        <div class="topbar-actions">
+          <button class="ghost-button" id="reset-button" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4.1 6.2A7 7 0 1 1 3 11M4.1 6.2V2.8M4.1 6.2h3.4"/></svg>
+            恢复默认
+          </button>
+          <button class="export-button" id="export-button" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9m0 0 3.2-3.2M10 12 6.8 8.8M4 14.5v2h12v-2"/></svg>
+            导出 PNG
+          </button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <aside class="control-panel">
+          <div class="panel-heading">
+            <span class="eyebrow">PARAMETERS</span>
+            <h2>插值参数</h2>
+            <p>调整核带宽，观察局部细节与平滑度的权衡。</p>
+          </div>
+
+          <section class="control-section bandwidth-section">
+            <div class="section-title">
+              <span>核带宽</span>
+              <span class="unit">GAUSSIAN σ · px</span>
+            </div>
+            <div class="bandwidth-control" data-group="a">
+              <div class="bandwidth-label">
+                <span class="group-badge badge-a">A</span>
+                <span>局部细节</span>
+                <output id="bandwidth-a-value">18</output>
+              </div>
+              <input id="bandwidth-a" class="range range-a" type="range" min="12" max="54" step="1" value="18" />
+            </div>
+            <div class="bandwidth-control" data-group="b">
+              <div class="bandwidth-label">
+                <span class="group-badge badge-b">B</span>
+                <span>强平滑</span>
+                <output id="bandwidth-b-value">36</output>
+              </div>
+              <input id="bandwidth-b" class="range range-b" type="range" min="12" max="54" step="1" value="36" />
+            </div>
+            <div class="band-hint">
+              <span class="band-hint-line"></span>
+              <span id="bandwidth-summary">B 比 A 宽 18 px</span>
+            </div>
+          </section>
+
+          <section class="control-section">
+            <div class="section-title">
+              <span>色阶数量</span>
+              <span class="unit">COLOR BINS</span>
+            </div>
+            <div class="segmented" id="level-control" role="group" aria-label="色阶数量">
+              <button type="button" data-value="7">7</button>
+              <button type="button" data-value="9" class="active">9</button>
+              <button type="button" data-value="11">11</button>
+              <button type="button" data-value="13">13</button>
+            </div>
+          </section>
+
+          <section class="control-section">
+            <div class="section-title">
+              <span>等值间距</span>
+              <span class="unit">CONTOUR Δ</span>
+            </div>
+            <div class="interval-row">
+              <input id="interval-range" class="range" type="range" min="2" max="8" step="1" value="4" />
+              <output id="interval-value">4.0</output>
+            </div>
+            <div class="interval-scale"><span>密</span><span>疏</span></div>
+          </section>
+
+          <section class="control-section toggles">
+            <label class="toggle-row">
+              <span>
+                <strong>显示采样点</strong>
+                <small>白心圆点 · 实测值</small>
+              </span>
+              <input id="points-toggle" type="checkbox" checked />
+              <span class="switch" aria-hidden="true"></span>
+            </label>
+            <label class="toggle-row">
+              <span>
+                <strong>显示等值线</strong>
+                <small>颜色与右侧图例一致</small>
+              </span>
+              <input id="contour-toggle" type="checkbox" checked />
+              <span class="switch" aria-hidden="true"></span>
+            </label>
+          </section>
+
+          <section class="method-note">
+            <div class="method-icon">↗</div>
+            <p><strong>覆盖优先于平滑。</strong>像素到最近采样点的距离超过有效半径时，停止插值并在空洞处留白。</p>
+          </section>
+        </aside>
+
+        <section class="workspace">
+          <div class="workspace-header">
+            <div>
+              <span class="eyebrow">SURFACE / 01</span>
+              <h1>插值热力面 <span class="accent">与等值线</span></h1>
+            </div>
+            <div class="view-switch" role="group" aria-label="视图模式">
+              <button type="button" id="compare-view" class="active">A / B 对比</button>
+              <button type="button" id="single-view">单图</button>
+            </div>
+          </div>
+
+          <article class="map-card">
+            <div class="map-card-head">
+              <div class="map-title">
+                <span class="map-index">01</span>
+                <div>
+                  <h3 id="map-title-text">带宽对比 · Gaussian kernel</h3>
+                  <p id="map-subtitle">同一组实测采样点，仅改变核带宽</p>
+                </div>
+              </div>
+              <div class="map-meta">
+                <span><i class="meta-pulse"></i>实时插值</span>
+                <span id="sample-count-meta">92 个采样点</span>
+              </div>
+            </div>
+
+            <div class="map-stage compare-mode" id="map-stage">
+              <div class="map-frame" data-map="a">
+                <canvas class="surface-canvas" id="surface-a"></canvas>
+                <canvas class="overlay-canvas" id="overlay-a"></canvas>
+                <div class="map-corner-label">
+                  <span class="group-badge badge-a">A</span>
+                  <span>σ <strong id="frame-bandwidth-a">18</strong> px</span>
+                </div>
+                <div class="map-hover-tip" id="hover-tip-a" hidden></div>
+                <div class="map-empty-message" id="empty-a" hidden>采样空洞</div>
+              </div>
+              <div class="map-frame" data-map="b">
+                <canvas class="surface-canvas" id="surface-b"></canvas>
+                <canvas class="overlay-canvas" id="overlay-b"></canvas>
+                <div class="map-corner-label">
+                  <span class="group-badge badge-b">B</span>
+                  <span>σ <strong id="frame-bandwidth-b">36</strong> px</span>
+                </div>
+                <div class="map-hover-tip" id="hover-tip-b" hidden></div>
+                <div class="map-empty-message" id="empty-b" hidden>采样空洞</div>
+              </div>
+            </div>
+
+            <div class="map-card-foot">
+              <div class="foot-stat"><span>采样覆盖</span><strong id="coverage-stat">—</strong></div>
+              <div class="foot-stat"><span>等值线</span><strong id="contour-stat">—</strong></div>
+              <div class="foot-stat"><span>LOO 误差</span><strong id="error-stat">—</strong></div>
+              <div class="foot-legend">
+                <span class="line-swatch"></span>
+                <span>等值线</span>
+                <span class="dot-swatch"></span>
+                <span>采样点</span>
+                <span class="hatch-swatch"></span>
+                <span>空洞 / 无插值</span>
+              </div>
+            </div>
+          </article>
+
+          <div class="insight-strip">
+            <div class="insight-title"><span>Δ</span> 带宽读数</div>
+            <p id="insight-text">正在计算两组平滑核的局部差异…</p>
+            <span class="insight-chip" id="insight-chip">A → B</span>
+          </div>
+        </section>
+
+        <aside class="legend-panel">
+          <div class="legend-heading">
+            <span class="eyebrow">READOUT</span>
+            <h2>色阶与图例</h2>
+          </div>
+
+          <section class="scale-card">
+            <div class="scale-title">
+              <span>插值值域</span>
+              <span class="scale-unit">UNIT / VALUE</span>
+            </div>
+            <div class="color-scale" id="color-scale"></div>
+            <div class="scale-labels">
+              <span id="scale-min">—</span>
+              <span id="scale-mid">—</span>
+              <span id="scale-max">—</span>
+            </div>
+            <div class="scale-caption">离散色阶 · <strong id="scale-level-label">9 levels</strong></div>
+          </section>
+
+          <section class="legend-contours">
+            <div class="section-title">
+              <span>等值线图例</span>
+              <span class="unit">SAME STROKE COLOR</span>
+            </div>
+            <div class="contour-legend" id="contour-legend"></div>
+            <p class="legend-verify" id="legend-verify"><span>✓</span> 线色由色阶逐点取色，与图例共用同一色值。</p>
+          </section>
+
+          <section class="probe-card" id="probe-card">
+            <div class="probe-head">
+              <span class="probe-dot"></span>
+              <span>悬停探针</span>
+              <span class="probe-status" id="probe-status">等待</span>
+            </div>
+            <div class="probe-value">
+              <strong id="probe-value">—</strong>
+              <span>插值</span>
+            </div>
+            <div class="probe-grid">
+              <div><span>估算误差</span><strong id="probe-error">—</strong></div>
+              <div><span>覆盖距离</span><strong id="probe-distance">—</strong></div>
+              <div><span>坐标 X</span><strong id="probe-x">—</strong></div>
+              <div><span>坐标 Y</span><strong id="probe-y">—</strong></div>
+            </div>
+            <div class="probe-note" id="probe-note">将鼠标移到热力面上读取局部 LOO 误差。</div>
+          </section>
+
+          <section class="data-card">
+            <div class="section-title"><span>采样摘要</span><span class="unit">DATASET</span></div>
+            <div class="data-row"><span>有效样本</span><strong id="data-samples">—</strong></div>
+            <div class="data-row"><span>值域</span><strong id="data-range">—</strong></div>
+            <div class="data-row"><span>采样空洞</span><strong id="data-holes">2 处</strong></div>
+            <div class="data-row"><span>插值模型</span><strong>Nadaraya–Watson</span></div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
