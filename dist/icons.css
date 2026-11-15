@@ -1,0 +1,28 @@
+/* Icon system tokens. Change these two custom properties once and every icon
+   follows, because every SVG reads stroke-width from --icon-stroke-width. */
+:root {
+  --icon-stroke-width: 2;
+  --icon-corner-radius: 1.5;
+  --icon-size: 24px;
+  --icon-color: currentColor;
+}
+
+.icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  stroke: var(--icon-color);
+  stroke-width: var(--icon-stroke-width);
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: middle;
+}
+
+/* Per-icon local override: set the custom property on a single instance. */
+.icon--bell {
+  --icon-stroke-width: 2.75;
+}
+
+.icon--mail {
+  --icon-corner-radius: 3.5;
+}

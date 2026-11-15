@@ -1,0 +1,132 @@
+{
+  "generatedAt": "2026-11-15T07:32:30.363Z",
+  "viewbox": 24,
+  "global": {
+    "strokeWidth": 2,
+    "cornerRadius": 1.5
+  },
+  "sprite": "sprite.svg",
+  "usage": "<svg width=\"24\" height=\"24\"><use href=\"sprite.svg#icon-search\"/></svg>",
+  "icons": [
+    {
+      "id": "icon-search",
+      "name": "search",
+      "label": "搜索",
+      "file": "svg/search.svg",
+      "spriteRef": "sprite.svg#icon-search",
+      "strokeWidth": 2,
+      "cornerRadius": 1.5,
+      "overridden": false
+    },
+    {
+      "id": "icon-home",
+      "name": "home",
+      "label": "主页",
+      "file": "svg/home.svg",
+      "spriteRef": "sprite.svg#icon-home",
+      "strokeWidth": 2,
+      "cornerRadius": 1.5,
+      "overridden": false
+    },
+    {
+      "id": "icon-bell",
+      "name": "bell",
+      "label": "通知",
+      "file": "svg/bell.svg",
+      "spriteRef": "sprite.svg#icon-bell",
+      "strokeWidth": 2.75,
+      "cornerRadius": 1.5,
+      "overridden": true
+    },
+    {
+      "id": "icon-mail",
+      "name": "mail",
+      "label": "邮件",
+      "file": "svg/mail.svg",
+      "spriteRef": "sprite.svg#icon-mail",
+      "strokeWidth": 2,
+      "cornerRadius": 3.5,
+      "overridden": true
+    },
+    {
+      "id": "icon-lock",
+      "name": "lock",
+      "label": "锁定",
+      "file": "svg/lock.svg",
+      "spriteRef": "sprite.svg#icon-lock",
+      "strokeWidth": 2,
+      "cornerRadius": 1.5,
+      "overridden": false
+    },
+    {
+      "id": "icon-bookmark",
+      "name": "bookmark",
+      "label": "收藏",
+      "file": "svg/bookmark.svg",
+      "spriteRef": "sprite.svg#icon-bookmark",
+      "strokeWidth": 2,
+      "cornerRadius": 1.5,
+      "overridden": false
+    },
+    {
+      "id": "icon-heart",
+      "name": "heart",
+      "label": "喜欢",
+      "file": "svg/heart.svg",
+      "spriteRef": "sprite.svg#icon-heart",
+      "strokeWidth": 2,
+      "cornerRadius": 1.5,
+      "overridden": false
+    },
+    {
+      "id": "icon-star",
+      "name": "star",
+      "label": "评分",
+      "file": "svg/star.svg",
+      "spriteRef": "sprite.svg#icon-star",
+      "strokeWidth": 2,
+      "cornerRadius": 1.5,
+      "overridden": false
+    },
+    {
+      "id": "icon-settings",
+      "name": "settings",
+      "label": "设置",
+      "file": "svg/settings.svg",
+      "spriteRef": "sprite.svg#icon-settings",
+      "strokeWidth": 2,
+      "cornerRadius": 1.5,
+      "overridden": false
+    },
+    {
+      "id": "icon-user",
+      "name": "user",
+      "label": "用户",
+      "file": "svg/user.svg",
+      "spriteRef": "sprite.svg#icon-user",
+      "strokeWidth": 2,
+      "cornerRadius": 1.5,
+      "overridden": false
+    },
+    {
+      "id": "icon-trash",
+      "name": "trash",
+      "label": "删除",
+      "file": "svg/trash.svg",
+      "spriteRef": "sprite.svg#icon-trash",
+      "strokeWidth": 2,
+      "cornerRadius": 1.5,
+      "overridden": false
+    },
+    {
+      "id": "icon-download",
+      "name": "download",
+      "label": "下载",
+      "file": "svg/download.svg",
+      "spriteRef": "sprite.svg#icon-download",
+      "strokeWidth": 2,
+      "cornerRadius": 1.5,
+      "overridden": false
+    }
+  ]
+}

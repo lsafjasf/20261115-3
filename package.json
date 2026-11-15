@@ -1,0 +1,30 @@
+{
+  "name": "uid519",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u00002\u00000\u00002\u00006\u00001\u00001\u00001\u00005\u0000-\u00003\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "build": "node build/build.js",
+    "check24": "node build/check24.mjs",
+    "sheet": "node build/contact-sheet.mjs && node build/variant-sheet.mjs",
+    "sprite": "node build/check-sprite.mjs",
+    "verify": "node build/verify-tokens.mjs",
+    "all": "npm run build && npm run check24 && npm run sheet && npm run sprite && npm run verify",
+    "test": "npm run all"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lsafjasf/20261115-3.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/lsafjasf/20261115-3/issues"
+  },
+  "homepage": "https://github.com/lsafjasf/20261115-3#readme",
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2"
+  }
+}

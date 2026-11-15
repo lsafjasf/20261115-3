@@ -1,0 +1,10 @@
+{
+  "bell": {
+    "strokeWidth": 2.75,
+    "comment": "通知铃铛加粗，强调提醒；圆角仍跟随全局"
+  },
+  "mail": {
+    "cornerRadius": 3.5,
+    "comment": "信封使用更大的局部圆角；线宽仍跟随全局"
+  }
+}

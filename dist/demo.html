@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>图标系统 · 12 枚功能图标</title>
+    <link rel="stylesheet" href="icons.css" />
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 24px;
+        color: #1f2937;
+      }
+      .controls {
+        display: flex;
+        gap: 24px;
+        align-items: center;
+        padding: 16px;
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        margin-bottom: 24px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 12px;
+      }
+      .cell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 16px 8px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+      }
+      .cell span {
+        font-size: 12px;
+        color: #6b7280;
+      }
+      code {
+        background: #f1f5f9;
+        padding: 1px 5px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>统一笔画功能图标（24px viewBox）</h2>
+    <div class="controls">
+      <label>
+        全局线宽
+        <input id="sw" type="range" min="1" max="4" step="0.25" value="2" />
+        <code id="swVal">2</code>
+      </label>
+      <label>
+        图标尺寸
+        <input id="size" type="range" min="16" max="48" step="1" value="24" />
+        <code id="sizeVal">24px</code>
+      </label>
+      <p style="font-size: 12px; color: #6b7280">
+        线宽通过 CSS 变量 <code>--icon-stroke-width</code> 实时联动；圆角
+        <code>--icon-corner-radius</code> 烘焙于路径，修改
+        <code>config/defaults.json</code> 后执行 <code>npm run build</code> 全局生效。
+      </p>
+    </div>
+
+    <h3>雪碧图引用（sprite.svg + use）</h3>
+    <div class="grid" id="spriteGrid"></div>
+
+    <h3>独立 SVG 引用（svg/*.svg + object）</h3>
+    <div class="grid" id="standaloneGrid"></div>
+
+    <object data="sprite.svg" style="display: none" aria-hidden="true"></object>
+
+    <script type="module">
+      const res = await fetch("index.json");
+      const index = await res.json();
+      const spriteGrid = document.getElementById("spriteGrid");
+      const standaloneGrid = document.getElementById("standaloneGrid");
+
+      for (const icon of index.icons) {
+        const cell = (inner) => {
+          const el = document.createElement("div");
+          el.className = "cell";
+          el.innerHTML = inner + `<span>${icon.name}${icon.overridden ? " *" : ""}</span>`;
+          return el;
+        };
+        spriteGrid.appendChild(
+          cell(
+            `<svg class="icon icon--${icon.name}"><use href="sprite.svg#${icon.id}"/></svg>`,
+          ),
+        );
+        standaloneGrid.appendChild(
+          cell(`<object class="icon" data="${icon.file}" type="image/svg+xml"></object>`),
+        );
+      }
+
+      const root = document.documentElement;
+      const sw = document.getElementById("sw");
+      const swVal = document.getElementById("swVal");
+      sw.addEventListener("input", () => {
+        root.style.setProperty("--icon-stroke-width", sw.value);
+        swVal.textContent = sw.value;
+      });
+      const size = document.getElementById("size");
+      const sizeVal = document.getElementById("sizeVal");
+      size.addEventListener("input", () => {
+        root.style.setProperty("--icon-size", size.value + "px");
+        sizeVal.textContent = size.value + "px";
+      });
+    </script>
+  </body>
+</html>

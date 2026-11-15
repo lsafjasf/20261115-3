@@ -1,0 +1,266 @@
+[
+  {
+    "name": "search",
+    "label": "搜索",
+    "overridden": false,
+    "stats24": {
+      "width": 24,
+      "height": 24,
+      "inkPct": 19.8,
+      "bbox": {
+        "minX": 3,
+        "minY": 3,
+        "maxX": 21,
+        "maxY": 21
+      },
+      "margin": {
+        "left": 3,
+        "top": 3,
+        "right": 2,
+        "bottom": 2
+      }
+    }
+  },
+  {
+    "name": "home",
+    "label": "主页",
+    "overridden": false,
+    "stats24": {
+      "width": 24,
+      "height": 24,
+      "inkPct": 32.3,
+      "bbox": {
+        "minX": 2,
+        "minY": 3,
+        "maxX": 21,
+        "maxY": 20
+      },
+      "margin": {
+        "left": 2,
+        "top": 3,
+        "right": 2,
+        "bottom": 3
+      }
+    }
+  },
+  {
+    "name": "bell",
+    "label": "通知",
+    "overridden": true,
+    "stats24": {
+      "width": 24,
+      "height": 24,
+      "inkPct": 31.6,
+      "bbox": {
+        "minX": 3,
+        "minY": 2,
+        "maxX": 20,
+        "maxY": 21
+      },
+      "margin": {
+        "left": 3,
+        "top": 2,
+        "right": 3,
+        "bottom": 2
+      }
+    }
+  },
+  {
+    "name": "mail",
+    "label": "邮件",
+    "overridden": true,
+    "stats24": {
+      "width": 24,
+      "height": 24,
+      "inkPct": 29.2,
+      "bbox": {
+        "minX": 2,
+        "minY": 4,
+        "maxX": 21,
+        "maxY": 19
+      },
+      "margin": {
+        "left": 2,
+        "top": 4,
+        "right": 2,
+        "bottom": 4
+      }
+    }
+  },
+  {
+    "name": "lock",
+    "label": "锁定",
+    "overridden": false,
+    "stats24": {
+      "width": 24,
+      "height": 24,
+      "inkPct": 26,
+      "bbox": {
+        "minX": 4,
+        "minY": 2,
+        "maxX": 19,
+        "maxY": 20
+      },
+      "margin": {
+        "left": 4,
+        "top": 2,
+        "right": 4,
+        "bottom": 3
+      }
+    }
+  },
+  {
+    "name": "bookmark",
+    "label": "收藏",
+    "overridden": false,
+    "stats24": {
+      "width": 24,
+      "height": 24,
+      "inkPct": 22.9,
+      "bbox": {
+        "minX": 5,
+        "minY": 2,
+        "maxX": 18,
+        "maxY": 20
+      },
+      "margin": {
+        "left": 5,
+        "top": 2,
+        "right": 5,
+        "bottom": 3
+      }
+    }
+  },
+  {
+    "name": "heart",
+    "label": "喜欢",
+    "overridden": false,
+    "stats24": {
+      "width": 24,
+      "height": 24,
+      "inkPct": 21.5,
+      "bbox": {
+        "minX": 3,
+        "minY": 4,
+        "maxX": 20,
+        "maxY": 20
+      },
+      "margin": {
+        "left": 3,
+        "top": 4,
+        "right": 3,
+        "bottom": 3
+      }
+    }
+  },
+  {
+    "name": "star",
+    "label": "评分",
+    "overridden": false,
+    "stats24": {
+      "width": 24,
+      "height": 24,
+      "inkPct": 23.1,
+      "bbox": {
+        "minX": 3,
+        "minY": 3,
+        "maxX": 20,
+        "maxY": 20
+      },
+      "margin": {
+        "left": 3,
+        "top": 3,
+        "right": 3,
+        "bottom": 3
+      }
+    }
+  },
+  {
+    "name": "settings",
+    "label": "设置",
+    "overridden": false,
+    "stats24": {
+      "width": 24,
+      "height": 24,
+      "inkPct": 34.7,
+      "bbox": {
+        "minX": 2,
+        "minY": 2,
+        "maxX": 21,
+        "maxY": 21
+      },
+      "margin": {
+        "left": 2,
+        "top": 2,
+        "right": 2,
+        "bottom": 2
+      }
+    }
+  },
+  {
+    "name": "user",
+    "label": "用户",
+    "overridden": false,
+    "stats24": {
+      "width": 24,
+      "height": 24,
+      "inkPct": 18.8,
+      "bbox": {
+        "minX": 4,
+        "minY": 4,
+        "maxX": 19,
+        "maxY": 20
+      },
+      "margin": {
+        "left": 4,
+        "top": 4,
+        "right": 4,
+        "bottom": 3
+      }
+    }
+  },
+  {
+    "name": "trash",
+    "label": "删除",
+    "overridden": false,
+    "stats24": {
+      "width": 24,
+      "height": 24,
+      "inkPct": 25.9,
+      "bbox": {
+        "minX": 3,
+        "minY": 4,
+        "maxX": 20,
+        "maxY": 20
+      },
+      "margin": {
+        "left": 3,
+        "top": 4,
+        "right": 3,
+        "bottom": 3
+      }
+    }
+  },
+  {
+    "name": "download",
+    "label": "下载",
+    "overridden": false,
+    "stats24": {
+      "width": 24,
+      "height": 24,
+      "inkPct": 24.8,
+      "bbox": {
+        "minX": 3,
+        "minY": 3,
+        "maxX": 20,
+        "maxY": 21
+      },
+      "margin": {
+        "left": 3,
+        "top": 3,
+        "right": 3,
+        "bottom": 2
+      }
+    }
+  }
+]
