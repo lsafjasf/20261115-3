@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#090c0d" />
+    <title>Pixel Lock — Canvas DPR Lab</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app" class="app">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Pixel Lock home">
+          <span class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+          </span>
+          <span class="brand-name">PIXEL LOCK</span>
+          <span class="brand-slash" aria-hidden="true">/</span>
+          <span class="brand-sub">CANVAS DPR LAB</span>
+        </a>
+
+        <div class="top-actions">
+          <div class="live-pill" title="Live device pixel ratio">
+            <span class="live-dot" aria-hidden="true"></span>
+            <span id="topDpr">DPR 1.00</span>
+            <span class="live-separator" aria-hidden="true"></span>
+            <span class="live-status">SYNCED</span>
+          </div>
+          <button id="fullscreenBtn" class="icon-button" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M7 3H3v4M13 3h4v4M7 17H3v-4M13 17h4v-4" />
+            </svg>
+            <span id="fullscreenLabel">FULLSCREEN</span>
+          </button>
+        </div>
+      </header>
+
+      <main id="stage" class="stage">
+        <canvas id="canvas" aria-label="Device pixel ratio calibration canvas"></canvas>
+
+        <div class="stage-title" aria-hidden="true">
+          <span class="eyebrow">HIGH-DENSITY INSTRUMENT / 01</span>
+          <h1>Cursor<br /><em>alignment.</em></h1>
+        </div>
+
+        <section class="readout" aria-label="Viewport diagnostics">
+          <div class="readout-head">
+            <span>VIEWPORT TELEMETRY</span>
+            <span id="syncBadge" class="sync-badge">LOCKED</span>
+          </div>
+
+          <div class="readout-group">
+            <div class="group-label">
+              <span>POINTER</span>
+              <span>CSS PX</span>
+            </div>
+            <div class="coordinate-row">
+              <div><span>X</span><strong id="pointerX">—</strong></div>
+              <div><span>Y</span><strong id="pointerY">—</strong></div>
+            </div>
+            <div class="screen-coordinate">
+              <span>SCREEN</span>
+              <code id="screenPoint">— / —</code>
+            </div>
+          </div>
+
+          <div class="readout-group">
+            <div class="group-label">
+              <span>RASTER</span>
+              <span id="scaleLabel">1 CSS = 1 × 1 DEVICE PX</span>
+            </div>
+            <dl class="metric-list">
+              <div><dt>Device pixel ratio</dt><dd id="metricDpr">1.00</dd></div>
+              <div><dt>CSS size</dt><dd id="metricCss">—</dd></div>
+              <div><dt>Backing store</dt><dd id="metricBacking">—</dd></div>
+              <div><dt>Draw space</dt><dd id="metricSpace">CSS logical</dd></div>
+            </dl>
+          </div>
+
+          <div class="sync-line">
+            <span class="sync-icon" aria-hidden="true">✓</span>
+            <span id="syncMessage">Coordinates and DPR synchronized</span>
+          </div>
+        </section>
+
+        <div class="instruction">
+          <span class="instruction-key">MOVE</span>
+          <span>Check the reticle</span>
+          <span class="instruction-divider" aria-hidden="true"></span>
+          <span class="instruction-key">CLICK</span>
+          <span>Pin a coordinate</span>
+        </div>
+
+        <div class="bottom-bar">
+          <div class="legend" aria-label="Legend">
+            <span><i class="legend-dot pointer-dot"></i>CURSOR</span>
+            <span><i class="legend-dot pin-dot"></i>PIN</span>
+            <span><i class="legend-dot grid-dot"></i>24px GRID</span>
+          </div>
+          <button id="clearBtn" class="text-button" type="button">
+            CLEAR PINS <span id="pinCount">0</span>
+          </button>
+        </div>
+
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      </main>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
