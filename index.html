@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>模块化音效实验室</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main>
+    <h1>模块化音效实验室</h1>
+    <p class="hint">振荡器 / 噪声 / 包络 / 滤波 模块链 · 切换音效自动销毁旧节点</p>
+    <div id="cards"></div>
+    <section class="panel">
+      <span>活动节点：<strong id="nodeCount">0</strong></span>
+      <button id="stopAll">全部停止</button>
+      <button id="exportMix">导出混音 WAV</button>
+    </section>
+    <section class="panel">
+      <h2>已保存的模块链</h2>
+      <pre id="savedList">（暂无）</pre>
+    </section>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
