@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#061015" />
+    <title>AISLE//ZERO · 冷通道调度台</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-block">
+          <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div>
+            <p class="eyebrow">THERMAL OPERATIONS / 01</p>
+            <h1>AISLE<span>//</span>ZERO</h1>
+          </div>
+        </div>
+
+        <div class="shift-title">
+          <p class="eyebrow">24H 冷却值守</p>
+          <div class="clock-line">
+            <strong id="sim-clock">DAY 01 · 08:00</strong>
+            <span id="shift-state" class="status-pill live">运行中</span>
+          </div>
+        </div>
+
+        <div class="top-metrics">
+          <div class="top-metric">
+            <span>设施功率</span>
+            <strong id="top-power">-- kW</strong>
+          </div>
+          <div class="top-metric">
+            <span>15 MIN 峰值</span>
+            <strong id="top-peak">-- kW</strong>
+          </div>
+          <div class="top-metric">
+            <span>稳定性</span>
+            <strong id="top-stability">100%</strong>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <button id="audio-toggle" class="icon-button" type="button" aria-pressed="false" title="开启风扇声场">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 9v6h4l5 4V5L8 9H4Z" />
+              <path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" />
+            </svg>
+            <span>声场</span>
+          </button>
+          <button id="reset-button" class="icon-button ghost" type="button" title="重置 24 小时模拟">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 10a8 8 0 1 1 2.3 7M4 4v6h6" />
+            </svg>
+            <span>重置</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="dashboard">
+        <section class="panel facility-panel">
+          <div class="panel-head facility-head">
+            <div>
+              <p class="eyebrow"><span class="blink-dot"></span> LIVE FACILITY MAP</p>
+              <h2>热场 / 冷媒 / 任务分布</h2>
+            </div>
+            <div class="map-legend" aria-label="温度图例">
+              <span>20°</span>
+              <i class="thermal-gradient"></i>
+              <span>35°C</span>
+              <b class="fault-indicator" id="fault-indicator">冷却机正常</b>
+            </div>
+          </div>
+          <div class="canvas-stage" id="canvas-stage">
+            <canvas id="facility-canvas" aria-label="数据中心机柜热图、冷媒流和任务分布"></canvas>
+            <div class="canvas-tooltip" id="rack-tooltip" role="status"></div>
+            <div class="map-corner">SECTOR 7G · PUE LOOP ACTIVE</div>
+          </div>
+          <div class="facility-foot">
+            <div class="legend-group">
+              <span><i class="dot cold"></i>冷空气</span>
+              <span><i class="dot task"></i>计算任务</span>
+              <span><i class="dot hot"></i>热点阈值 28.5°C</span>
+              <span>冗余冷量 <b id="waste-kwh">0.0</b> kWh</span>
+            </div>
+            <p><span id="task-count">0</span> 个任务 · 目标：稳定且 15 min 峰值 &lt; 590 kW</p>
+          </div>
+        </section>
+
+        <aside class="side-stack">
+          <section class="panel control-panel">
+            <div class="panel-head compact">
+              <div>
+                <p class="eyebrow">MANUAL CONTROL</p>
+                <h2>供冷调度</h2>
+              </div>
+              <span class="panel-index">01</span>
+            </div>
+
+            <div class="control-block">
+              <div class="block-label">
+                <span>风扇阵列</span>
+                <small>行级转速</small>
+              </div>
+              <div class="fan-controls">
+                <label class="slider-row" data-row="0">
+                  <span>A 排</span>
+                  <input type="range" min="20" max="100" value="68" data-fan="0" />
+                  <output data-fan-value="0">68%</output>
+                </label>
+                <label class="slider-row" data-row="1">
+                  <span>B 排</span>
+                  <input type="range" min="20" max="100" value="64" data-fan="1" />
+                  <output data-fan-value="1">64%</output>
+                </label>
+                <label class="slider-row" data-row="2">
+                  <span>C 排</span>
+                  <input type="range" min="20" max="100" value="70" data-fan="2" />
+                  <output data-fan-value="2">70%</output>
+                </label>
+              </div>
+            </div>
+
+            <div class="control-block">
+              <div class="block-label">
+                <span>冷媒流量</span>
+                <small id="supply-readout">供水 17.8°C</small>
+              </div>
+              <label class="slider-row coolant-row">
+                <span>LOOP</span>
+                <input type="range" min="20" max="100" value="64" id="coolant-slider" />
+                <output id="coolant-value">64%</output>
+              </label>
+              <div class="flow-scale"><span>节能</span><i></i><span>强冷</span></div>
+            </div>
+
+            <div class="rack-focus">
+              <div class="focus-topline">
+                <span class="eyebrow">SELECTED RACK</span>
+                <span id="focus-id" class="mono">R2-05</span>
+              </div>
+              <div class="focus-body">
+                <strong id="focus-temp">26.1°</strong>
+                <div>
+                  <p id="focus-load">11.8 kW · 2 任务</p>
+                  <p id="focus-hint" class="muted">选择更冷的目标机柜</p>
+                </div>
+              </div>
+              <button id="migrate-button" class="primary-button" type="button">
+                <span>迁移最重任务</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" /></svg>
+              </button>
+            </div>
+
+            <button id="fault-button" class="fault-button" type="button">
+              <span class="fault-icon">!</span>
+              <span><b>冷却机故障演练</b><small>离线 90 min · 可恢复</small></span>
+              <span class="fault-arrow">↗</span>
+            </button>
+          </section>
+
+          <section class="panel run-panel">
+            <div class="run-meta">
+              <div>
+                <p class="eyebrow">SIMULATION SPEED</p>
+                <strong id="speed-label">4× · 实时推演</strong>
+              </div>
+              <div class="speed-buttons" role="group" aria-label="模拟速度">
+                <button type="button" data-speed="0" selected>Ⅱ</button>
+                <button type="button" data-speed="1">1×</button>
+                <button type="button" data-speed="4" class="active">4×</button>
+                <button type="button" data-speed="12">12×</button>
+              </div>
+            </div>
+            <div class="progress-track"><i id="day-progress"></i></div>
+            <div class="progress-labels"><span>08:00</span><span>20:00</span><span>08:00 +1</span></div>
+            <p class="objective-line"><span>目标</span> 24H 稳定运行 <i></i> 压低峰值能耗</p>
+          </section>
+
+          <section class="panel checks-panel">
+            <div>
+              <p class="eyebrow">SCENARIO VALIDATION</p>
+              <h2>关键场景自检</h2>
+            </div>
+            <div class="check-grid">
+              <div class="check-item" id="check-migration">
+                <span class="check-icon">✓</span>
+                <div><b>热点迁移</b><small>等待演练</small></div>
+              </div>
+              <div class="check-item" id="check-fault">
+                <span class="check-icon">✓</span>
+                <div><b>冷却机故障</b><small>等待演练</small></div>
+              </div>
+            </div>
+            <button id="auto-demo" class="text-button" type="button">运行组合演练 ↗</button>
+          </section>
+        </aside>
+
+        <div class="lower-main">
+          <section class="panel trend-panel">
+            <div class="panel-head compact">
+              <div>
+                <p class="eyebrow">ENERGY TRACE</p>
+                <h2>24 小时功率 / 热场</h2>
+              </div>
+              <div class="chart-tabs">
+                <span><i class="line-key power"></i>总功率</span>
+                <span><i class="line-key temp"></i>最高温度</span>
+              </div>
+            </div>
+            <canvas id="trend-canvas" aria-label="24 小时功率与温度趋势"></canvas>
+          </section>
+
+          <section class="panel log-panel">
+            <div class="panel-head compact">
+              <div>
+                <p class="eyebrow">EVENT STREAM</p>
+                <h2>运行记录</h2>
+              </div>
+              <span class="live-label"><i></i> LIVE</span>
+            </div>
+            <div class="event-list" id="event-list"></div>
+          </section>
+        </div>
+      </main>
+
+      <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+      <div class="summary-modal" id="summary-modal" hidden>
+        <div class="summary-card">
+          <p class="eyebrow">SHIFT COMPLETE / 24H</p>
+          <div class="grade" id="summary-grade">A</div>
+          <h2 id="summary-title">冷通道保持稳定</h2>
+          <p id="summary-copy">峰值功率与过热分钟已结算。</p>
+          <div class="summary-metrics" id="summary-metrics"></div>
+          <button id="summary-close" class="primary-button" type="button">查看运行记录</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
