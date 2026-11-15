@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1112" />
+    <title>驼峰调度 · 十车编组</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <div>
+            <p class="eyebrow">GRAVITY MARSHALLING YARD · 07</p>
+            <h1>驼峰调度 <span>十车编组</span></h1>
+          </div>
+        </div>
+        <div class="top-status" aria-label="场地状态">
+          <div class="status-cell">
+            <span class="status-label">坡度</span>
+            <strong id="gradeReadout">1.4%</strong>
+          </div>
+          <div class="status-cell">
+            <span class="status-label">侧风</span>
+            <strong id="windReadout">0.0 m/s</strong>
+          </div>
+          <div class="status-cell">
+            <span class="status-label">已编组</span>
+            <strong><span id="parkedCount">0</span><small>/10</small></strong>
+          </div>
+          <div class="status-cell clock-cell">
+            <span class="status-label">场地时钟</span>
+            <strong id="yardClock">00:00</strong>
+          </div>
+        </div>
+      </header>
+
+      <main class="yard-layout">
+        <aside class="control-console" aria-label="溜放控制台">
+          <div class="console-head">
+            <div>
+              <p class="eyebrow">CUT LIST / 车列</p>
+              <h2>待溜放车厢</h2>
+            </div>
+            <span class="live-dot"><i></i> 值班中</span>
+          </div>
+
+          <section class="current-cut" aria-live="polite">
+            <div class="cut-number" id="cutNumber">01</div>
+            <div class="cut-badge" id="cutBadge" data-route="0">东</div>
+            <div class="cut-copy">
+              <div class="cut-dest">
+                <span id="cutDest">东场</span>
+                <small id="cutCode">A-104</small>
+              </div>
+              <p id="cutMeta">第一钩 · 空载 · 28 t</p>
+            </div>
+            <div class="cut-ticks" id="cutTicks" aria-hidden="true"></div>
+          </section>
+
+          <div class="queue-strip" id="queueStrip" aria-label="后续车厢"></div>
+
+          <section class="control-block route-block">
+            <div class="block-title">
+              <span>01 / 道岔</span>
+              <small>点击选择进场股道</small>
+            </div>
+            <div class="route-grid" role="group" aria-label="道岔股道">
+              <button class="route-btn active" data-route="0" type="button">
+                <span class="route-key">1</span>
+                <span class="route-name">东场</span>
+                <span class="route-cap"><b id="capA">0</b>/4</span>
+              </button>
+              <button class="route-btn" data-route="1" type="button">
+                <span class="route-key">2</span>
+                <span class="route-name">中场</span>
+                <span class="route-cap"><b id="capB">0</b>/3</span>
+              </button>
+              <button class="route-btn" data-route="2" type="button">
+                <span class="route-key">3</span>
+                <span class="route-name">西场</span>
+                <span class="route-cap"><b id="capC">0</b>/3</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="control-block">
+            <div class="block-title">
+              <label for="pushSpeed">02 / 推车速度</label>
+              <output id="pushSpeedOut" for="pushSpeed">4.0 m/s</output>
+            </div>
+            <input id="pushSpeed" class="rail-range" type="range" min="2" max="5.2" step="0.1" value="4" />
+            <div class="range-scale"><span>2.0 慢</span><span>5.2 快</span></div>
+          </section>
+
+          <section class="control-block brake-block">
+            <div class="block-title">
+              <label for="brakePoint">03 / 制动点</label>
+              <output id="brakePointOut" for="brakePoint">194 m</output>
+            </div>
+            <input id="brakePoint" class="rail-range" type="range" min="100" max="220" step="1" value="194" />
+            <div class="range-scale"><span>早制动</span><span>晚制动</span></div>
+            <div class="prediction" id="prediction">
+              <span class="prediction-dot"></span>
+              <span id="predictionText">预计停在 213 m · 目标 216 m</span>
+            </div>
+          </section>
+
+          <section class="dispatch-block">
+            <button class="dispatch-btn" id="releaseBtn" type="button">
+              <span class="dispatch-icon" aria-hidden="true">↓</span>
+              <span>
+                <b id="releaseLabel">溜放本车</b>
+                <small id="releaseHint">空格键发车</small>
+              </span>
+              <i class="dispatch-arrow" aria-hidden="true">→</i>
+            </button>
+            <p class="wait-note" id="waitNote"><span></span>股道空闲，可以溜放</p>
+          </section>
+
+          <div class="console-tools">
+            <button id="pauseBtn" class="tool-btn" type="button" title="暂停 (P)">
+              <span class="tool-icon" data-icon="pause">Ⅱ</span><span id="pauseLabel">暂停</span>
+            </button>
+            <button id="replayBtn" class="tool-btn" type="button" title="回放 (R)" disabled>
+              <span class="tool-icon" data-icon="replay">↺</span><span>回放</span>
+            </button>
+            <button id="resetBtn" class="tool-btn" type="button" title="重新开始">
+              <span class="tool-icon" data-icon="reset">⌁</span><span>重置</span>
+            </button>
+            <button id="muteBtn" class="icon-btn" type="button" aria-label="关闭声音" title="声音">
+              <span id="muteIcon">♪</span>
+            </button>
+          </div>
+        </aside>
+
+        <section class="yard-stage" aria-label="编组场俯视图">
+          <canvas id="yardCanvas" role="img" aria-label="俯视编组场：十条车厢、三组股道、道岔与移动速度">
+            当前浏览器不支持 Canvas。
+          </canvas>
+
+          <div class="stage-hud">
+            <div class="hud-chip"><span>环境</span><b id="hudEnv">下坡 · 微风</b></div>
+            <div class="hud-chip"><span>道岔</span><b id="hudRoute">东场</b></div>
+            <div class="hud-chip"><span>运行</span><b id="hudRuntime">待命</b></div>
+          </div>
+
+          <div class="legend" aria-hidden="true">
+            <span><i class="legend-car"></i>待编车厢</span>
+            <span><i class="legend-lane"></i>目标股道</span>
+            <span><i class="legend-clear"></i>清空点</span>
+          </div>
+
+          <div class="pause-card hidden" id="pauseOverlay">
+            <span class="pause-glyph">Ⅱ</span>
+            <p class="eyebrow">YARD HOLD</p>
+            <h2>作业暂停</h2>
+            <p>轮轨惯性已冻结，按 P 继续。</p>
+          </div>
+
+          <div class="result-card hidden" id="resultOverlay" role="dialog" aria-modal="false">
+            <p class="eyebrow" id="resultEyebrow">MISSION COMPLETE</p>
+            <h2 id="resultTitle">三列编组完成</h2>
+            <p id="resultCopy">十节车厢全部归位，未发生碰撞。</p>
+            <div class="result-stats">
+              <div><span>用时</span><b id="resultTime">00:00</b></div>
+              <div><span>碰撞</span><b id="resultHits">0</b></div>
+              <div><span>错钩</span><b id="resultErrors">0</b></div>
+            </div>
+            <div class="result-actions">
+              <button id="resultReplay" class="secondary-btn" type="button">查看回放</button>
+              <button id="resultRestart" class="primary-btn" type="button">重新值班</button>
+            </div>
+          </div>
+
+          <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+          <div class="replay-bar hidden" id="replayBar" aria-label="回放控制">
+            <button id="replayPlay" class="mini-btn" type="button" aria-label="播放或暂停回放">Ⅱ</button>
+            <span class="replay-tag">REPLAY</span>
+            <input id="replayRange" type="range" min="0" max="0" step="1" value="0" aria-label="回放进度" />
+            <output id="replayTime">00:00</output>
+            <button id="replayExit" class="mini-btn exit-btn" type="button" aria-label="退出回放">×</button>
+          </div>
+
+          <button class="help-toggle" id="helpToggle" type="button" aria-expanded="false">作业说明 <span>?</span></button>
+          <div class="help-panel hidden" id="helpPanel">
+            <p class="eyebrow">SHIFT BRIEFING</p>
+            <h3>三步完成一次溜放</h3>
+            <ol>
+              <li>先按目的地拨好道岔，再设定推车速度与空气制动点。</li>
+              <li>前车越过清空点前，发车锁保持关闭；强行追钩会追尾。</li>
+              <li>目标停车带会随股道占用向后移动。错股或碰撞都将整列回场重编。</li>
+            </ol>
+            <p class="help-foot">快捷键：<kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 道岔 · <kbd>Space</kbd> 溜放 · <kbd>P</kbd> 暂停 · <kbd>R</kbd> 回放</p>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>
