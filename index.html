@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="可调节空间几何与吸声的虚拟房间，实时生成双耳脉冲响应并导出卷积混响。" />
+    <title>空间脉冲实验室 · Binaural Room Lab</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="空间脉冲实验室首页">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span>ROOM<span class="brand-slash">/</span>IR</span>
+      </a>
+      <div class="title-lockup">
+        <h1>空间脉冲实验室</h1>
+        <p>BINAURAL ROOM SIMULATOR</p>
+      </div>
+      <div class="top-actions">
+        <div id="engineBadge" class="engine-badge is-working" role="status">
+          <span class="engine-dot"></span>
+          <span id="engineText">构建脉冲响应</span>
+        </div>
+        <button id="playButton" class="button button-ghost" type="button" disabled>
+          <span class="button-icon" aria-hidden="true">▶</span>
+          <span id="playButtonText">试听混响</span>
+        </button>
+        <button id="exportButton" class="button button-primary" type="button" disabled>
+          <span class="button-icon" aria-hidden="true">↓</span>
+          导出双耳 WAV
+        </button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="control-column panel">
+        <section class="control-section" aria-labelledby="geometryTitle">
+          <div class="section-title">
+            <h2 id="geometryTitle">房间几何</h2>
+            <span id="roomModeTag" class="mini-tag">开放</span>
+          </div>
+          <div class="slider-row">
+            <label for="roomWidth">宽度 <span>X</span></label>
+            <output id="roomWidthValue" for="roomWidth">6.4 m</output>
+            <input id="roomWidth" data-param="width" type="range" min="3" max="10" step="0.1" value="6.4" />
+          </div>
+          <div class="slider-row">
+            <label for="roomDepth">进深 <span>Y</span></label>
+            <output id="roomDepthValue" for="roomDepth">4.8 m</output>
+            <input id="roomDepth" data-param="depth" type="range" min="3" max="8" step="0.1" value="4.8" />
+          </div>
+          <div class="slider-row">
+            <label for="roomHeight">层高 <span>Z</span></label>
+            <output id="roomHeightValue" for="roomHeight">2.9 m</output>
+            <input id="roomHeight" data-param="height" type="range" min="2.3" max="4.2" step="0.1" value="2.9" />
+          </div>
+        </section>
+
+        <section class="control-section" aria-labelledby="absorptionTitle">
+          <div class="section-title">
+            <h2 id="absorptionTitle">墙面吸声</h2>
+            <span id="absorptionClass" class="mini-tag">中频吸收</span>
+          </div>
+          <div class="slider-row">
+            <label for="absorption">平均吸声系数 <span>α</span></label>
+            <output id="absorptionValue" for="absorption">0.28</output>
+            <input id="absorption" data-param="absorption" type="range" min="0.05" max="0.75" step="0.01" value="0.28" />
+          </div>
+          <div class="preset-row" role="group" aria-label="吸声预设">
+            <button class="preset" type="button" data-alpha="0.12">硬质</button>
+            <button class="preset is-active" type="button" data-alpha="0.28">均衡</button>
+            <button class="preset" type="button" data-alpha="0.55">吸声</button>
+          </div>
+        </section>
+
+        <section class="control-section" aria-labelledby="openingTitle">
+          <div class="section-title">
+            <h2 id="openingTitle">立面开口</h2>
+            <div class="segmented" role="group" aria-label="房间开合状态">
+              <button id="openModeButton" class="is-active" type="button">开放</button>
+              <button id="closedModeButton" type="button">封闭</button>
+            </div>
+          </div>
+          <div class="select-row">
+            <label for="openingWall">所在墙面</label>
+            <select id="openingWall">
+              <option value="east">东墙 · 右</option>
+              <option value="south">南墙 · 前</option>
+              <option value="west">西墙 · 左</option>
+              <option value="north">北墙 · 后</option>
+            </select>
+          </div>
+          <div class="slider-row">
+            <label for="openingWidth">开口宽度</label>
+            <output id="openingWidthValue" for="openingWidth">1.9 m</output>
+            <input id="openingWidth" data-param="openingWidth" type="range" min="0.6" max="4" step="0.1" value="1.9" />
+          </div>
+          <div class="slider-row">
+            <label for="openingOffset">横向偏移</label>
+            <output id="openingOffsetValue" for="openingOffset">+0.7 m</output>
+            <input id="openingOffset" data-param="openingOffset" type="range" min="-2" max="2" step="0.05" value="0.7" />
+          </div>
+          <p class="hint">开口通高 2.15 m。封闭模式将开口视为高吸收封板，用于 A/B 对照。</p>
+        </section>
+
+        <section class="control-section source-section" aria-labelledby="placementTitle">
+          <div class="section-title">
+            <h2 id="placementTitle">声源与听者</h2>
+            <span class="mini-tag">可拖动</span>
+          </div>
+          <div class="dual-slider">
+            <div class="slider-row">
+              <label for="sourceHeight">声源高</label>
+              <output id="sourceHeightValue" for="sourceHeight">1.45 m</output>
+              <input id="sourceHeight" data-param="sourceHeight" type="range" min="0.4" max="2.8" step="0.05" value="1.45" />
+            </div>
+            <div class="slider-row">
+              <label for="listenerHeight">听者高</label>
+              <output id="listenerHeightValue" for="listenerHeight">1.20 m</output>
+              <input id="listenerHeight" data-param="listenerHeight" type="range" min="0.4" max="2.8" step="0.05" value="1.2" />
+            </div>
+          </div>
+          <div class="slider-row">
+            <label for="headAngle">头部朝向</label>
+            <output id="headAngleValue" for="headAngle">35°</output>
+            <input id="headAngle" data-param="headAngle" type="range" min="0" max="359" step="1" value="35" />
+          </div>
+          <div class="select-row">
+            <label for="sourceKind">试听素材</label>
+            <select id="sourceKind">
+              <option value="clap">拍手瞬态</option>
+              <option value="pluck">拨弦 A3</option>
+              <option value="noise">噪声脉冲</option>
+            </select>
+          </div>
+        </section>
+      </aside>
+
+      <section class="center-column">
+        <article class="panel scene-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="eyebrow">LIVE PLAN · 01</span>
+              <h2>俯视声场与早期反射</h2>
+            </div>
+            <div class="path-legend" aria-label="路径图例">
+              <span><i class="legend-direct"></i>直达声</span>
+              <span><i class="legend-first"></i>一次反射</span>
+              <span><i class="legend-second"></i>二次反射</span>
+            </div>
+          </div>
+          <div class="room-canvas-wrap">
+            <canvas id="roomCanvas" aria-label="虚拟房间俯视图，可拖动声源和听者"></canvas>
+            <div class="scene-instruction">
+              <span class="drag-icon" aria-hidden="true">✥</span>
+              拖动 S / L 改变位置
+            </div>
+            <div class="scene-readout">
+              <span><i class="dot-source"></i>S <b id="sourceReadout">4.7, 3.2</b></span>
+              <span><i class="dot-listener"></i>L <b id="listenerReadout">1.9, 1.7</b></span>
+              <span class="facing-readout">朝向 <b id="facingReadout">NE 35°</b></span>
+            </div>
+          </div>
+          <div class="metric-strip">
+            <div class="metric">
+              <span>直达距离</span>
+              <strong id="distanceMetric">2.75 <small>m</small></strong>
+            </div>
+            <div class="metric">
+              <span>Schroeder 频率</span>
+              <strong id="schroederMetric">172 <small>Hz</small></strong>
+            </div>
+            <div class="metric">
+              <span>一次反射</span>
+              <strong id="firstOrderMetric">03</strong>
+            </div>
+            <div class="metric metric-accent">
+              <span>直达 / 混响</span>
+              <strong id="drMetric">+4.8 <small>dB</small></strong>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel response-panel">
+          <div class="panel-heading compact">
+            <div>
+              <span class="eyebrow">IMPULSE RESPONSE · 02</span>
+              <h2>双耳脉冲响应</h2>
+            </div>
+            <div class="ir-meta">
+              <span class="channel-key channel-left">L</span>
+              <span class="channel-key channel-right">R</span>
+              <span id="irLengthTag">48 kHz · 0.78 s</span>
+            </div>
+          </div>
+          <div class="ir-canvas-wrap">
+            <canvas id="irCanvas" aria-label="左右声道脉冲响应波形"></canvas>
+            <span class="axis-label axis-zero">0 ms</span>
+            <span class="axis-label axis-early">80 ms</span>
+            <span class="axis-label axis-end" id="irEndLabel">780 ms</span>
+          </div>
+        </article>
+      </section>
+
+      <aside class="analysis-column">
+        <section class="panel compare-panel">
+          <div class="panel-heading compact">
+            <div>
+              <span class="eyebrow">A / B COMPARISON · 03</span>
+              <h2>开放 vs 封闭</h2>
+            </div>
+            <span class="live-tag"><i></i>同步重算</span>
+          </div>
+          <div class="compare-grid">
+            <article class="compare-card" data-mode="closed">
+              <div class="compare-card-head">
+                <div>
+                  <span class="compare-index">A</span>
+                  <h3>封闭房间</h3>
+                </div>
+                <span class="current-flag" data-current-flag>对照组</span>
+              </div>
+              <canvas class="mini-ir" data-mini-mode="closed" aria-label="封闭房间响应包络"></canvas>
+              <div class="compare-metrics">
+                <div><span>RT60</span><strong data-rt>0.00 s</strong></div>
+                <div><span>早期反射</span><strong data-reflections>0</strong></div>
+                <div><span>L/R 差异</span><strong data-diff>0 dB</strong></div>
+              </div>
+              <button class="compare-play" data-play-mode="closed" type="button" disabled>
+                <span>▶</span> 试听封闭
+              </button>
+            </article>
+            <article class="compare-card" data-mode="open">
+              <div class="compare-card-head">
+                <div>
+                  <span class="compare-index">B</span>
+                  <h3>开放房间</h3>
+                </div>
+                <span class="current-flag" data-current-flag>当前</span>
+              </div>
+              <canvas class="mini-ir" data-mini-mode="open" aria-label="开放房间响应包络"></canvas>
+              <div class="compare-metrics">
+                <div><span>RT60</span><strong data-rt>0.00 s</strong></div>
+                <div><span>早期反射</span><strong data-reflections>0</strong></div>
+                <div><span>L/R 差异</span><strong data-diff>0 dB</strong></div>
+              </div>
+              <button class="compare-play" data-play-mode="open" type="button" disabled>
+                <span>▶</span> 试听开放
+              </button>
+            </article>
+          </div>
+          <p id="compareSummary" class="compare-summary">正在计算开放与封闭房间差异…</p>
+        </section>
+
+        <section class="panel binaural-panel">
+          <div class="panel-heading compact">
+            <div>
+              <span class="eyebrow">BINAURAL CHECK · 04</span>
+              <h2>左右声道差异</h2>
+            </div>
+            <span id="binauralBadge" class="verify-badge is-pending">验证中</span>
+          </div>
+          <div class="binaural-canvas-wrap">
+            <canvas id="binauralCanvas" aria-label="双耳输出左右声道波形对比"></canvas>
+            <div class="binaural-legend">
+              <span><i class="line-left"></i>左耳</span>
+              <span><i class="line-right"></i>右耳</span>
+              <span><i class="line-diff"></i>L − R</span>
+            </div>
+          </div>
+          <div class="binaural-stats">
+            <div><span>左耳 RMS</span><strong id="leftRms">-- dBFS</strong></div>
+            <div><span>右耳 RMS</span><strong id="rightRms">-- dBFS</strong></div>
+            <div><span>声道相关</span><strong id="channelCorrelation">--</strong></div>
+            <div><span>双耳时差</span><strong id="itdValue">-- µs</strong></div>
+          </div>
+          <p id="binauralNote" class="verification-note">等待双耳脉冲响应生成。</p>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      <span><i class="footer-dot"></i>镜像声源 · 1–4 阶反射 · 扩散尾音</span>
+      <span id="signatureText">SIGNATURE —</span>
+      <span>48 kHz / 16-bit stereo WAV</span>
+    </footer>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
