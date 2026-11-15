@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>洪水撤离动态调度</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0; font-family: system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #060a14; color: #e2e8f0; display: flex; gap: 16px; padding: 16px;
+    }
+    #map { background: #0b1220; border: 1px solid #1e293b; border-radius: 10px; }
+    .panel { width: 280px; display: flex; flex-direction: column; gap: 10px; }
+    h1 { font-size: 18px; margin: 0 0 4px; }
+    .card { background: #0f172a; border: 1px solid #1e293b; border-radius: 10px; padding: 12px; }
+    button {
+      background: #1d4ed8; color: white; border: 0; border-radius: 8px;
+      padding: 8px 10px; cursor: pointer; font-size: 13px;
+    }
+    button:hover { background: #2563eb; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .bus-sel { background: #334155; padding: 6px 10px; }
+    .bus-sel.active { background: #0891b2; }
+    #hud { font-size: 13px; color: #93c5fd; }
+    #log {
+      height: 220px; overflow-y: auto; font-size: 12px; line-height: 1.5;
+      color: #cbd5e1; font-family: ui-monospace, monospace;
+    }
+    label { font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    input[type="range"] { width: 100%; }
+    .hint { font-size: 12px; color: #94a3b8; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <canvas id="map" width="960" height="600"></canvas>
+  <div class="panel">
+    <h1>洪水撤离动态调度</h1>
+    <div class="card">
+      <div id="hud"></div>
+      <div class="row" style="margin-top:8px">
+        <button id="btnStart">开始</button>
+        <button id="btnPause">暂停</button>
+        <button id="btnReset">重置</button>
+        <button id="btnMute">静音</button>
+      </div>
+      <label style="margin-top:8px">速度
+        <select id="speed">
+          <option value="600">慢</option>
+          <option value="350" selected>正常</option>
+          <option value="120">快</option>
+        </select>
+      </label>
+      <label style="margin-top:6px"><input type="checkbox" id="auto" checked /> 自动调度（取消后手动）</label>
+    </div>
+    <div class="card">
+      <div>选择巴士（手动模式点击地图节点改道）</div>
+      <div class="row" style="margin-top:6px">
+        <button class="bus-sel" data-bus="1">1号</button>
+        <button class="bus-sel" data-bus="2">2号</button>
+        <button class="bus-sel" data-bus="3">3号</button>
+        <button class="bus-sel" data-bus="4">4号</button>
+        <button class="bus-sel" data-bus="5">5号</button>
+        <button class="bus-sel" data-bus="6">6号</button>
+      </div>
+    </div>
+    <div class="card">
+      <div>回放改道记录</div>
+      <input type="file" id="replayFile" accept="application/json" style="margin:8px 0;font-size:12px" />
+      <input type="range" id="seek" min="0" max="180" value="0" />
+      <div class="hint">选择 artifacts/replay.json 后可播放/暂停/拖动回放，验证改道可重现。</div>
+    </div>
+    <div class="card">
+      <div style="margin-bottom:6px">事件日志</div>
+      <div id="log"></div>
+    </div>
+  </div>
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>

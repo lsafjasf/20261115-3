@@ -1,0 +1,12 @@
+{
+  "name": "flood-evac-dispatch",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "洪水撤离动态调度游戏：巴士路线、道路优先级、水位上涨与改道回放验证",
+  "scripts": {
+    "play": "node scripts/run-game.js",
+    "verify": "node scripts/verify-replay.js",
+    "test": "node scripts/run-game.js && node scripts/verify-replay.js && node scripts/test-determinism.js && node scripts/smoke-render.js"
+  }
+}
