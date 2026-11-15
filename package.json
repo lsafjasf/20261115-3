@@ -1,0 +1,16 @@
+{
+  "name": "interactive-annotated-chart",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "可标注的交互图表：数据坐标锚定的文字/箭头/区域标注、优先级避让、SVG 与高清 PNG 导出",
+  "scripts": {
+    "test": "node --test test/engine.test.js",
+    "test:e2e": "node test/browser.e2e.js",
+    "export:baseline": "node test/export-baseline.js",
+    "serve": "node test/static-server.js"
+  },
+  "devDependencies": {
+    "puppeteer": "^24.0.0"
+  }
+}

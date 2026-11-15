@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 12 L6 7 L9 10 L14 3' stroke='%230969da' stroke-width='2' fill='none'/%3E%3C/svg%3E" />
+  <title>可标注交互图表</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 14px/1.5 -apple-system, "Segoe UI", "PingFang SC", sans-serif;
+      color: #1f2328;
+      background: #f6f8fa;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+    aside {
+      background: #fff;
+      border-right: 1px solid #d0d7de;
+      padding: 16px;
+      overflow-y: auto;
+    }
+    h1 { font-size: 16px; margin: 0 0 12px; }
+    h2 { font-size: 13px; margin: 18px 0 8px; color: #57606a; }
+    .group { display: grid; gap: 8px; }
+    button, select, input {
+      font: inherit;
+      padding: 6px 10px;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      background: #f6f8fa;
+      cursor: pointer;
+    }
+    button:hover { background: #eaeef2; }
+    button.active { background: #ddf4ff; border-color: #0969da; color: #0969da; }
+    button.primary { background: #1f6feb; color: #fff; border-color: #1f6feb; }
+    button.primary:hover { background: #1a5fd0; }
+    main { padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    #stage {
+      flex: 1;
+      background: #fff;
+      border: 1px solid #d0d7de;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      min-height: 480px;
+    }
+    #chart { width: 100%; height: 100%; display: block; cursor: grab; }
+    #chart.panning { cursor: grabbing; }
+    #chart.placing { cursor: crosshair; }
+    #chart .label { cursor: pointer; }
+    #chart .label:hover rect { stroke-width: 2.4; }
+    .ann-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px;
+      align-items: center;
+      padding: 8px;
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      background: #fbfdff;
+    }
+    .ann-meta { font-size: 12px; color: #57606a; }
+    .ann-title { font-weight: 600; word-break: break-all; }
+    .hint { font-size: 12px; color: #57606a; background: #fff8c5; border: 1px solid #d4a72c;
+      border-radius: 6px; padding: 8px; }
+    .badge { font-size: 11px; padding: 1px 6px; border-radius: 999px; background: #eaeef2; }
+  </style>
+</head>
+<body>
+  <aside>
+    <h1>标注工具</h1>
+    <div class="group">
+      <button data-tool="text">➕ 文字标注</button>
+      <button data-tool="arrow">➜ 箭头标注</button>
+      <button data-tool="region">▭ 区域标注（拖拽框选）</button>
+    </div>
+    <h2>视图</h2>
+    <div class="group">
+      <button id="reset-view">重置视图</button>
+      <button id="zoom-in">放大</button>
+      <button id="zoom-out">缩小</button>
+    </div>
+    <h2>导出</h2>
+    <div class="group">
+      <button class="primary" id="export-svg">导出 SVG</button>
+      <button class="primary" id="export-png">导出高清 PNG (3×)</button>
+    </div>
+    <h2>标注列表（数字越大优先级越高）</h2>
+    <div id="ann-list"></div>
+    <p class="hint">滚轮以光标为中心缩放，拖拽平移。选择工具后在画布上点击放置；区域标注按住拖拽。</p>
+  </aside>
+  <main>
+    <div class="toolbar">
+      <span id="readout" class="badge">缩放 1.00×</span>
+      <span class="badge">锚点保存在数据坐标，缩放/平移后仍指向原数据点</span>
+    </div>
+    <div id="stage"><svg id="chart" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  </main>
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
