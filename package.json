@@ -1,0 +1,12 @@
+{
+  "name": "chain-congestion-sim",
+  "version": "1.0.0",
+  "description": "十字路口-学校-公交站连锁拥堵治理模拟（Canvas + Web Audio，纯前端零依赖）",
+  "type": "module",
+  "scripts": {
+    "test": "node tests/verify.js && node tests/dom-smoke.js",
+    "verify": "node tests/verify.js",
+    "serve": "python3 -m http.server 8080"
+  },
+  "license": "MIT"
+}

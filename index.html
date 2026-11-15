@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>连锁拥堵治理模拟 · 十字路口 / 学校 / 公交站</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>连锁拥堵治理模拟</h1>
+    <div class="sim-clock">
+      <span id="clock">00:00</span> / 20:00
+      <span id="phaseTag" class="phase-tag">—</span>
+    </div>
+    <div class="transport">
+      <button id="btnPause" class="btn">⏸ 暂停</button>
+      <div class="speed-group" id="speedGroup">
+        <button data-speed="1" class="btn speed">1×</button>
+        <button data-speed="3" class="btn speed active">3×</button>
+        <button data-speed="8" class="btn speed">8×</button>
+      </div>
+      <button id="btnMute" class="btn">🔊 音效</button>
+      <button id="btnRestart" class="btn ghost">↺ 重置</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="stage">
+      <canvas id="canvas" width="1100" height="560"></canvas>
+      <div id="banner" class="banner hidden"></div>
+    </section>
+
+    <aside class="panel">
+      <section class="card stats">
+        <h2>三项统计（实时）</h2>
+        <div class="stat">
+          <div class="stat-label">平均等待时间 <small>秒</small></div>
+          <div class="stat-value" id="statWait">0.0</div>
+          <div class="stat-thr">阈值 ≤ <span id="thrWait"></span></div>
+          <div class="stat-state" id="stateWait">待判定</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">最大排队 <small>辆</small></div>
+          <div class="stat-value" id="statQueue">0</div>
+          <div class="stat-thr">阈值 ≤ <span id="thrQueue"></span></div>
+          <div class="stat-state" id="stateQueue">待判定</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">当前排队 <small>辆</small></div>
+          <div class="stat-value" id="statLive">0</div>
+          <div class="stat-thr">已驶离 <span id="statThru">0</span> 辆</div>
+          <div class="stat-state" id="stateConflict">人车冲突 0</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>治理手段（可调）</h2>
+        <label class="ctrl">
+          <span>主干绿灯 <b id="valGMain"></b>s</span>
+          <input type="range" id="gMain" min="18" max="90" step="1" />
+        </label>
+        <label class="ctrl">
+          <span>支路绿灯 <b id="valGSide"></b>s</span>
+          <input type="range" id="gSide" min="8" max="45" step="1" />
+        </label>
+        <label class="ctrl">
+          <span>行人相位 <b id="valGPed"></b>s</span>
+          <input type="range" id="gPed" min="6" max="40" step="1" />
+        </label>
+        <label class="ctrl">
+          <span>公交停靠点 <b id="valBus"></b>m</span>
+          <input type="range" id="busStopX" min="540" max="980" step="10" />
+        </label>
+        <label class="ctrl">
+          <span>临时绕行比例 <b id="valDetour"></b>%</span>
+          <input type="range" id="detourPct" min="0" max="60" step="5" />
+        </label>
+        <label class="ctrl check">
+          <input type="checkbox" id="riskPed" />
+          <span>错误放行：行人与机动车同时绿灯</span>
+        </label>
+        <div class="btn-row">
+          <button id="btnSuggest" class="btn primary">💡 一键建议</button>
+          <button id="btnDefault" class="btn ghost">恢复默认</button>
+        </div>
+      </section>
+
+      <section class="card verify">
+        <h2>局部调整验证（A/B）</h2>
+        <p class="hint">同一套随机交通需求下，只把公交停靠点从路口下游 560m 移到学校下游 850m，对比上下游排队与延误。</p>
+        <button id="btnVerify" class="btn primary wide">▶ 运行 A/B 无头验证</button>
+        <div id="verifyOut" class="verify-out"></div>
+      </section>
+    </aside>
+  </main>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
