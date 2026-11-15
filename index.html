@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#071214" />
+    <title>雾谷观测站 · Mist Valley</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app" id="app">
+      <canvas
+        id="scene"
+        aria-label="多层山谷雾景。拖动画面或使用左下方的镜头控制器移动镜头。"
+      ></canvas>
+
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="雾谷观测站首页">
+          <span class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i>
+          </span>
+          <span>
+            <strong>雾谷观测站</strong>
+            <small>MIST VALLEY / 27°N</small>
+          </span>
+        </a>
+
+        <div class="topbar-meta">
+          <span class="live-dot"><i></i> 实时合成</span>
+          <time id="clock">06:42:18</time>
+        </div>
+
+        <div class="quality-switch" role="group" aria-label="性能档位">
+          <span class="quality-label">画质</span>
+          <button type="button" data-quality="low">流畅</button>
+          <button type="button" data-quality="high" class="is-active">高清</button>
+        </div>
+      </header>
+
+      <aside class="control-panel" aria-label="雾景控制面板">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">ATMOSPHERE MIXER</p>
+            <h1>雾层调校</h1>
+          </div>
+          <button class="icon-button" id="collapsePanel" type="button" aria-label="收起控制面板">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M12.5 4.5 7 10l5.5 5.5" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="panel-scroll">
+          <div class="layer-list" id="layerControls"></div>
+
+          <section class="control-section global-controls">
+            <div class="range-heading">
+              <label for="farClearance">远景透明度</label>
+              <output id="farClearanceValue" for="farClearance">42%</output>
+            </div>
+            <input
+              id="farClearance"
+              class="range"
+              type="range"
+              min="0"
+              max="100"
+              value="42"
+              aria-label="远景透明度"
+            />
+            <p class="range-help">提高后，远山与远景雾会更清透。</p>
+          </section>
+
+          <section class="control-section camera-controls">
+            <div class="section-title">
+              <span>镜头</span>
+              <button class="text-button" id="resetView" type="button">复位</button>
+            </div>
+            <div class="range-heading">
+              <label for="cameraRange">横向机位</label>
+              <output id="cameraValue" for="cameraRange">0.0</output>
+            </div>
+            <input
+              id="cameraRange"
+              class="range camera-range"
+              type="range"
+              min="-100"
+              max="100"
+              value="0"
+              aria-label="横向机位"
+            />
+            <div class="camera-actions">
+              <button class="round-control" id="panLeft" type="button" aria-label="镜头左移">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12.5 4.5-5.5 5.5 5.5 5.5" /></svg>
+              </button>
+              <button class="auto-pan" id="autoPan" type="button" aria-pressed="true">
+                <span class="auto-icon"><i></i><i></i></span>
+                自动巡游
+              </button>
+              <button class="round-control" id="panRight" type="button" aria-label="镜头右移">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7.5 4.5 5.5 5.5-5.5 5.5" /></svg>
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <footer class="panel-footer">
+          <div class="perf-readout">
+            <span><i class="perf-dot"></i> <b id="fpsValue">60</b> FPS</span>
+            <span id="particleCount">—</span>
+          </div>
+          <button class="capture-button" id="captureButton" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M3.5 6.5h2l1-1.5h7l1 1.5h2v9h-13z" />
+              <circle cx="10" cy="10.8" r="3.1" />
+            </svg>
+            保存截图
+          </button>
+          <p class="lock-note"><i></i> 轮廓锁定 · 画质不改变山脊几何</p>
+        </footer>
+      </aside>
+
+      <button class="panel-reopen" id="reopenPanel" type="button" aria-label="展开控制面板">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5" /></svg>
+      </button>
+
+      <div class="scene-caption" aria-live="polite">
+        <span class="caption-index" id="cameraReadout">机位 000</span>
+        <span class="caption-line"></span>
+        <span id="layerReadout">3 层雾 · 偏东风</span>
+      </div>
+
+      <div class="drag-hint" id="dragHint">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h14M6.5 6.5 3 10l3.5 3.5M13.5 6.5 17 10l-3.5 3.5" /></svg>
+        拖动画面移动镜头
+      </div>
+
+      <div class="toast" id="toast" role="status"></div>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

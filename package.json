@@ -1,0 +1,13 @@
+{
+  "name": "mist-valley-observatory",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "python3 -m http.server 49322 --bind 127.0.0.1",
+    "capture": "node scripts/capture.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.65.1"
+  }
+}
