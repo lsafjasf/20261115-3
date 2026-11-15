@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>闪光 / 节拍同步校正台</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>闪光 / 节拍同步校正台</h1>
+    <div class="timeline-meta">
+      <span id="meta-fps">24 fps</span>
+      <span id="meta-duration">时长 20 s</span>
+      <span id="meta-tolerance">容差 2 帧 (83.33 ms)</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="stage-card">
+      <div id="stage" class="stage" aria-label="闪光预览">
+        <div id="flash-lamp" class="lamp"></div>
+        <div class="stage-readout">
+          <span id="readout-time">00:00.000</span>
+          <span id="readout-frame">帧 0</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="transport-card">
+      <div class="transport-row">
+        <button id="btn-play" class="primary">播放</button>
+        <button id="btn-pause">暂停</button>
+        <button id="btn-prev-frame">◦ 上一帧</button>
+        <button id="btn-next-frame">下一帧 ◦</button>
+        <button id="btn-stop">回到起点</button>
+      </div>
+      <div class="scrub-row">
+        <label for="playhead">播放头（拖动 = 同一时间基准 seek）</label>
+        <input id="playhead" type="range" min="0" max="480" step="1" value="0">
+      </div>
+    </section>
+
+    <section class="timeline-card">
+      <div class="timeline-header">
+        <h2>事件时间轴</h2>
+        <p class="hint">拖动下方“整体偏移”标记可平移整条音频轨；所有控件共用同一时钟。</p>
+      </div>
+      <div id="timeline" class="timeline">
+        <div class="lane">
+          <span class="lane-label">闪光</span>
+          <div id="flash-lane" class="lane-track"></div>
+        </div>
+        <div class="lane">
+          <span class="lane-label">节拍</span>
+          <div id="beat-lane" class="lane-track"></div>
+        </div>
+        <div id="playhead-line" class="playhead-line"></div>
+      </div>
+      <div class="offset-row">
+        <label for="marker-drag">整体音频偏移标记（拖动）</label>
+        <input id="marker-drag" type="range" min="-20" max="30" step="1" value="0">
+        <div class="offset-readout">
+          <span id="offset-frames">0 帧</span>
+          <span id="offset-ms">0.00 ms</span>
+          <span id="offset-source">手动</span>
+        </div>
+      </div>
+      <div class="action-row">
+        <button id="btn-auto" class="primary">自动校正</button>
+        <button id="btn-reset">清零偏移</button>
+        <button id="btn-export-wav">导出对齐 WAV</button>
+        <button id="btn-save">保存偏移工程</button>
+        <button id="btn-load">载入工程</button>
+        <input id="file-load" type="file" accept="application/json" hidden>
+      </div>
+    </section>
+
+    <section class="summary-card">
+      <h2>误差判定</h2>
+      <div class="summary-grid">
+        <div><span class="k">通过</span><span id="sum-pass">0 / 12</span></div>
+        <div><span class="k">最大误差</span><span id="sum-max">0.00 帧</span></div>
+        <div><span class="k">结论</span><span id="sum-verdict">未通过</span></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>闪光 (s)</th><th>对齐节拍 (s)</th><th>误差 (ms)</th><th>误差 (帧)</th><th>判定</th></tr>
+          </thead>
+          <tbody id="event-rows"></tbody>
+        </table>
+      </div>
+      <p id="verification-note" class="verify-note"></p>
+    </section>
+  </main>
+
+  <script src="sync-core.bundle.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

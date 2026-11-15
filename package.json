@@ -1,0 +1,14 @@
+{
+  "name": "flash-beat-sync-calibration",
+  "version": "1.0.0",
+  "description": "20 秒动画中 12 次闪光与 12 次节拍的整体偏移校正、误差判定与导出验证",
+  "main": "src/core/index.js",
+  "scripts": {
+    "calibrate": "node src/cli/calibrate.js artifacts",
+    "bundle": "node src/cli/bundle.js",
+    "test": "node --test tests/core.test.js",
+    "test:e2e": "node --test tests/web.e2e.test.js",
+    "serve": "node src/cli/serve.js"
+  },
+  "license": "MIT"
+}
