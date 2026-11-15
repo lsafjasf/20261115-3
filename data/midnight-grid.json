@@ -1,0 +1,830 @@
+{
+  "format": "eight-track-sequencer",
+  "version": 1,
+  "name": "MIDNIGHT GRID",
+  "bpm": 112,
+  "loop": true,
+  "resumeMode": "current",
+  "master": {
+    "gain": 0.76
+  },
+  "tracks": [
+    {
+      "id": "track-1",
+      "name": "LOW PULSE",
+      "color": "#ff6b6b",
+      "mute": false,
+      "synth": {
+        "waveform": "sine",
+        "transpose": 0,
+        "detune": 0,
+        "cutoff": 280,
+        "resonance": 1.2,
+        "filterEnv": 0,
+        "attack": 0.004,
+        "decay": 0.2,
+        "sustain": 0.08,
+        "release": 0.13,
+        "volume": 0.82,
+        "pan": 0
+      },
+      "steps": [
+        {
+          "on": true,
+          "note": 24,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 24,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 24,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 24,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 24,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 24,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 24,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 24,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 24,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 24,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 24,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 24,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 24,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 24,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 24,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 24,
+          "sustain": 1
+        }
+      ]
+    },
+    {
+      "id": "track-2",
+      "name": "SUB BASS",
+      "color": "#ffc857",
+      "mute": false,
+      "synth": {
+        "waveform": "sawtooth",
+        "transpose": 0,
+        "detune": 5,
+        "cutoff": 760,
+        "resonance": 4.5,
+        "filterEnv": 1200,
+        "attack": 0.014,
+        "decay": 0.22,
+        "sustain": 0.52,
+        "release": 0.16,
+        "volume": 0.64,
+        "pan": -0.04
+      },
+      "steps": [
+        {
+          "on": true,
+          "note": 36,
+          "sustain": 2
+        },
+        {
+          "on": false,
+          "note": 36,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 36,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 36,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 36,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 36,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 31,
+          "sustain": 2
+        },
+        {
+          "on": false,
+          "note": 36,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 36,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 34,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 36,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 29,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 36,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 36,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 31,
+          "sustain": 2
+        },
+        {
+          "on": false,
+          "note": 36,
+          "sustain": 1
+        }
+      ]
+    },
+    {
+      "id": "track-3",
+      "name": "ACID LINE",
+      "color": "#55e6a5",
+      "mute": false,
+      "synth": {
+        "waveform": "sawtooth",
+        "transpose": 0,
+        "detune": 14,
+        "cutoff": 940,
+        "resonance": 9.2,
+        "filterEnv": 3400,
+        "attack": 0.006,
+        "decay": 0.1,
+        "sustain": 0.36,
+        "release": 0.1,
+        "volume": 0.47,
+        "pan": 0.08
+      },
+      "steps": [
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 51,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 55,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 59,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 55,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 53,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 51,
+          "sustain": 2
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        }
+      ]
+    },
+    {
+      "id": "track-4",
+      "name": "CHORD BODY",
+      "color": "#53d7ff",
+      "mute": false,
+      "synth": {
+        "waveform": "triangle",
+        "transpose": 0,
+        "detune": 9,
+        "cutoff": 2600,
+        "resonance": 2.1,
+        "filterEnv": 500,
+        "attack": 0.035,
+        "decay": 0.22,
+        "sustain": 0.68,
+        "release": 0.28,
+        "volume": 0.43,
+        "pan": 0.14
+      },
+      "steps": [
+        {
+          "on": true,
+          "note": 48,
+          "sustain": 3
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 44,
+          "sustain": 2
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 46,
+          "sustain": 2
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 43,
+          "sustain": 3
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        }
+      ]
+    },
+    {
+      "id": "track-5",
+      "name": "CHORD TOP",
+      "color": "#7f9cff",
+      "mute": false,
+      "synth": {
+        "waveform": "triangle",
+        "transpose": 0,
+        "detune": 13,
+        "cutoff": 3500,
+        "resonance": 1.8,
+        "filterEnv": 700,
+        "attack": 0.04,
+        "decay": 0.24,
+        "sustain": 0.7,
+        "release": 0.3,
+        "volume": 0.36,
+        "pan": -0.15
+      },
+      "steps": [
+        {
+          "on": true,
+          "note": 63,
+          "sustain": 3
+        },
+        {
+          "on": false,
+          "note": 60,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 60,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 60,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 60,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 60,
+          "sustain": 2
+        },
+        {
+          "on": false,
+          "note": 60,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 60,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 60,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 62,
+          "sustain": 2
+        },
+        {
+          "on": false,
+          "note": 60,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 60,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 60,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 59,
+          "sustain": 3
+        },
+        {
+          "on": false,
+          "note": 60,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 60,
+          "sustain": 1
+        }
+      ]
+    },
+    {
+      "id": "track-6",
+      "name": "LEAD",
+      "color": "#c28cff",
+      "mute": false,
+      "synth": {
+        "waveform": "square",
+        "transpose": 0,
+        "detune": 12,
+        "cutoff": 2200,
+        "resonance": 4.8,
+        "filterEnv": 2400,
+        "attack": 0.006,
+        "decay": 0.15,
+        "sustain": 0.44,
+        "release": 0.13,
+        "volume": 0.38,
+        "pan": 0.12
+      },
+      "steps": [
+        {
+          "on": false,
+          "note": 67,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 67,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 67,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 67,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 67,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 70,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 67,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 72,
+          "sustain": 2
+        },
+        {
+          "on": false,
+          "note": 67,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 67,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 67,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 67,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 65,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 67,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 64,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 67,
+          "sustain": 1
+        }
+      ]
+    },
+    {
+      "id": "track-7",
+      "name": "NOISE HAT",
+      "color": "#ff79bd",
+      "mute": false,
+      "synth": {
+        "waveform": "noise",
+        "transpose": 0,
+        "detune": 0,
+        "cutoff": 7800,
+        "resonance": 1.5,
+        "filterEnv": 0,
+        "attack": 0.001,
+        "decay": 0.04,
+        "sustain": 0.04,
+        "release": 0.045,
+        "volume": 0.3,
+        "pan": 0.18
+      },
+      "steps": [
+        {
+          "on": false,
+          "note": 72,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 72,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 72,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 72,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 72,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 72,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 72,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 72,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 72,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 72,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 72,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 72,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 72,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 72,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 72,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 72,
+          "sustain": 1
+        }
+      ]
+    },
+    {
+      "id": "track-8",
+      "name": "AIR PAD",
+      "color": "#d7f36b",
+      "mute": false,
+      "synth": {
+        "waveform": "sine",
+        "transpose": 0,
+        "detune": 4,
+        "cutoff": 1450,
+        "resonance": 1.4,
+        "filterEnv": 0,
+        "attack": 0.18,
+        "decay": 0.5,
+        "sustain": 0.74,
+        "release": 0.75,
+        "volume": 0.27,
+        "pan": -0.12
+      },
+      "steps": [
+        {
+          "on": true,
+          "note": 48,
+          "sustain": 4
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 44,
+          "sustain": 4
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 51,
+          "sustain": 4
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": true,
+          "note": 43,
+          "sustain": 4
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        },
+        {
+          "on": false,
+          "note": 48,
+          "sustain": 1
+        }
+      ]
+    }
+  ],
+  "savedAt": "2026-11-15T07:30:07.436Z"
+}

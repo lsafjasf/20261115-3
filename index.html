@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="八轨步进音序器：十六步循环、合成器参数、延音、变速、段落复制与 WAV 导出。"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0d10'/%3E%3Cpath d='M13 45V32h4v13zm8 0V22h4v23zm8 0V12h4v33zm8 0V27h4v18zm8 0V18h4v27zm8 0V36h4v9z' fill='%23d7f36b'/%3E%3C/svg%3E"
+    />
+    <title>EIGHT — 八轨步进音序器</title>
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="EIGHT 音序器">
+          <span class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </span>
+          <span class="brand-copy">
+            <strong>EIGHT</strong>
+            <small>STEP SEQUENCER</small>
+          </span>
+        </a>
+
+        <div class="transport" aria-label="播放控制">
+          <button class="icon-btn stop-btn" id="stopButton" type="button" aria-label="停止">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="6" y="6" width="12" height="12" rx="1.5"></rect>
+            </svg>
+          </button>
+          <button class="play-btn" id="playButton" type="button" aria-label="播放">
+            <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 5.5 19 12 8 18.5Z"></path>
+            </svg>
+            <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="7" y="5" width="3.5" height="14" rx="1"></rect>
+              <rect x="13.5" y="5" width="3.5" height="14" rx="1"></rect>
+            </svg>
+            <span id="playLabel">播放</span>
+          </button>
+          <button
+            class="loop-btn"
+            id="loopButton"
+            type="button"
+            aria-pressed="true"
+            title="循环播放"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M17.5 7H7.8A3.8 3.8 0 0 0 4 10.8v0"></path>
+              <path d="m15 4 3 3-3 3"></path>
+              <path d="M6.5 17h9.7a3.8 3.8 0 0 0 3.8-3.8v0"></path>
+              <path d="m9 14-3 3 3 3"></path>
+            </svg>
+            <span>循环</span>
+          </button>
+        </div>
+
+        <div class="tempo-control">
+          <span class="control-label">TEMPO</span>
+          <div class="tempo-stepper">
+            <button id="tempoDown" type="button" aria-label="降低速度">−</button>
+            <label>
+              <input id="tempoInput" type="number" min="40" max="240" value="112" />
+              <span>BPM</span>
+            </label>
+            <button id="tempoUp" type="button" aria-label="提高速度">+</button>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button class="ghost-btn" id="importButton" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 15V4"></path><path d="m8 8 4-4 4 4"></path>
+              <path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"></path>
+            </svg>
+            <span>导入</span>
+          </button>
+          <button class="ghost-btn" id="saveButton" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 4h11l3 3v13H5Z"></path><path d="M8 4v6h8V4"></path>
+              <path d="M8 20v-6h8v6"></path>
+            </svg>
+            <span>保存 JSON</span>
+          </button>
+          <button class="primary-btn" id="wavButton" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3v12"></path><path d="m8 11 4 4 4-4"></path>
+              <path d="M5 19h14"></path>
+            </svg>
+            <span>导出 WAV</span>
+          </button>
+        </div>
+      </header>
+
+      <section class="project-strip" aria-label="工程信息">
+        <div class="pattern-id"><span>PATTERN</span><strong>01</strong></div>
+        <label class="project-name">
+          <span class="sr-only">工程名称</span>
+          <input id="projectName" type="text" maxlength="48" value="MIDNIGHT GRID" />
+        </label>
+        <div class="transport-readout">
+          <span class="readout-dot" id="readoutDot"></span>
+          <span class="readout-state" id="transportState">已停止</span>
+          <strong id="positionReadout">01<span>/16</span></strong>
+        </div>
+        <div class="timeline" aria-hidden="true">
+          <div class="timeline-fill" id="timelineFill"></div>
+          <div class="timeline-ticks">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+        </div>
+        <div class="resume-control">
+          <span class="control-label">停止后续播</span>
+          <div class="segmented" id="resumeSegment" role="group" aria-label="停止后续播位置">
+            <button type="button" data-mode="current" class="is-active">当前位置</button>
+            <button type="button" data-mode="start">回到起点</button>
+          </div>
+        </div>
+      </section>
+
+      <main class="workspace">
+        <section class="sequencer-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="eyebrow">16-STEP LOOP</span>
+              <h1>步进网格</h1>
+            </div>
+            <div class="panel-tools">
+              <button class="tool-btn" id="undoButton" type="button" title="撤销 (Ctrl+Z)">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m9 8-4 4 4 4"></path><path d="M5 12h8a6 6 0 0 1 6 6"></path>
+                </svg>
+              </button>
+              <button class="tool-btn" id="redoButton" type="button" title="重做 (Ctrl+Shift+Z)">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m15 8 4 4-4 4"></path><path d="M19 12h-8a6 6 0 0 0-6 6"></path>
+                </svg>
+              </button>
+              <span class="tool-divider"></span>
+              <button class="tool-btn labeled" id="copySectionButton" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="8" y="8" width="11" height="11" rx="1.5"></rect>
+                  <path d="M16 8V5H5v11h3"></path>
+                </svg>
+                <span>复制段落</span>
+              </button>
+              <button class="tool-btn labeled danger" id="clearButton" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 7h16"></path><path d="M9 7V4h6v3"></path>
+                  <path d="m7 7 1 13h8l1-13"></path>
+                </svg>
+                <span>清空</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="sequencer-scroll" id="sequencerScroll">
+            <div class="sequencer-grid" id="sequencerGrid"></div>
+          </div>
+
+          <div class="grid-footer">
+            <div class="legend">
+              <span><i class="legend-dot active"></i>音符</span>
+              <span><i class="legend-dot sustain"></i>延音</span>
+              <span><i class="legend-dot beat"></i>四分拍</span>
+            </div>
+            <p>点击空白格写入音符；点击音符选中，点右上角 × 或双击可关闭。</p>
+          </div>
+        </section>
+
+        <aside class="inspector" aria-label="轨道参数">
+          <div class="inspector-track-head">
+            <span class="track-number" id="inspectorNumber">01</span>
+            <div>
+              <span class="eyebrow">SELECTED TRACK</span>
+              <input id="trackNameInput" class="track-name-input" type="text" maxlength="28" />
+            </div>
+            <button class="mute-btn is-on" id="muteButton" type="button" aria-pressed="false">
+              MUTE
+            </button>
+          </div>
+
+          <section class="step-editor">
+            <div class="section-title">
+              <span>STEP <b id="selectedStepNumber">01</b></span>
+              <button class="power-toggle" id="stepPowerButton" type="button" aria-pressed="true">
+                <i></i><span>ON</span>
+              </button>
+            </div>
+            <div class="step-editor-row">
+              <label class="field">
+                <span>音符</span>
+                <select id="stepNoteSelect"></select>
+              </label>
+              <div class="field sustain-field">
+                <span>延音长度</span>
+                <div class="sustain-picker" id="sustainPicker">
+                  <button type="button" data-sustain="1">1</button>
+                  <button type="button" data-sustain="2">2</button>
+                  <button type="button" data-sustain="3">3</button>
+                  <button type="button" data-sustain="4">4</button>
+                </div>
+              </div>
+            </div>
+            <div class="step-preview">
+              <span id="stepPreviewNote">C3</span>
+              <i></i>
+              <small id="stepPreviewText">1 步 · 0.134 秒</small>
+            </div>
+          </section>
+
+          <section class="synth-panel">
+            <div class="section-title">
+              <span>SYNTH VOICE</span>
+              <span class="accent-tag" id="waveformTag">SAW</span>
+            </div>
+            <div class="waveform-picker" id="waveformPicker">
+              <button type="button" data-waveform="sine"><svg viewBox="0 0 32 16"><path d="M1 8c4-8 6-8 10 0s6 8 10 0 6-8 10 0"></path></svg><span>SINE</span></button>
+              <button type="button" data-waveform="triangle"><svg viewBox="0 0 32 16"><path d="m1 13 7-10 8 10L23 3l8 10"></path></svg><span>TRI</span></button>
+              <button type="button" data-waveform="sawtooth"><svg viewBox="0 0 32 16"><path d="m1 13 10-10v10L21 3v10L31 3"></path></svg><span>SAW</span></button>
+              <button type="button" data-waveform="square"><svg viewBox="0 0 32 16"><path d="M1 13V3h10v10h10V3h10"></path></svg><span>SQR</span></button>
+              <button type="button" data-waveform="noise"><svg viewBox="0 0 32 16"><path d="m1 9 3-5 3 9 3-11 3 8 3-4 3 7 3-9 3 8 3-3 3 3 3-5"></path></svg><span>NOISE</span></button>
+            </div>
+
+            <div class="controls-grid" id="synthControls">
+              <label class="slider-control" data-control="cutoff">
+                <span><b>Cutoff</b><output></output></span>
+                <input type="range" min="0" max="1000" value="500" />
+              </label>
+              <label class="slider-control" data-control="resonance">
+                <span><b>Resonance</b><output></output></span>
+                <input type="range" min="0" max="1000" value="200" />
+              </label>
+              <label class="slider-control" data-control="filterEnv">
+                <span><b>Filter Env</b><output></output></span>
+                <input type="range" min="0" max="1000" value="300" />
+              </label>
+              <label class="slider-control" data-control="detune">
+                <span><b>Detune</b><output></output></span>
+                <input type="range" min="0" max="1000" value="500" />
+              </label>
+              <label class="slider-control" data-control="attack">
+                <span><b>Attack</b><output></output></span>
+                <input type="range" min="0" max="1000" value="30" />
+              </label>
+              <label class="slider-control" data-control="decay">
+                <span><b>Decay</b><output></output></span>
+                <input type="range" min="0" max="1000" value="300" />
+              </label>
+              <label class="slider-control" data-control="sustain">
+                <span><b>Sustain</b><output></output></span>
+                <input type="range" min="0" max="1000" value="500" />
+              </label>
+              <label class="slider-control" data-control="release">
+                <span><b>Release</b><output></output></span>
+                <input type="range" min="0" max="1000" value="300" />
+              </label>
+              <label class="slider-control" data-control="volume">
+                <span><b>Volume</b><output></output></span>
+                <input type="range" min="0" max="1000" value="500" />
+              </label>
+              <label class="slider-control" data-control="pan">
+                <span><b>Pan</b><output></output></span>
+                <input type="range" min="0" max="1000" value="500" />
+              </label>
+            </div>
+            <label class="transpose-row">
+              <span>声部移调</span>
+              <select id="transposeSelect">
+                <option value="-24">−2 八度</option>
+                <option value="-12">−1 八度</option>
+                <option value="0" selected>原调</option>
+                <option value="12">+1 八度</option>
+                <option value="24">+2 八度</option>
+              </select>
+            </label>
+          </section>
+
+          <section class="track-summary">
+            <div>
+              <span class="eyebrow">TRACK LEVEL</span>
+              <div class="summary-meter"><i id="trackMeter"></i></div>
+            </div>
+            <div class="summary-stats">
+              <span><b id="activeStepCount">0</b> 音符</span>
+              <span><b id="sustainStepCount">0</b> 延音</span>
+            </div>
+          </section>
+        </aside>
+      </main>
+
+      <footer class="app-footer">
+        <span>8 VOICES · 16 STEPS · SAMPLE-ACCURATE CLOCK</span>
+        <span id="saveStatus">自动保存已就绪</span>
+      </footer>
+    </div>
+
+    <dialog class="modal" id="copyDialog">
+      <form method="dialog" id="copyForm">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow">SECTION TOOL</span>
+            <h2>复制段落</h2>
+          </div>
+          <button class="modal-close" value="cancel" type="submit" aria-label="关闭">×</button>
+        </div>
+        <p class="modal-copy">复制源区间内的音符、步进状态与延音长度。</p>
+        <div class="copy-range-visual" id="copyRangeVisual"></div>
+        <div class="form-grid">
+          <label class="field"><span>源起点</span><select id="copySource"></select></label>
+          <label class="field"><span>段落长度</span><select id="copyLength"></select></label>
+          <label class="field"><span>目标起点</span><select id="copyDestination"></select></label>
+          <label class="field"><span>作用轨道</span>
+            <select id="copyScope">
+              <option value="all">全部八轨</option>
+              <option value="current">当前轨道</option>
+            </select>
+          </label>
+        </div>
+        <p class="form-note" id="copyNote"></p>
+        <div class="modal-actions">
+          <button class="ghost-btn" value="cancel" type="submit">取消</button>
+          <button class="primary-btn" id="confirmCopyButton" value="default" type="submit">应用复制</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="modal export-modal" id="exportDialog">
+      <form method="dialog" id="exportForm">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow">OFFLINE RENDER</span>
+            <h2>导出 WAV</h2>
+          </div>
+          <button class="modal-close" value="cancel" type="submit" aria-label="关闭">×</button>
+        </div>
+        <p class="modal-copy">使用与实时播放相同的合成器逐采样离线渲染，生成 16-bit 立体声 WAV。</p>
+        <div class="form-grid">
+          <label class="field"><span>循环遍数</span>
+            <select id="exportCycles">
+              <option value="1">1 遍 · 十六步</option>
+              <option value="2" selected>2 遍 · 衔接检查</option>
+              <option value="4">4 遍 · 扩展循环</option>
+            </select>
+          </label>
+          <label class="field"><span>采样率</span>
+            <select id="exportSampleRate">
+              <option value="44100" selected>44.1 kHz</option>
+              <option value="48000">48 kHz</option>
+            </select>
+          </label>
+        </div>
+        <div class="render-summary">
+          <div><span>工程</span><strong id="exportProjectName">MIDNIGHT GRID</strong></div>
+          <div><span>格式</span><strong>WAV · 16-bit · Stereo</strong></div>
+          <div><span>预计时长</span><strong id="exportDuration">00:00</strong></div>
+        </div>
+        <div class="render-progress" id="renderProgress" hidden>
+          <i id="renderProgressBar"></i>
+        </div>
+        <div class="modal-actions">
+          <button class="ghost-btn" value="cancel" type="submit">取消</button>
+          <button class="primary-btn" id="confirmExportButton" value="default" type="submit">
+            渲染并下载
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="clearDialog">
+      <form method="dialog" id="clearForm">
+        <div class="modal-head">
+          <div><span class="eyebrow">RESET PATTERN</span><h2>清空当前轨道？</h2></div>
+          <button class="modal-close" value="cancel" type="submit" aria-label="关闭">×</button>
+        </div>
+        <p class="modal-copy">这会移除所选轨道的全部音符与延音，仍可通过撤销恢复。</p>
+        <div class="modal-actions">
+          <button class="ghost-btn" value="cancel" type="submit">取消</button>
+          <button class="danger-btn" value="default" type="submit">清空轨道</button>
+        </div>
+      </form>
+    </dialog>
+
+    <input id="fileInput" type="file" accept="application/json,.json" hidden />
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
