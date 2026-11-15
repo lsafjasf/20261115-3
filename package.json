@@ -1,0 +1,25 @@
+{
+  "name": "uid469",
+  "version": "1.0.0",
+  "description": "程序化多层建筑剖切可视化（WebGL，无外部模型）",
+  "scripts": {
+    "serve": "node tests/server.mjs . 8123",
+    "test": "node tests/e2e.mjs",
+    "shots": "node tests/shots.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lsafjasf/20261115-3.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/lsafjasf/20261115-3/issues"
+  },
+  "homepage": "https://github.com/lsafjasf/20261115-3#readme",
+  "devDependencies": {
+    "playwright": "^1.65.1"
+  }
+}

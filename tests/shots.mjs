@@ -1,0 +1,17 @@
+import { chromium } from 'playwright';
+const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+await page.goto('http://127.0.0.1:8123', { waitUntil: 'networkidle' });
+await page.waitForFunction(() => window.APP_RUNTIME);
+await page.waitForTimeout(400);
+await page.evaluate(() => { const s = APP_RUNTIME.state; s.clip.enabled = true; s.clip.axis='y'; s.clip.height=6; s.clip.dir='below'; APP_RUNTIME.syncUI(); });
+await page.waitForTimeout(350);
+await page.screenshot({ path: 'artifacts/screenshots/05-clip-plane-indicator.png' });
+await page.evaluate(() => { const s = APP_RUNTIME.state; s.clip.axis='x'; s.clip.height=12; s.clip.dir='below'; APP_RUNTIME.syncUI(); });
+await page.waitForTimeout(350);
+await page.screenshot({ path: 'artifacts/screenshots/06-clip-x-axis.png' });
+await page.evaluate(() => { const s = APP_RUNTIME.state; s.clip.axis='y'; s.clip.height=10; s.clip.dir='above'; APP_RUNTIME.syncUI(); });
+await page.waitForTimeout(350);
+await page.screenshot({ path: 'artifacts/screenshots/07-clip-reverse-warm.png' });
+console.log('shots done');
+await browser.close();

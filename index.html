@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>多层建筑剖切可视化（程序化生成 · WebGL）</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <canvas id="glcanvas"></canvas>
+    <canvas id="overlay"></canvas>
+
+    <aside id="panel">
+      <h1>多层建筑剖切</h1>
+      <p class="sub">程序化生成 · 无外部模型 · WebGL1</p>
+
+      <section>
+        <h2>楼层显示</h2>
+        <div id="floorToggles" class="toggles"></div>
+      </section>
+
+      <section>
+        <h2>管线层（相互独立）</h2>
+        <div id="pipeToggles" class="toggles"></div>
+      </section>
+
+      <section>
+        <h2>房间用途</h2>
+        <div id="usageLegend" class="legend"></div>
+        <label class="check"><input type="checkbox" id="labelToggle" checked /> 显示房间名称</label>
+      </section>
+
+      <section>
+        <h2>剖切控制</h2>
+        <label class="check"><input type="checkbox" id="clipEnable" checked /> 启用剖切</label>
+        <label>剖切高度 <span id="clipHeightVal" class="val"></span>
+          <input type="range" id="clipHeight" min="0" max="12.5" step="0.1" value="8" />
+        </label>
+        <label>剖切方向
+          <select id="clipDir">
+            <option value="below" selected>保留下方（向下看楼层内部）</option>
+            <option value="above">保留上方（方向反转）</option>
+          </select>
+        </label>
+        <label>剖切轴
+          <select id="clipAxis">
+            <option value="y" selected>水平剖切（Y 轴）</option>
+            <option value="x">沿 X 轴竖剖</option>
+            <option value="z">沿 Z 轴竖剖</option>
+          </select>
+        </label>
+      </section>
+
+      <section>
+        <h2>视角</h2>
+        <div class="row">
+          <button id="saveView">保存当前视角</button>
+          <button id="resetView">重置</button>
+        </div>
+        <ul id="viewList" class="viewlist"></ul>
+        <div class="row">
+          <button id="exportPng">导出当前画面 PNG</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>验证</h2>
+        <div class="row">
+          <button id="runTests">运行内置自检</button>
+        </div>
+        <pre id="testOutput" class="testoutput"></pre>
+      </section>
+    </aside>
+
+    <div id="tooltip" class="tooltip hidden"></div>
+    <div id="hint" class="hint">左键旋转 · 右键/Shift 平移 · 滚轮缩放 · 点击房间查看面积与容量</div>
+  </div>
+
+  <script src="src/math.js"></script>
+  <script src="src/model.js"></script>
+  <script src="src/gl.js"></script>
+  <script src="src/app.js"></script>
+  <script src="src/selftest.js"></script>
+</body>
+</html>
