@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "project": {
+    "id": "missing-fields-demo",
+    "description": "该工程故意缺少 name、edges 和节点 title。",
+    "nodes": [
+      {
+        "id": "node-1",
+        "type": "task"
+      },
+      {
+        "title": "没有 ID 的节点"
+      }
+    ]
+  }
+}

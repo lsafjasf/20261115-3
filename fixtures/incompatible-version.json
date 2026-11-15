@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 2,
+  "project": {
+    "id": "future-schema-demo",
+    "name": "来自未来版本",
+    "description": "v2 文件不能由 v1 导入器直接恢复。",
+    "settings": {},
+    "nodes": [],
+    "edges": []
+  }
+}

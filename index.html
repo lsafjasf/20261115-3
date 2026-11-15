@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="带分层校验、错误定位和安全默认值的 JSON 工程导入器"
+    />
+    <title>SafeBoard · JSON 工程导入</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="SafeBoard 首页">
+        <span class="brand-mark" aria-hidden="true">SB</span>
+        <span>SafeBoard</span>
+      </a>
+      <div class="topbar-meta">
+        <span class="schema-badge">Schema v1</span>
+        <span class="privacy-note">文件仅在本地解析</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="intro" aria-labelledby="page-title">
+        <div class="intro-copy">
+          <p class="eyebrow">PROJECT IMPORT / 工程迁移</p>
+          <h1 id="page-title">可靠地导入每一个 JSON 工程</h1>
+          <p class="lead">
+            分层校验会先确认文件和版本，再检查结构与字段。任何坏文件都不会覆盖当前工程，也不会让页面崩溃。
+          </p>
+          <div class="guard-list" aria-label="导入保护">
+            <span><b>01</b> 解析定位</span>
+            <span><b>02</b> 版本闸门</span>
+            <span><b>03</b> 字段约束</span>
+            <span><b>04</b> 安全默认值</span>
+          </div>
+        </div>
+
+        <div
+          class="drop-zone"
+          id="dropZone"
+          tabindex="0"
+          role="button"
+          aria-label="拖放 JSON 文件或点击选择"
+        >
+          <span class="drop-icon" aria-hidden="true">↓</span>
+          <p class="drop-title">拖放 JSON 文件到这里</p>
+          <p class="drop-help">或选择本地文件，最大 8 MB</p>
+          <input
+            id="fileInput"
+            type="file"
+            accept=".json,application/json"
+            hidden
+          />
+          <div class="drop-actions">
+            <button class="primary-button" id="chooseButton" type="button">
+              选择文件
+            </button>
+            <button class="quiet-button" id="demoButton" type="button">
+              载入有效示例
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="fixture-strip" aria-label="验证样例">
+        <span class="fixture-label">验证样例</span>
+        <button class="fixture-chip is-valid" data-fixture="valid-project.json">
+          有效工程
+        </button>
+        <button class="fixture-chip" data-fixture="missing-fields.json">
+          缺字段
+        </button>
+        <button class="fixture-chip" data-fixture="wrong-types.json">
+          类型错误
+        </button>
+        <button class="fixture-chip" data-fixture="oversized-array.json">
+          超大数组
+        </button>
+        <button class="fixture-chip" data-fixture="incompatible-version.json">
+          版本不兼容
+        </button>
+      </section>
+
+      <section
+        class="outcome"
+        id="outcomePanel"
+        aria-live="polite"
+        aria-labelledby="outcomeTitle"
+        hidden
+      >
+        <div class="outcome-heading">
+          <span class="outcome-icon" id="outcomeIcon" aria-hidden="true">✓</span>
+          <div>
+            <p class="outcome-kicker" id="outcomeKicker">IMPORT RESULT</p>
+            <h2 id="outcomeTitle">导入结果</h2>
+            <p class="outcome-detail" id="outcomeDetail"></p>
+          </div>
+          <div class="outcome-actions">
+            <button class="quiet-button" id="clearButton" type="button">
+              清除结果
+            </button>
+          </div>
+        </div>
+        <div class="issue-lists" id="issueLists"></div>
+      </section>
+
+      <section
+        class="project-panel"
+        id="projectPanel"
+        aria-labelledby="projectTitle"
+        hidden
+      >
+        <div class="project-heading">
+          <div>
+            <p class="eyebrow" id="projectKicker">CURRENT PROJECT</p>
+            <h2 id="projectTitle">当前工程</h2>
+            <p class="project-description" id="projectDescription"></p>
+          </div>
+          <button class="export-button" id="exportButton" type="button">
+            导出含未知字段
+          </button>
+        </div>
+
+        <dl class="summary-grid" id="summaryGrid"></dl>
+        <div class="project-meta" id="projectMeta"></div>
+
+        <section class="data-section" aria-labelledby="nodesHeading">
+          <div class="section-heading">
+            <h3 id="nodesHeading">节点</h3>
+            <span id="nodesCount" class="count-pill"></span>
+          </div>
+          <div class="table-shell" id="nodesTable"></div>
+        </section>
+
+        <section class="data-section" aria-labelledby="edgesHeading">
+          <div class="section-heading">
+            <h3 id="edgesHeading">连线</h3>
+            <span id="edgesCount" class="count-pill"></span>
+          </div>
+          <div class="table-shell" id="edgesTable"></div>
+        </section>
+
+        <section class="data-section" aria-labelledby="assetsHeading">
+          <div class="section-heading">
+            <h3 id="assetsHeading">资源</h3>
+            <span id="assetsCount" class="count-pill"></span>
+          </div>
+          <div class="table-shell" id="assetsTable"></div>
+        </section>
+
+        <section class="data-section" id="unknownSection" aria-labelledby="unknownHeading">
+          <div class="section-heading">
+            <h3 id="unknownHeading">未知字段</h3>
+            <span id="unknownCount" class="count-pill"></span>
+          </div>
+          <p class="section-note">
+            这些字段不属于当前 schema，但已原样保留，导出时会回到原路径。
+          </p>
+          <div id="unknownList" class="unknown-list"></div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>SafeBoard importer</span>
+      <span>Parse → Version → Shape → Fields → Constraints</span>
+    </footer>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

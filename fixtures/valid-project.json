@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "futureRootField": {
+    "ownerTeam": "design-systems"
+  },
+  "project": {
+    "id": "aurora-launch",
+    "name": "Aurora 发布看板",
+    "description": "用于验证完整恢复、默认值和未知字段保留。",
+    "createdAt": "2026-10-01T08:30:00.000Z",
+    "updatedAt": "2026-11-15T06:00:00.000Z",
+    "settings": {
+      "theme": "dark",
+      "autosave": true,
+      "gridSize": 16,
+      "snapToGrid": false,
+      "locale": "zh-CN"
+    },
+    "nodes": [
+      {
+        "id": "design-review",
+        "type": "task",
+        "title": "设计评审",
+        "x": 120,
+        "y": 80,
+        "width": 180,
+        "height": 104,
+        "tags": ["design", "review"],
+        "data": {
+          "owner": "Mina",
+          "priority": "P1"
+        },
+        "futureNodeField": {
+          "accent": "violet"
+        }
+      },
+      {
+        "id": "build",
+        "type": "task",
+        "title": "构建候选版本",
+        "x": 420,
+        "y": 80,
+        "width": 160,
+        "height": 96,
+        "tags": ["engineering"],
+        "data": {
+          "owner": "Theo"
+        }
+      },
+      {
+        "id": "launch",
+        "type": "milestone",
+        "title": "正式发布",
+        "x": 720,
+        "y": 320,
+        "width": 160,
+        "height": 96,
+        "tags": ["milestone"],
+        "data": {
+          "date": "2026-11-20"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "review-to-build",
+        "from": "design-review",
+        "to": "build",
+        "label": "通过评审",
+        "data": {
+          "style": "solid"
+        }
+      },
+      {
+        "id": "build-to-launch",
+        "from": "build",
+        "to": "launch",
+        "label": "发布",
+        "data": {}
+      }
+    ],
+    "assets": [
+      {
+        "id": "brand-sheet",
+        "name": "品牌规范.pdf",
+        "kind": "document",
+        "path": "assets/brand-sheet.pdf",
+        "sizeBytes": 482304,
+        "metadata": {
+          "mimeType": "application/pdf"
+        },
+        "futureAssetField": true
+      }
+    ],
+    "futureProjectField": {
+      "boardColor": "#6d5efc"
+    }
+  }
+}

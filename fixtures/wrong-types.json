@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "project": {
+    "id": 42,
+    "name": ["Wrong", "Types"],
+    "description": false,
+    "createdAt": "not-a-date",
+    "settings": {
+      "theme": "neon",
+      "autosave": "yes",
+      "gridSize": 4.5,
+      "locale": 123
+    },
+    "nodes": [
+      {
+        "id": "node-1",
+        "title": 123,
+        "x": "10",
+        "y": null,
+        "width": -5,
+        "tags": "not-an-array",
+        "data": []
+      }
+    ],
+    "edges": [
+      {
+        "id": 1,
+        "from": "node-1",
+        "to": 7,
+        "label": []
+      }
+    ],
+    "assets": "not-an-array"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "safe-json-project-importer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node scripts/dev-server.mjs",
+    "test": "node --test",
+    "generate:fixtures": "node scripts/generate-oversized-fixture.mjs"
+  }
+}
