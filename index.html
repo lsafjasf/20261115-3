@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>十秒录音修复台</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>十秒录音修复台</h1>
+    <p class="sub">合成故障：底噪 · 爆音 · 削波 · 相位抵消 — 四节点链修复，旁路即时生效</p>
+  </header>
+
+  <section class="panel">
+    <h2>修复节点（点击切换旁路，立即重新处理）</h2>
+    <div id="bypassBar" class="bypass-bar"></div>
+    <div class="actions">
+      <button id="repairAll">一键全部启用</button>
+      <button id="playOrig">试听原始</button>
+      <button id="playProc">试听处理后</button>
+      <button id="exportWav" class="primary">导出 WAV</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>频谱对比（红＝原始，绿＝处理后）</h2>
+    <canvas id="spectrum" width="900" height="320"></canvas>
+  </section>
+
+  <section class="panel meters">
+    <h2>峰值 / 时长</h2>
+    <table>
+      <thead>
+        <tr><th>指标</th><th>原始录音</th><th>处理后</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>峰值 (peak)</td><td id="origPeak">-</td><td id="procPeak">-</td></tr>
+        <tr><td>RMS</td><td id="origRms">-</td><td id="procRms">-</td></tr>
+        <tr><td>削波/越限采样数</td><td id="origClips">-</td><td id="procClips">-</td></tr>
+        <tr><td>时长</td><td id="origDur">-</td><td id="procDur">-</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer>导出文件与试听使用同一份 Float32 处理缓冲，保证 WAV 与预览逐采样一致。</footer>
+
+  <script src="js/dsp.js"></script>
+  <script src="js/wav.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

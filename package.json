@@ -1,0 +1,13 @@
+{
+  "name": "audio-repair-console",
+  "version": "1.0.0",
+  "description": "十秒故障录音合成与四节点修复台（滤波/相位、去齿音、门限、软削波）",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/repair.test.js tests/ui.test.js",
+    "serve": "node -e \"const http=require('http'),fs=require('fs'),p=require('path');const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css'};http.createServer((q,r)=>{const f=p.join(process.cwd(),q.url==='/'?'index.html':q.url);fs.readFile(f,(e,d)=>{if(e){r.writeHead(404);return r.end('404')}r.writeHead(200,{'Content-Type':mime[p.extname(f)]||'application/octet-stream'});r.end(d)})}).listen(8080,()=>console.log('http://localhost:8080'))\""
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

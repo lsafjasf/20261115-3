@@ -1,0 +1,56 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 24px;
+  background: #0b1119;
+  color: #d7e0ea;
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+header h1 { margin: 0 0 4px; font-size: 22px; }
+.sub { margin: 0 0 20px; color: #8aa0b6; font-size: 13px; }
+
+.panel {
+  background: #131c28;
+  border: 1px solid #22303f;
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 18px;
+}
+
+.panel h2 { margin: 0 0 12px; font-size: 15px; color: #aebfd2; }
+
+.bypass-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+
+button {
+  background: #1d2a3a;
+  color: #cfe0f2;
+  border: 1px solid #31465c;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+button:hover { border-color: #4cc2a5; }
+
+button.bypass.on { background: #173a33; border-color: #2f7d6a; color: #8fe6cf; }
+button.bypass.bypassed { background: #3a2320; border-color: #7d3a2f; color: #f0a094; }
+button.primary { background: #1f4d7a; border-color: #3477b3; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+canvas {
+  width: 100%;
+  max-width: 900px;
+  background: #0f1620;
+  border-radius: 6px;
+}
+
+table { border-collapse: collapse; width: 100%; max-width: 640px; font-size: 13px; }
+th, td { padding: 8px 12px; border-bottom: 1px solid #22303f; text-align: left; }
+th { color: #8aa0b6; font-weight: 600; }
+td { font-family: monospace; }
+
+footer { color: #63788d; font-size: 12px; margin-top: 6px; }
