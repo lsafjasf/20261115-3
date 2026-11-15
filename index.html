@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>OffscreenCanvas Worker 渲染对比</title>
+<style>
+  body { margin: 0; font-family: system-ui, sans-serif; background: #101418; color: #dde3ea; }
+  #bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 12px; background: #1b222b; }
+  button, label { font-size: 13px; }
+  button { padding: 4px 10px; cursor: pointer; }
+  #stage { position: relative; }
+  canvas { display: block; width: 100vw; height: calc(100vh - 96px); }
+  #stats { display: flex; gap: 24px; padding: 6px 12px; background: #161c23; font: 12px/1.6 ui-monospace, monospace; white-space: pre; }
+  .warn { color: #ff9d5c; }
+  .ok { color: #7ee2a8; }
+</style>
+</head>
+<body>
+<div id="bar">
+  <button id="modeBtn">模式：离屏 Worker</button>
+  <button id="pauseBtn">暂停</button>
+  <label><input type="checkbox" id="ly0" checked> 远景层</label>
+  <label><input type="checkbox" id="ly1" checked> 中景层</label>
+  <label><input type="checkbox" id="ly2" checked> 近景层</label>
+  <button id="blockBtn">阻塞主线程 50ms</button>
+  <span>滚轮 = 滚动相机</span>
+</div>
+<div id="stage"><canvas id="cv"></canvas></div>
+<div id="stats">
+  <span id="statMain">主线程帧: --</span>
+  <span id="statRender">渲染耗时: --</span>
+  <span id="statMsg">Worker 消息往返: --</span>
+  <span id="statBlock">阻塞影响: --</span>
+</div>
+<script src="scene.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
