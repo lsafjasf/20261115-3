@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>温室群能源管理 · 24 小时模拟</title>
+<style>
+  body { margin: 0; background: #10151c; color: #dfe7ef; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; display: flex; flex-direction: column; align-items: center; }
+  h1 { font-size: 18px; margin: 10px 0 4px; }
+  #tip { font-size: 12px; color: #8fa1b3; margin-bottom: 8px; }
+  canvas { background: #1a2230; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,.5); }
+  #panel { display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap; justify-content: center; max-width: 1000px; }
+  .card { background: #1c2635; border: 1px solid #2c3a4d; border-radius: 8px; padding: 8px 12px; font-size: 12px; min-width: 150px; }
+  .card h3 { margin: 0 0 6px; font-size: 13px; color: #9fd0ff; }
+  .card label { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin: 4px 0; }
+  .card input[type=range] { width: 80px; }
+  .card button { background: #2c3a4d; color: #dfe7ef; border: 1px solid #41546e; border-radius: 4px; padding: 2px 10px; cursor: pointer; font-size: 12px; }
+  .card button.on { background: #2f7d4f; border-color: #46a06b; }
+  .card button:disabled { opacity: .4; cursor: not-allowed; }
+  #global { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
+  #global button { background: #2c3a4d; color: #dfe7ef; border: 1px solid #41546e; border-radius: 4px; padding: 4px 14px; cursor: pointer; }
+  #msg { margin-top: 8px; font-size: 14px; min-height: 20px; }
+</style>
+</head>
+<body>
+<h1>温室群能源管理模拟</h1>
+<div id="tip">目标:24 小时内保持三块作物健康(≥50),结束时电量 ≥20%。寒潮 17:00 来袭,注意锅炉燃料与设备切换损耗。</div>
+<canvas id="cv" width="1000" height="560"></canvas>
+<div id="global">
+  <button id="btnStart">开始</button>
+  <button id="btnSpeed">速度 ×1</button>
+  <button id="btnBoiler">锅炉:关</button>
+  <button id="btnPump">水泵:关</button>
+  <button id="btnReset">重置</button>
+</div>
+<div id="panel"></div>
+<div id="msg"></div>
+<script src="sim.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
