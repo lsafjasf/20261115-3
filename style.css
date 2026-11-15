@@ -1,0 +1,54 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  background: #14171c; color: #dfe5ec; min-height: 100vh;
+}
+header {
+  display: flex; align-items: center; gap: 24px;
+  padding: 10px 20px; background: #1d222b; border-bottom: 1px solid #2c3440;
+}
+header h1 { font-size: 18px; }
+#clock { font: 600 20px/1 monospace; color: #7fd4ff; }
+#verdict { margin-left: auto; font-size: 14px; color: #9fb0c3; }
+#verdict.ok { color: #7fc97f; }
+#verdict.bad { color: #ff7b7b; }
+
+main { display: flex; gap: 14px; padding: 14px; align-items: flex-start; }
+aside#panel {
+  width: 300px; flex: none; background: #1d222b; border: 1px solid #2c3440;
+  border-radius: 8px; padding: 12px 14px; font-size: 13px;
+}
+aside h2 { font-size: 13px; color: #7fd4ff; margin: 12px 0 6px; }
+aside h2:first-child { margin-top: 0; }
+aside label { display: block; margin: 6px 0; color: #b8c4d2; }
+aside input[type=range] { width: 100%; accent-color: #7fd4ff; }
+aside select {
+  background: #14171c; color: #dfe5ec; border: 1px solid #2c3440;
+  border-radius: 4px; padding: 2px 4px;
+}
+.sensor-block { border: 1px solid #2c3440; border-radius: 6px; padding: 6px 8px; margin-bottom: 8px; }
+.sensor-block .sname { font-weight: 600; }
+.btns { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+button {
+  background: #2b6cb0; color: #fff; border: 0; border-radius: 6px;
+  padding: 8px 10px; cursor: pointer; font-size: 13px;
+}
+button:hover { background: #3182ce; }
+#btnReset { background: #4a5568; }
+#btnExport { background: #2f855a; }
+.hint { color: #8494a7; font-size: 12px; margin-top: 10px; line-height: 1.5; }
+#log { list-style: none; max-height: 150px; overflow-y: auto; font-size: 12px; }
+#log li { padding: 3px 0; border-bottom: 1px dashed #2c3440; color: #b8c4d2; }
+#log li.warn { color: #ffb84d; }
+#log li.alert { color: #ff7b7b; font-weight: 600; }
+#log li.good { color: #7fc97f; }
+
+section#views { flex: 1; min-width: 0; }
+canvas {
+  display: block; width: 100%; background: #10131a;
+  border: 1px solid #2c3440; border-radius: 8px; margin-bottom: 12px;
+}
+section#views h2 { font-size: 13px; color: #7fd4ff; margin: 4px 0 6px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th, td { border: 1px solid #2c3440; padding: 5px 8px; text-align: center; }
+th { background: #1d222b; color: #9fb0c3; }
