@@ -1,0 +1,16 @@
+{
+  "name": "brand-palette-manager",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "品牌色板管理器：主色/辅助色/中性色、规则派生、颜色锁定、双主题预览、CSS 与 PNG 导出",
+  "scripts": {
+    "test": "node test/verify.js && node test/dom.test.js",
+    "test:logic": "node test/verify.js",
+    "test:dom": "node test/dom.test.js",
+    "serve": "node server.js"
+  },
+  "devDependencies": {
+    "jsdom": "^31.0.1"
+  }
+}

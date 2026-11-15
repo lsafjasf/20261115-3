@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>品牌色板管理器</title>
+  <link rel="stylesheet" href="src/styles.css" />
+</head>
+<body>
+  <style id="palette-vars"></style>
+  <header class="app-header">
+    <div>
+      <h1>品牌色板管理器</h1>
+      <p>主色 · 辅助色 · 中性色，派生色按规则自动更新，锁定的颜色保持不变。</p>
+    </div>
+    <div class="toolbar">
+      <button id="export-css" type="button" class="tool-btn">导出 CSS 变量</button>
+      <button id="export-png" type="button" class="tool-btn tool-btn--accent">导出 PNG 色卡</button>
+      <button id="reset" type="button" class="tool-btn">重置</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel panel--tokens">
+      <h2>色板令牌</h2>
+      <p class="hint">修改任意基础色（彩色选择器），未锁定的派生色立即按规则重算；点击锁定可冻结单个颜色。</p>
+      <div id="token-list"></div>
+    </section>
+
+    <section class="panel panel--preview">
+      <h2>组件预览（两套）</h2>
+      <p class="hint">卡片、按钮与图表均由 CSS 变量驱动，同一色板同时渲染浅色与深色两套预览。</p>
+      <div id="previews" class="previews"></div>
+    </section>
+
+    <section class="panel panel--css">
+      <h2>CSS 变量导出预览</h2>
+      <textarea id="css-output" readonly spellcheck="false"></textarea>
+    </section>
+  </main>
+
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
