@@ -1,0 +1,367 @@
+:root {
+  --bg: #14181f;
+  --panel: #1d232d;
+  --panel-2: #252d3a;
+  --border: #343e4e;
+  --text: #e8edf5;
+  --muted: #93a0b4;
+  --accent: #4f8cff;
+  --danger: #ff5d6c;
+  --warning: #f5b942;
+  --ok: #35c98f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', system-ui,
+    -apple-system, Segoe UI, Roboto, sans-serif;
+  font-size: 14px;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.toolbar h1 {
+  font-size: 17px;
+  margin: 0;
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+button,
+.file-button {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 7px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+button:hover,
+.file-button:hover {
+  border-color: var(--accent);
+}
+
+button.danger {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(360px, 1fr) minmax(380px, 1.1fr);
+  gap: 16px;
+  padding: 16px 20px;
+}
+
+.cue-panel,
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cue-list-head,
+.transport,
+.editor-head,
+.settings-row,
+.time-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cue-list-head {
+  justify-content: space-between;
+  color: var(--muted);
+}
+
+.duration-field input,
+.time-row input,
+.settings-row input,
+.settings-row select,
+textarea {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 7px 9px;
+  font: inherit;
+}
+
+#cue-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow: auto;
+}
+
+.cue-item {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 11px;
+  cursor: pointer;
+}
+
+.cue-item.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) inset;
+}
+
+.cue-item .cue-time {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+.cue-item .cue-zh {
+  margin-top: 3px;
+}
+
+.cue-item .cue-en {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.cue-item.has-error {
+  border-color: var(--danger);
+}
+
+.cue-editor {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.editor-head {
+  justify-content: space-between;
+}
+
+.editor-head h2,
+.right-panel h2 {
+  font-size: 14px;
+  margin: 0;
+}
+
+.time-row label,
+.settings-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.checkbox {
+  flex-direction: row !important;
+  align-items: center;
+}
+
+.language-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+textarea {
+  width: 100%;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.preview-box {
+  background: var(--panel-2);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--muted);
+  font-size: 12.5px;
+  white-space: pre-wrap;
+  word-break: normal;
+}
+
+/* Timeline ----------------------------------------------------------- */
+
+.timeline {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 26px 12px 12px;
+  min-height: 120px;
+  cursor: pointer;
+}
+
+.timeline-ruler {
+  position: absolute;
+  top: 6px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+#timeline-tracks {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.track-block {
+  position: absolute;
+  height: 20px;
+  border-radius: 5px;
+  background: rgba(79, 140, 255, 0.35);
+  border: 1px solid var(--accent);
+  font-size: 11px;
+  overflow: hidden;
+  padding: 2px 5px;
+  white-space: nowrap;
+}
+
+.track-block.overlap {
+  background: rgba(255, 93, 108, 0.35);
+  border-color: var(--danger);
+}
+
+.playhead {
+  position: absolute;
+  top: 22px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--warning);
+  pointer-events: none;
+}
+
+/* Stage preview ------------------------------------------------------ */
+
+.stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 6%;
+}
+
+.stage-cue {
+  max-width: 90%;
+  display: flex;
+  color: #fff;
+  text-align: center;
+}
+
+.stage-cue.stacked {
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stage-cue.side-by-side {
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.stage-line {
+  background: rgba(0, 0, 0, 0.62);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: 1px 0;
+  text-shadow: 0 1px 2px #000;
+}
+
+.stage-lang-zh {
+  font-size: 20px;
+}
+
+.stage-lang-en {
+  font-size: 14px;
+  color: #d7e3ff;
+}
+
+.validation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.validation-list li {
+  border-radius: 7px;
+  padding: 7px 10px;
+  font-size: 12.5px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.validation-list .error {
+  border-color: var(--danger);
+}
+
+.validation-list .warning {
+  border-color: var(--warning);
+}
+
+.validation-list .ok {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+dialog {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--danger);
+  border-radius: 12px;
+  max-width: 460px;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+#blocked-reasons {
+  color: var(--danger);
+}

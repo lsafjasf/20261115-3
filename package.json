@@ -1,0 +1,13 @@
+{
+  "name": "uid489-bilingual-subtitle-editor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mixed zh/en/digit bilingual subtitle editor with shared clock, width/wrapping controls, overlap and bounds validation, and WebVTT round trip.",
+  "scripts": {
+    "verify": "node scripts/verify.cjs",
+    "test:ui": "node scripts/ui-smoke.cjs",
+    "test": "node scripts/verify.cjs && node scripts/ui-smoke.cjs",
+    "serve": "node scripts/serve.cjs"
+  },
+  "license": "UNLICENSED"
+}

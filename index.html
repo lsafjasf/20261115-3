@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>双语字幕编辑器 · Bilingual Subtitle Editor</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="toolbar">
+      <h1>双语字幕编辑器</h1>
+      <div class="toolbar-actions">
+        <label class="file-button">
+          导入 WebVTT
+          <input id="vtt-import" type="file" accept=".vtt,text/vtt" hidden />
+        </label>
+        <button id="export-vtt" type="button">导出 WebVTT</button>
+        <label class="file-button">
+          加载音频
+          <input id="audio-file" type="file" accept="audio/*" hidden />
+        </label>
+        <button id="add-cue" type="button">+ 新建字幕</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="cue-panel" aria-label="字幕列表与编辑">
+        <div class="cue-list-head">
+          <span>字幕列表（共 <b id="cue-count">0</b> 条）</span>
+          <label class="duration-field">
+            时间轴时长(ms)
+            <input id="timeline-duration" type="number" min="0" step="100" />
+          </label>
+        </div>
+        <ol id="cue-list"></ol>
+
+        <div id="cue-editor" class="cue-editor" hidden>
+          <div class="editor-head">
+            <h2 id="editor-title">编辑字幕</h2>
+            <button id="delete-cue" class="danger" type="button">删除</button>
+          </div>
+
+          <div class="time-row">
+            <label>
+              开始
+              <input id="cue-start" type="text" placeholder="00:00:01.000" />
+            </label>
+            <label>
+              结束
+              <input id="cue-end" type="text" placeholder="00:00:03.500" />
+            </label>
+          </div>
+
+          <div class="settings-row">
+            <label>
+              最大宽度(px)
+              <input id="cue-width" type="number" min="40" step="10" />
+            </label>
+            <label>
+              布局
+              <select id="cue-layout">
+                <option value="stacked">上下堆叠（中文在上）</option>
+                <option value="side-by-side">左右并排（各占一半宽度）</option>
+              </select>
+            </label>
+            <label class="checkbox">
+              <input id="cue-wrap" type="checkbox" />
+              自动换行
+            </label>
+          </div>
+
+          <nav class="language-tabs" role="tablist">
+            <button type="button" class="tab active" data-language="zh" role="tab">
+              中文
+            </button>
+            <button type="button" class="tab" data-language="en" role="tab">
+              English
+            </button>
+          </nav>
+
+          <textarea
+            id="cue-text"
+            rows="5"
+            placeholder="输入当前语言的字幕文本，切换语言不会清空另一种语言"
+          ></textarea>
+
+          <div class="preview-box" id="wrapped-preview" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="right-panel">
+        <div class="transport">
+          <button id="play-pause" type="button">▶ 播放</button>
+          <span id="clock-readout">00:00:00.000</span>
+          <audio id="audio" controls hidden></audio>
+          <button id="fallback-note" type="button" title="未加载音频时使用内置静音时钟">
+            时钟：等待音频
+          </button>
+        </div>
+
+        <div class="timeline" id="timeline">
+          <div class="timeline-ruler">
+            <span>0s</span><span>3s</span><span>6s</span><span>9s</span><span>12s</span>
+          </div>
+          <div id="timeline-tracks"></div>
+          <div id="playhead" class="playhead"></div>
+        </div>
+
+        <h2>视频预览（按当前设置渲染）</h2>
+        <div id="stage" class="stage">
+          <div id="stage-cue" class="stage-cue"></div>
+        </div>
+
+        <h2>校验结果（有错误时阻止导出）</h2>
+        <ul id="validation-list" class="validation-list"></ul>
+      </section>
+    </main>
+
+    <dialog id="blocked-dialog">
+      <h3>无法导出</h3>
+      <p>存在重叠或越界等错误，请先修复：</p>
+      <ul id="blocked-reasons"></ul>
+      <form method="dialog"><button>知道了</button></form>
+    </dialog>
+
+    <script src="src/core.js"></script>
+    <script src="src/vtt.js"></script>
+    <script src="src/storage.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
