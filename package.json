@@ -1,0 +1,11 @@
+{
+  "name": "procedural-city-map",
+  "version": "1.0.0",
+  "description": "Procedural city map with annotations, decluttering, scale bar, north arrow and PNG/GeoJSON export.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test \"test/*.test.js\"",
+    "serve": "node --experimental-serve ."
+  }
+}
