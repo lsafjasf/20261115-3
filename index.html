@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#071017" />
+    <title>KINETIC · 夜班仓库调度</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23071017'/%3E%3Cpath d='M32 9l19 11v23L32 55 13 43V20z' fill='none' stroke='%234fe2d0' stroke-width='3'/%3E%3Ccircle cx='32' cy='32' r='6' fill='%234fe2d0'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <div>
+            <div class="brand-name">KINETIC<span>//</span>GRID</div>
+            <div class="brand-sub">AUTONOMOUS FULFILLMENT LAB</div>
+          </div>
+        </div>
+
+        <div class="shift-tag">
+          <span class="live-dot"></span>
+          <strong>夜班 07</strong>
+          <span>固定序列 / 20:00</span>
+        </div>
+
+        <div class="top-metrics" aria-label="班次状态">
+          <div class="top-stat">
+            <span>班次时间</span>
+            <strong id="clock">00:00</strong>
+          </div>
+          <div class="top-stat">
+            <span>完成</span>
+            <strong><b id="doneCount">0</b><em>/100</em></strong>
+          </div>
+          <div class="top-stat top-stat-battery">
+            <span>平均电量</span>
+            <strong id="avgBattery">--%</strong>
+          </div>
+          <button class="audio-button is-muted" id="audioButton" type="button" aria-label="打开音景">
+            <span class="audio-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            <span id="audioLabel">音景关</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="workbench">
+        <aside class="left-panel">
+          <section class="mission-card">
+            <div class="eyebrow">SHIFT DIRECTIVE / 07</div>
+            <div class="mission-heading">
+              <div>
+                <h1>夜班搬运</h1>
+                <p>12 台 AMR · 8 站点 · 3 充电道</p>
+              </div>
+              <div class="shift-progress" id="shiftProgress">
+                <svg viewBox="0 0 64 64" aria-hidden="true">
+                  <circle class="ring-track" cx="32" cy="32" r="27"></circle>
+                  <circle class="ring-value" id="progressRing" cx="32" cy="32" r="27"></circle>
+                </svg>
+                <b id="progressPct">0%</b>
+              </div>
+            </div>
+            <div class="objective">
+              <span class="objective-mark">◎</span>
+              <div>
+                <strong>20:00 内完成 80% 任务</strong>
+                <p>实时检测环形等待；停摆即视为未达标。</p>
+              </div>
+            </div>
+            <div class="progress-line">
+              <span id="progressFill"></span>
+              <i class="threshold" title="80% 达标线"></i>
+            </div>
+            <div class="progress-caption">
+              <span>已处理 <b id="progressValue">0</b></span>
+              <span>目标 80</span>
+            </div>
+          </section>
+
+          <section class="kpi-grid" aria-label="运行指标">
+            <article class="kpi">
+              <span class="kpi-label">运行密度</span>
+              <strong id="densityValue">0%</strong>
+              <div class="mini-meter"><i id="densityMeter"></i></div>
+            </article>
+            <article class="kpi">
+              <span class="kpi-label">等待时长</span>
+              <strong><b id="waitValue">0</b><em>s</em></strong>
+              <div class="mini-meter amber"><i id="waitMeter"></i></div>
+            </article>
+            <article class="kpi">
+              <span class="kpi-label">充电队列</span>
+              <strong id="chargeQueueValue">0</strong>
+              <span class="kpi-foot">3 条通道</span>
+            </article>
+            <article class="kpi" id="deadlockKpi">
+              <span class="kpi-label">环路等待</span>
+              <strong id="deadlockValue">0</strong>
+              <span class="kpi-foot" id="deadlockFoot">监测中</span>
+            </article>
+          </section>
+
+          <section class="run-controls">
+            <div class="panel-label">
+              <span>班次控制</span>
+              <span id="runStateLabel">运行中</span>
+            </div>
+            <div class="button-row">
+              <button class="primary-button" id="playButton" type="button">
+                <span class="pause-icon" aria-hidden="true"></span>
+                <span class="play-text">暂停</span>
+              </button>
+              <button class="ghost-button" id="resetButton" type="button">重置</button>
+            </div>
+            <button class="scenario-button" id="scenarioButton" type="button">
+              <span class="scenario-icon">⌁</span>
+              跳到 02:10 拥堵剧本
+            </button>
+            <div class="speed-row" aria-label="模拟速度">
+              <span>模拟倍率</span>
+              <div class="segmented" id="speedButtons">
+                <button type="button" data-speed="1">1×</button>
+                <button type="button" data-speed="4" class="active">4×</button>
+                <button type="button" data-speed="10">10×</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="audio-card">
+            <div class="panel-label">
+              <span>现场音景</span>
+              <span id="audioState">待机</span>
+            </div>
+            <div class="sound-wave" id="soundWave" aria-hidden="true">
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            </div>
+            <p>音高与底噪随机器人运行密度实时变化。</p>
+          </section>
+        </aside>
+
+        <section class="map-panel">
+          <div class="map-header">
+            <div>
+              <div class="eyebrow">LIVE FLOOR / SECTOR A</div>
+              <h2>仓库实时拓扑</h2>
+            </div>
+            <div class="map-legend">
+              <span><i class="legend-robot"></i>机器人</span>
+              <span><i class="legend-station"></i>站点</span>
+              <span><i class="legend-charger"></i>充电</span>
+              <span><i class="legend-block"></i>禁行</span>
+            </div>
+          </div>
+
+          <div class="canvas-wrap" id="canvasWrap">
+            <canvas id="warehouseCanvas" aria-label="仓库网格、机器人轨迹和充电队列"></canvas>
+            <div class="map-coordinates top" aria-hidden="true">01&nbsp;&nbsp;&nbsp;02&nbsp;&nbsp;&nbsp;03&nbsp;&nbsp;&nbsp;04&nbsp;&nbsp;&nbsp;05&nbsp;&nbsp;&nbsp;06&nbsp;&nbsp;&nbsp;07&nbsp;&nbsp;&nbsp;08</div>
+
+            <div class="deadlock-alert" id="deadlockAlert" hidden>
+              <div class="alert-symbol">!</div>
+              <div class="alert-copy">
+                <span>RING WAIT / 环形等待</span>
+                <strong id="deadlockRobots">R02 → R05 → R08 → R11</strong>
+                <p>四台机器人互相等待。启用环路让行，释放最低优先级车辆。</p>
+              </div>
+              <button type="button" id="fixDeadlockButton">启用环路让行</button>
+            </div>
+
+            <div class="map-toolbar">
+              <button class="tool-button active" id="inspectTool" type="button" data-tool="inspect">
+                <span class="cursor-icon">⌖</span> 查看
+              </button>
+              <button class="tool-button" id="blockTool" type="button" data-tool="block">
+                <span class="block-icon">╱</span> 布设禁行
+              </button>
+              <button class="tool-button subtle" id="clearZonesButton" type="button">清除禁行</button>
+            </div>
+
+            <div class="robot-inspector" id="robotInspector">
+              <span class="inspector-dot"></span>
+              <div>
+                <strong id="inspectorName">R01</strong>
+                <span id="inspectorStatus">前往 S3 取货</span>
+              </div>
+              <b id="inspectorBattery">84%</b>
+            </div>
+          </div>
+
+          <div class="map-footer">
+            <div class="floor-key">
+              <span class="key-line cyan"></span>
+              <span>最短路径</span>
+              <span class="key-line amber"></span>
+              <span>充电 / 等待</span>
+              <span class="key-line red"></span>
+              <span>环路锁定</span>
+            </div>
+            <div class="sim-note"><span class="live-dot"></span> 固定任务种子 0715-A</div>
+          </div>
+        </section>
+
+        <aside class="right-panel">
+          <section class="rules-card">
+            <div class="panel-title">
+              <div>
+                <span class="eyebrow">POLICY</span>
+                <h3>等待规则</h3>
+              </div>
+              <span class="policy-count">3</span>
+            </div>
+
+            <label class="rule-row critical">
+              <span class="rule-icon">↻</span>
+              <span class="rule-copy">
+                <strong>环路让行</strong>
+                <small>检测闭环时，低优先级车辆退出并重寻路</small>
+              </span>
+              <input type="checkbox" id="loopYieldToggle" />
+              <span class="toggle" aria-hidden="true"></span>
+            </label>
+
+            <label class="rule-row">
+              <span class="rule-icon">ϟ</span>
+              <span class="rule-copy">
+                <strong>低电接管</strong>
+                <small>电量低于 24% 时中止派单，走最短充电路径</small>
+              </span>
+              <input type="checkbox" id="lowBatteryToggle" checked />
+              <span class="toggle" aria-hidden="true"></span>
+            </label>
+
+            <label class="rule-row">
+              <span class="rule-icon">≡</span>
+              <span class="rule-copy">
+                <strong>公平充电队列</strong>
+                <small>充电位按抵达顺序分配，不因剩余电量插队</small>
+              </span>
+              <input type="checkbox" id="fairQueueToggle" checked />
+              <span class="toggle" aria-hidden="true"></span>
+            </label>
+          </section>
+
+          <section class="zone-card">
+            <div class="panel-title compact">
+              <div>
+                <span class="eyebrow">NO-GO ZONE</span>
+                <h3>临时禁行区</h3>
+              </div>
+              <span class="zone-count"><b id="zoneCount">0</b> 格</span>
+            </div>
+            <p>选择「布设禁行」后，在开放通道点击/拖拽。双击地图可清空。</p>
+            <div class="zone-status">
+              <span class="zone-swatch"></span>
+              <span id="toolHint">当前：查看机器人</span>
+            </div>
+          </section>
+
+          <section class="tasks-card">
+            <div class="panel-title">
+              <div>
+                <span class="eyebrow">FIXED FLOW</span>
+                <h3>任务序列</h3>
+              </div>
+              <span class="task-count"><b id="openTaskCount">0</b> 待执行</span>
+            </div>
+            <div class="task-table-head">
+              <span>任务 / 路线</span>
+              <span>优先级</span>
+            </div>
+            <div class="task-list" id="taskList" aria-live="polite"></div>
+          </section>
+        </aside>
+      </main>
+
+      <footer class="eventbar">
+        <div class="event-label"><span class="live-dot"></span> EVENT STREAM</div>
+        <div class="event-ticker" id="eventTicker">
+          <span><b>00:00</b> 班次启动，12 台机器人完成自检。</span>
+        </div>
+        <div class="density-readout">
+          <span>运行密度</span>
+          <div class="density-bars" id="densityBars">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+          <b id="densityFooter">0%</b>
+        </div>
+      </footer>
+    </div>
+
+    <div class="result-modal" id="resultModal" hidden>
+      <div class="result-card">
+        <span class="result-kicker" id="resultKicker">SHIFT COMPLETE</span>
+        <h2 id="resultTitle">班次达标</h2>
+        <p id="resultCopy">任务完成率超过 80%，且未发生未解除的环路等待。</p>
+        <div class="result-stats">
+          <div><span>完成率</span><strong id="resultRate">0%</strong></div>
+          <div><span>完成单量</span><strong id="resultDone">0</strong></div>
+          <div><span>死锁次数</span><strong id="resultDeadlocks">0</strong></div>
+        </div>
+        <button class="primary-button result-action" id="resultResetButton" type="button">再跑一局</button>
+      </div>
+    </div>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
