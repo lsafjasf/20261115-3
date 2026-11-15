@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>十六步鼓机</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="machine">
+    <header class="topbar">
+      <h1>DRUM-16</h1>
+      <div class="transport">
+        <button id="playBtn" class="play">▶ 播放</button>
+        <label class="bpm">BPM
+          <input id="bpmInput" type="number" min="40" max="300" step="1">
+        </label>
+        <label class="kit">音色组
+          <select id="kitSelect"></select>
+        </label>
+      </div>
+      <div class="io">
+        <button id="saveBtn">保存补丁</button>
+        <button id="loadBtn">载入补丁</button>
+        <button id="exportBtn">导出 WAV</button>
+        <input id="fileInput" type="file" accept="application/json" hidden>
+      </div>
+    </header>
+
+    <section id="grid" class="grid" aria-label="步进音序器"></section>
+
+    <section class="step-editor">
+      <h2 id="editorTitle">未选中步</h2>
+      <div class="sliders">
+        <label>力度 <span id="velVal"></span>
+          <input id="velSlider" type="range" min="0" max="1" step="0.01">
+        </label>
+        <label>声像 <span id="panVal"></span>
+          <input id="panSlider" type="range" min="-1" max="1" step="0.01">
+        </label>
+        <label>概率 <span id="probVal"></span>
+          <input id="probSlider" type="range" min="0" max="1" step="0.01">
+        </label>
+      </div>
+      <p class="hint">点击格子开关触发；再次点击选中后可编辑力度 / 声像 / 概率。补丁自动存入 localStorage。</p>
+    </section>
+
+    <footer id="status" class="status">就绪</footer>
+  </main>
+  <script src="js/core.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
