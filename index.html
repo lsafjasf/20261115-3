@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Atlas 创作工作室：支持键盘操作的可访问设计画布。" />
+    <title>Atlas · 秋日画册</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#artboard">跳到创作画布</a>
+    <div id="dialog-focus-sentinel" class="focus-sentinel" tabindex="-1" aria-hidden="true"></div>
+
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand" aria-label="Atlas 创作工作室">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3 19 10.5 4 22 19H3Z" /><path d="m7.5 14.5 7.5-1" /></svg>
+          </span>
+          <span class="brand-name">Atlas</span>
+        </div>
+
+        <div class="project-path" aria-label="当前项目">
+          <span class="muted">秋日品牌</span>
+          <span class="path-separator" aria-hidden="true">/</span>
+          <span>画册封面</span>
+          <span class="draft-badge">草稿</span>
+        </div>
+
+        <div class="topbar-actions">
+          <button class="icon-button" id="open-shortcuts" type="button" aria-label="查看键盘快捷键">
+            <span aria-hidden="true">?</span>
+          </button>
+          <button class="button button-quiet" id="open-share" type="button">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4" /></svg>
+            分享
+          </button>
+          <button class="button button-primary" id="open-export" type="button">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14" /></svg>
+            导出
+          </button>
+        </div>
+      </header>
+
+      <main class="studio-grid" id="workspace">
+        <aside class="tool-panel" aria-label="工具面板">
+          <div class="panel-heading tool-heading">
+            <span>工具</span>
+            <button class="mini-icon" type="button" aria-label="工具面板选项">•••</button>
+          </div>
+          <div class="tool-list" role="toolbar" aria-label="画布工具" aria-orientation="vertical">
+            <button class="tool-button is-active" type="button" data-tool="select" aria-pressed="true">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m5 3 13 8-6 1.5L9 19 5 3Z" /></svg>
+              <span>选择</span><kbd>V</kbd>
+            </button>
+            <button class="tool-button" type="button" data-tool="frame" aria-pressed="false">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" /><path d="M8 4v16M16 4v16M4 8h16M4 16h16" /></svg>
+              <span>画框</span><kbd>F</kbd>
+            </button>
+            <button class="tool-button" type="button" data-tool="text" aria-pressed="false">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 6V4h14v2M12 4v16M8 20h8" /></svg>
+              <span>文本</span><kbd>T</kbd>
+            </button>
+            <button class="tool-button" type="button" data-tool="shape" aria-pressed="false">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" /><circle cx="12" cy="12" r="4" /></svg>
+              <span>形状</span><kbd>R</kbd>
+            </button>
+            <button class="tool-button" type="button" data-tool="pen" aria-pressed="false">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m4 20 4-1 11-11-3-3L5 16l-1 4Z" /><path d="m14 6 4 4" /></svg>
+              <span>画笔</span><kbd>P</kbd>
+            </button>
+          </div>
+
+          <div class="tool-divider" aria-hidden="true"></div>
+          <label class="field-label compact" for="tool-search">图层搜索</label>
+          <div class="search-field">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" /><path d="m16 16 4 4" /></svg>
+            <input id="tool-search" type="search" placeholder="搜索图层" autocomplete="off" />
+          </div>
+          <button class="new-board-button" id="open-board" type="button">
+            <span aria-hidden="true">＋</span><span>新建画板</span>
+          </button>
+
+          <div class="tool-panel-footer">
+            <button class="avatar-button" type="button" aria-label="当前账户：林夏">夏</button>
+            <span class="sync-state"><span class="sync-dot" aria-hidden="true"></span>已同步</span>
+          </div>
+        </aside>
+
+        <section class="stage" aria-label="设计画布区域">
+          <header class="stage-toolbar">
+            <div class="stage-breadcrumb">
+              <button type="button" class="icon-button small" aria-label="返回项目">←</button>
+              <span class="stage-title">画册封面</span>
+              <span class="stage-meta">1080 × 720</span>
+            </div>
+            <div class="stage-actions">
+              <button class="icon-button small" type="button" id="undo-button" aria-label="撤销" disabled>
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 7 4 12l5 5M5 12h9a5 5 0 0 1 0 10" /></svg>
+              </button>
+              <button class="icon-button small" type="button" id="redo-button" aria-label="重做" disabled>
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 7 5 5-5 5M19 12H10a5 5 0 0 0 0 10" /></svg>
+              </button>
+              <span class="toolbar-divider" aria-hidden="true"></span>
+              <button class="zoom-button" id="zoom-out" type="button" aria-label="缩小画布">−</button>
+              <span class="zoom-value" id="zoom-value">82%</span>
+              <button class="zoom-button" id="zoom-in" type="button" aria-label="放大画布">＋</button>
+            </div>
+          </header>
+
+          <div class="canvas-viewport">
+            <div class="artboard-wrap">
+              <div
+                class="artboard"
+                id="artboard"
+                tabindex="0"
+                role="application"
+                aria-label="画册封面画布"
+                aria-describedby="canvas-help"
+              >
+                <div class="canvas-object hero-title" data-object="title" aria-label="标题：Golden hour">
+                  <span class="eyebrow">AUTUMN — 2026</span>
+                  <span class="hero-copy">Golden hour,<br />made slow.</span>
+                </div>
+                <div class="canvas-object sun-orb" data-object="orb" aria-label="夕阳圆形图形"></div>
+                <div class="canvas-object photo-card" data-object="photo" aria-label="秋日风景图片">
+                  <div class="photo-sun"></div>
+                  <div class="photo-hill hill-one"></div>
+                  <div class="photo-hill hill-two"></div>
+                  <div class="photo-grain"></div>
+                </div>
+                <div class="canvas-object caption" data-object="caption" aria-label="说明文字">
+                  <span>THE QUIET<br />COLLECTION</span>
+                  <small>NO. 04 / FIELD NOTES</small>
+                </div>
+                <div class="canvas-object accent-pill" data-object="pill" aria-label="装饰标签">ATLAS STUDIO</div>
+                <div class="canvas-object accent-line" data-object="line" aria-label="装饰线条"></div>
+              </div>
+              <div class="selection-note" id="selection-note" aria-live="polite">标题已选中</div>
+            </div>
+          </div>
+
+          <footer class="canvas-footer">
+            <span class="canvas-help" id="canvas-help">
+              <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> 移动 · <kbd>Delete</kbd> 删除 · <kbd>R</kbd> 矩形 · <kbd>T</kbd> 文本
+            </span>
+            <span class="zoom-status">适配窗口 · 82%</span>
+          </footer>
+        </section>
+
+        <aside class="inspector-panel" aria-label="检查器与图层">
+          <div class="panel-heading">
+            <span>图层</span>
+            <button class="mini-icon" type="button" aria-label="添加图层">＋</button>
+          </div>
+          <div class="layer-list" role="tree" aria-label="画布图层">
+            <button class="layer-item is-selected" type="button" data-layer="title" role="treeitem" aria-selected="true">
+              <span class="layer-type" aria-hidden="true">T</span>
+              <span>主标题</span>
+              <span class="layer-lock" aria-hidden="true">◇</span>
+            </button>
+            <button class="layer-item" type="button" data-layer="photo" role="treeitem" aria-selected="false">
+              <span class="layer-type image" aria-hidden="true">▧</span>
+              <span>秋日风景</span>
+              <span class="layer-lock" aria-hidden="true">◇</span>
+            </button>
+            <button class="layer-item" type="button" data-layer="orb" role="treeitem" aria-selected="false">
+              <span class="layer-type shape" aria-hidden="true">●</span>
+              <span>夕阳圆形</span>
+              <span class="layer-lock" aria-hidden="true">◇</span>
+            </button>
+            <button class="layer-item" type="button" data-layer="caption" role="treeitem" aria-selected="false">
+              <span class="layer-type" aria-hidden="true">T</span>
+              <span>说明文字</span>
+              <span class="layer-lock" aria-hidden="true">◇</span>
+            </button>
+            <button class="layer-item" type="button" data-layer="pill" role="treeitem" aria-selected="false">
+              <span class="layer-type shape" aria-hidden="true">▭</span>
+              <span>工作室标签</span>
+              <span class="layer-lock" aria-hidden="true">◇</span>
+            </button>
+          </div>
+
+          <div class="inspector-divider" aria-hidden="true"></div>
+          <div class="panel-heading sub-heading">
+            <span>位置与尺寸</span>
+            <span class="selected-label" id="selected-label">主标题</span>
+          </div>
+          <div class="property-grid">
+            <label class="property-field"><span>X</span><input id="position-x" type="number" value="58" /></label>
+            <label class="property-field"><span>Y</span><input id="position-y" type="number" value="54" /></label>
+            <label class="property-field"><span>W</span><input id="size-w" type="number" value="340" /></label>
+            <label class="property-field"><span>H</span><input id="size-h" type="number" value="200" /></label>
+          </div>
+
+          <div class="inspector-divider" aria-hidden="true"></div>
+          <div class="panel-heading sub-heading">
+            <span>外观</span>
+            <button class="mini-icon" type="button" aria-label="更多外观设置">•••</button>
+          </div>
+          <div class="appearance-row">
+            <span class="property-caption">填充</span>
+            <span class="swatch" aria-hidden="true"></span>
+            <span class="swatch-value">#17372E</span>
+          </div>
+          <div class="appearance-row">
+            <span class="property-caption">不透明度</span>
+            <span class="opacity-value">100%</span>
+          </div>
+          <div class="inspector-tip">
+            <span aria-hidden="true">⌘</span>
+            <p>选中画布后，使用方向键微调位置。</p>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <dialog class="modal" id="share-dialog" aria-labelledby="share-title" aria-describedby="share-description">
+      <div class="modal-card">
+        <form id="share-form" novalidate>
+          <header class="modal-header">
+            <div class="modal-heading">
+              <span class="modal-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4" /></svg>
+              </span>
+              <div>
+                <h2 id="share-title">分享画册封面</h2>
+                <p id="share-description">邀请团队成员查看或共同编辑。</p>
+              </div>
+            </div>
+            <button class="modal-close" type="button" data-dialog-close aria-label="关闭分享弹窗">×</button>
+          </header>
+
+          <div class="modal-body">
+            <div class="field-group">
+              <label for="share-email">受邀成员邮箱</label>
+              <input
+                id="share-email"
+                name="email"
+                type="email"
+                placeholder="name@studio.com"
+                autocomplete="email"
+                aria-describedby="share-email-hint share-errors"
+                data-autofocus
+              />
+              <p class="field-hint" id="share-email-hint">支持使用逗号一次邀请多人。</p>
+            </div>
+            <p class="form-error" id="share-errors" role="alert" aria-live="assertive" aria-atomic="true" hidden></p>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label for="share-permission">权限</label>
+                <select id="share-permission">
+                  <option value="view">可查看</option>
+                  <option value="comment" selected>可评论</option>
+                  <option value="edit">可编辑</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label for="share-expiry">链接有效期</label>
+                <select id="share-expiry">
+                  <option value="7">7 天</option>
+                  <option value="30" selected>30 天</option>
+                  <option value="forever">永久</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="share-message">附加消息 <span class="optional">可选</span></label>
+              <textarea id="share-message" rows="3" placeholder="一起看看这版封面吧。"></textarea>
+            </div>
+
+            <label class="check-row">
+              <input type="checkbox" id="share-copy" checked />
+              <span>发送后自动复制分享链接</span>
+            </label>
+          </div>
+
+          <footer class="modal-footer">
+            <button class="button button-quiet" type="button" data-dialog-close>取消</button>
+            <button class="button button-primary" type="submit">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m4 12 16-8-6 16-2-7-8-1Z" /></svg>
+              发送邀请
+            </button>
+          </footer>
+        </form>
+      </div>
+    </dialog>
+
+    <dialog class="modal" id="export-dialog" aria-labelledby="export-title" aria-describedby="export-description">
+      <div class="modal-card">
+        <form id="export-form" novalidate>
+          <header class="modal-header">
+            <div class="modal-heading">
+              <span class="modal-icon warm" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14" /></svg>
+              </span>
+              <div>
+                <h2 id="export-title">导出画册封面</h2>
+                <p id="export-description">选择格式与尺寸，生成可交付文件。</p>
+              </div>
+            </div>
+            <button class="modal-close" type="button" data-dialog-close aria-label="关闭导出弹窗">×</button>
+          </header>
+
+          <div class="modal-body">
+            <fieldset class="format-fieldset">
+              <legend>文件格式</legend>
+              <div class="format-options">
+                <label class="format-card">
+                  <input type="radio" name="format" value="png" checked data-autofocus />
+                  <span class="format-icon png" aria-hidden="true">PNG</span>
+                  <span><strong>PNG</strong><small>适合网页与透明背景</small></span>
+                  <span class="radio-dot" aria-hidden="true"></span>
+                </label>
+                <label class="format-card">
+                  <input type="radio" name="format" value="pdf" />
+                  <span class="format-icon pdf" aria-hidden="true">PDF</span>
+                  <span><strong>PDF</strong><small>适合打印与审阅</small></span>
+                  <span class="radio-dot" aria-hidden="true"></span>
+                </label>
+                <label class="format-card">
+                  <input type="radio" name="format" value="jpg" />
+                  <span class="format-icon jpg" aria-hidden="true">JPG</span>
+                  <span><strong>JPG</strong><small>文件更小，便于分享</small></span>
+                  <span class="radio-dot" aria-hidden="true"></span>
+                </label>
+              </div>
+            </fieldset>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label for="export-scale">尺寸倍率</label>
+                <select id="export-scale">
+                  <option value="1">1× · 1080 × 720</option>
+                  <option value="2" selected>2× · 2160 × 1440</option>
+                  <option value="3">3× · 3240 × 2160</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label for="export-quality">质量</label>
+                <select id="export-quality">
+                  <option value="standard">标准</option>
+                  <option value="high" selected>高质量</option>
+                  <option value="max">最高</option>
+                </select>
+              </div>
+            </div>
+            <p class="form-error" id="export-errors" role="alert" aria-live="assertive" aria-atomic="true" hidden></p>
+            <label class="check-row">
+              <input type="checkbox" id="export-background" checked />
+              <span>包含画板背景</span>
+            </label>
+          </div>
+
+          <footer class="modal-footer">
+            <button class="button button-quiet" type="button" data-dialog-close>取消</button>
+            <button class="button button-primary" type="submit">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14" /></svg>
+              生成文件
+            </button>
+          </footer>
+        </form>
+      </div>
+    </dialog>
+
+    <dialog class="modal modal-compact" id="board-dialog" aria-labelledby="board-title" aria-describedby="board-description">
+      <div class="modal-card">
+        <form id="board-form" novalidate>
+          <header class="modal-header">
+            <div class="modal-heading">
+              <span class="modal-icon green" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" /><path d="M12 8v8M8 12h8" /></svg>
+              </span>
+              <div>
+                <h2 id="board-title">新建画板</h2>
+                <p id="board-description">创建一个用于探索版式的空白画板。</p>
+              </div>
+            </div>
+            <button class="modal-close" type="button" data-dialog-close aria-label="关闭新建画板弹窗">×</button>
+          </header>
+
+          <div class="modal-body">
+            <div class="field-group">
+              <label for="board-name">画板名称</label>
+              <input
+                id="board-name"
+                name="boardName"
+                type="text"
+                placeholder="例如：社交媒体方图"
+                autocomplete="off"
+                aria-describedby="board-name-hint board-name-error"
+                data-autofocus
+              />
+              <p class="field-hint" id="board-name-hint">名称会显示在图层与导出历史中。</p>
+              <p class="form-error" id="board-name-error" role="alert" aria-live="assertive" aria-atomic="true" hidden></p>
+            </div>
+
+            <fieldset class="size-fieldset">
+              <legend>预设尺寸</legend>
+              <div class="size-options">
+                <label class="size-card">
+                  <input type="radio" name="boardSize" value="1080x1080" checked />
+                  <span aria-hidden="true">□</span>
+                  <strong>方图</strong>
+                  <small>1080 × 1080</small>
+                </label>
+                <label class="size-card">
+                  <input type="radio" name="boardSize" value="1920x1080" />
+                  <span aria-hidden="true">▭</span>
+                  <strong>宽屏</strong>
+                  <small>1920 × 1080</small>
+                </label>
+                <label class="size-card">
+                  <input type="radio" name="boardSize" value="1080x1920" />
+                  <span aria-hidden="true">▯</span>
+                  <strong>竖版</strong>
+                  <small>1080 × 1920</small>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+
+          <footer class="modal-footer">
+            <button class="button button-quiet" type="button" data-dialog-close>取消</button>
+            <button class="button button-primary" type="submit">创建画板</button>
+          </footer>
+        </form>
+      </div>
+    </dialog>
+
+    <dialog class="modal modal-compact" id="shortcuts-dialog" aria-labelledby="shortcuts-title">
+      <div class="modal-card">
+        <header class="modal-header">
+          <div class="modal-heading">
+            <span class="modal-icon neutral" aria-hidden="true">⌘</span>
+            <div>
+              <h2 id="shortcuts-title">键盘快捷键</h2>
+              <p>不离开键盘也能完成主要操作。</p>
+            </div>
+          </div>
+          <button class="modal-close" type="button" data-dialog-close aria-label="关闭快捷键弹窗">×</button>
+        </header>
+        <div class="modal-body shortcuts-body">
+          <div class="shortcut-row"><span>移动选中图层</span><span><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd></span></div>
+          <div class="shortcut-row"><span>快速移动 10px</span><span><kbd>Shift</kbd> + 方向键</span></div>
+          <div class="shortcut-row"><span>删除选中图层</span><span><kbd>Delete</kbd></span></div>
+          <div class="shortcut-row"><span>新建矩形 / 文本</span><span><kbd>R</kbd> / <kbd>T</kbd></span></div>
+          <div class="shortcut-row"><span>打开快捷键帮助</span><span><kbd>?</kbd></span></div>
+          <p class="shortcut-note">输入框、下拉框和文本域聚焦时，画布快捷键会自动暂停。</p>
+        </div>
+        <footer class="modal-footer">
+          <button class="button button-primary" type="button" data-dialog-close data-autofocus>知道了</button>
+        </footer>
+      </div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>
